@@ -5,9 +5,11 @@ import { signIn, signOut } from "next-auth/react";
 const Page = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     const result = await signIn("credentials", {
       redirect: false,
       email,
@@ -24,6 +26,7 @@ const Page = () => {
   return (
     <div>
       <h1>Login Page</h1>
+      {error && <p className="text-red-700">ERROR!</p>}
       <form onSubmit={handleSubmit}>
         <label htmlFor="email">Email</label>
         <input

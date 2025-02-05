@@ -28,13 +28,11 @@ export default async function RootLayout({
   const session: Session | null = await getServerSession(authOptions as any);
   return (
     <html lang="en">
-      <Provider session={session}>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          {children}
-        </body>
-      </Provider>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <Provider session={session}>{children}</Provider>
+      </body>
     </html>
   );
 }

@@ -1,63 +1,43 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import { DefaultSession, DefaultUser, NextAuthOptions } from "next-auth";
+import type { DefaultSession, NextAuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
+import { access } from "fs";
 
 export interface Session extends DefaultSession {
-  accessToken?: string;
-}
-
-export interface User extends DefaultUser {
-  strapiToken?: string;
-  role?: any;
+  token?: string;
 }
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      // The name to display on the sign in form (e.g. "Sign in with...")
       name: "Credentials",
-      // `credentials` is used to generate a form on the sign in page.
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        email: { label: "Username", type: "text", placeholder: "jsmith" },
+        email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         try {
-          const strapiResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/login`,
+          console.log(credentials);
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/login`,
             {
               method: "POST",
-              headers: {
-                "Content-type": "application/json",
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                email: credentials!.email,
-                password: credentials!.password,
+                email: credentials?.email,
+                password: credentials?.password,
               }),
             }
           );
-
-          if (!strapiResponse.ok) {
-            // return error to signIn callback
-            const contentType = strapiResponse.headers.get("content-type");
-            if (contentType === "application/json; charset=utf-8") {
-              const data = await strapiResponse.json();
-              throw new Error(data.error);
-            } else {
-              throw new Error(strapiResponse.statusText);
-            }
+          const data = await res.json();
+          console.log("Api Response:", data);
+          if (!res.ok) {
+            throw new Error(data.message || "Login failed");
           }
 
-          const data = await strapiResponse.json();
-
-          return {
-            ...data.user,
-            accessToken: data?.access_token,
-          };
+          return data;
         } catch (error) {
+          console.error("Authentication Error", error);
           return null;
         }
       },
@@ -67,7 +47,7 @@ export const authOptions: NextAuthOptions = {
     async session({ token, session }): Promise<Session> {
       if (token.accessToken) {
         const getMeResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/auth/profile`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
           {
             method: "GET",
             headers: {
@@ -78,6 +58,7 @@ export const authOptions: NextAuthOptions = {
         );
 
         const myInfo = await getMeResponse.json();
+        console.log("User info from API:", myInfo, token.accessToken);
 
         return { ...myInfo.data, accessToken: token.accessToken };
       }
@@ -88,19 +69,17 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         return {
           ...token,
-          accessToken: (user as any).accessToken,
+          accessToken: (user as any).token,
         };
       }
-
+      console.log("Which token is this:", token);
       return token;
     },
   },
-  session: {
-    strategy: "jwt",
-  },
-  secret: "VNsa93D+mVoLlUgHaRl9DBmzfRtigzlQak7Wg4P/hmo=",
   pages: {
-    signIn: "/sign-in",
-    error: "/authError",
+    // signIn: "/login",
+    error: "/auth/error",
   },
+  session: { strategy: "jwt" },
+  secret: "VNsa93D+mVoLlUgHaRl9DBmzfRtigzlQak7Wg4P/hmo=",
 };
