@@ -12,12 +12,12 @@ const page = () => {
     if (status === "loading") {
       return;
     }
-    if (!session || session?.Role !== "Dean") {
+    if (!session || (session as any).Role !== "Dean") {
       router.back();
     }
   }, [session, status, router]);
 
-  if (status === "loading" || !session || session?.Role !== "Dean") {
+  if (status === "loading" || !session || (session as any).Role !== "Dean") {
     return <div>Loading...</div>;
   }
 

@@ -7,25 +7,25 @@ const page = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  console.log(session);
   useEffect(() => {
     if (status === "loading") {
       return;
     }
-    if (!session || session?.Role !== "Admin") {
+    if (!session || (session as any).Role !== "Admin") {
       router.back();
     }
   }, [session, status, router]);
 
-  if (status === "loading" || !session || session?.Role !== "Admin") {
+  if (status === "loading" || !session || (session as any).Role !== "Admin") {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
       <div>This is the Admin Page</div>
-
-      <button onClick={handleSignout}> Logout</button>
+      <button onClick={() => handleSignout((session as any).accessToken)}>
+        logout
+      </button>
     </div>
   );
 };
