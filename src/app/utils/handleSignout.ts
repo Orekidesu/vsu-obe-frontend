@@ -1,15 +1,6 @@
 import { signOut } from "next-auth/react";
 import api from "./axiosInstance";
 
-// const handleSignout = async () => {
-//   try {
-//     await api.post("api/auth/logout");
-//     await signOut();
-//   } catch (error) {
-//     console.error("Logout failed: ", error);
-//   }
-// };
-
 const handleSignout = async () => {
   try {
     await fetch("/api/auth/logout", {
