@@ -4,7 +4,7 @@ import { JWT } from "next-auth/jwt";
 import { access } from "fs";
 
 export interface Session extends DefaultSession {
-  token?: string;
+  accessToken?: string;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -30,12 +30,19 @@ export const authOptions: NextAuthOptions = {
             }
           );
           const data = await res.json();
-          console.log("Api Response:", data);
+          // console.log("Api Response:", data);
           if (!res.ok) {
             throw new Error(data.message || "Login failed");
           }
 
-          return data;
+          // only get the necessary data
+
+          return {
+            id: data.user.id,
+            email: data.user.email,
+            role: data.user.role,
+            token: data.token,
+          };
         } catch (error) {
           console.error("Authentication Error", error);
           return null;
@@ -58,7 +65,8 @@ export const authOptions: NextAuthOptions = {
         );
 
         const myInfo = await getMeResponse.json();
-        console.log("User info from API:", myInfo, token.accessToken);
+
+        // console.log("User info from API:", myInfo, token.accessToken);
 
         return { ...myInfo.data, accessToken: token.accessToken };
       }
@@ -72,7 +80,7 @@ export const authOptions: NextAuthOptions = {
           accessToken: (user as any).token,
         };
       }
-      console.log("Which token is this:", token);
+      // console.log("Which token is this:", token);
       return token;
     },
   },
