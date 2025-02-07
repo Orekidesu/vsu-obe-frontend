@@ -9,6 +9,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { Input, Label, Button } from "@/components/ui";
+import Image from "next/image";
+import vsuLogo from "../../public/assets/images/vsu_logo.png";
+import vsuHomePageLogo from "../../public/assets/images/vsu_home_page_logo2.jpg";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -33,7 +36,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      const role = session?.Role;
+      const role = (session as any).Role;
       console.log("ang role ani kay: ", role);
       if (role === "Admin") {
         router.push("/admin");
@@ -58,93 +61,89 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-full w-full">
       {/* Left side - Illustration */}
       <div className="hidden w-1/2 bg-muted lg:block">
         <div className="flex h-full items-center justify-center">
-          <img
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-uHLVH7wQIAOVIYjw2dCkmQlLK3Wi1c.png"
-            alt="Login illustration"
-            className="w-2/3"
-          />
+          <Image src={vsuHomePageLogo} alt="home page logo"></Image>
         </div>
       </div>
 
       {/* Right side - Login form */}
-      <div className="flex w-full items-center justify-center px-6 lg:w-1/2 bg-primary text-primary-foreground">
+      {/* <div className="flex w-full items-center justify-center lg:w-1/2 bg-primary text-primary-foreground"> */}
+      <div className="flex w-full items-center justify-center lg:w-1/2 bg-[#e5dfda] text-primary">
         <div className="w-full max-w-sm space-y-8">
-          <div className="space-y-2 text-center">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              VSU OBE MANAGEMENT AND MONITORING SYSTEM
-            </h1>
+          <div className="flex flex-col justify-center items-center">
+            <div>
+              <Image src={vsuLogo} alt="vsu logo" className="h-28 w-28"></Image>
+            </div>
+            <div className="pt-10 text-center">
+              <h1 className="text-3xl font-semibold tracking-tight">
+                VSU OBE MANAGEMENT AND MONITORING SYSTEM
+              </h1>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {error && <div className="text-sm text-destructive">{error}</div>}
+          <div className="">
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {error && <div className="text-sm text-destructive">{error}</div>}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register("email")}
-                placeholder="Enter your email"
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
+              <div className="text-primary ">
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  {...register("password")}
-                  placeholder="Enter your password"
+                  className="bg-white text-black"
+                  id="email"
+                  type="email"
+                  {...register("email")}
+                  placeholder="Enter your email"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
+                {errors.email && (
+                  <p className="text-sm text-destructive">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
-              {errors.password && (
-                <p className="text-sm text-destructive">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
 
-            <div className="flex items-center justify-between">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-primary hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
+              <div className="py-5 text-primary">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    {...register("password")}
+                    placeholder="Enter your password"
+                    className="bg-white text-black"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-sm text-destructive">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Log in"}
-            </Button>
-          </form>
-
-          <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link href="/signup" className="text-primary hover:underline">
-              Sign up
-            </Link>
-          </p>
+              <div className="flex justify-center">
+                <Button
+                  type="submit"
+                  className="w-1/2 hover:bg-primary-foreground hover:text-primary transition duration-300 ease-in-out font-semibold border border-accent"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Signing in..." : "Log in"}
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
