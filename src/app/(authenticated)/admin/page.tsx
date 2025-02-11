@@ -1,23 +1,9 @@
 "use client";
 import React, { useEffect } from "react";
-import { useSession } from "next-auth/react";
 import handleSignout from "@/app/utils/handleSignout";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 const page = () => {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (status === "loading") {
-      return;
-    }
-    if (!session || (session as any).Role !== "Admin") {
-      router.push("/");
-
-      // router.back();
-    }
-  }, [session, status, router]);
-
+  const { session, status } = useAuth();
   if (status === "loading" || !session || (session as any).Role !== "Admin") {
     return <div>Loading...</div>;
   }
