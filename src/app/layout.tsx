@@ -4,7 +4,7 @@ import "./globals.css";
 import { getServerSession, Session } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import Provider from "@/components/Provider";
-
+import { Toaster } from "@/components/ui/toaster";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,6 +35,7 @@ export default async function RootLayout({
           <main className="w-full grow">
             <Provider session={session}>{children}</Provider>
           </main>
+          <Toaster />
         </div>
       </body>
     </html>

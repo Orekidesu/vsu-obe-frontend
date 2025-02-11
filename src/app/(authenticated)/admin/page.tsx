@@ -12,7 +12,9 @@ const page = () => {
       return;
     }
     if (!session || (session as any).Role !== "Admin") {
-      router.back();
+      router.push("/");
+
+      // router.back();
     }
   }, [session, status, router]);
 

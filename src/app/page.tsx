@@ -6,13 +6,12 @@ import { z } from "zod";
 import { signIn, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { Input, Label, Button } from "@/components/ui";
 import Image from "next/image";
 import vsuLogo from "../../public/assets/images/vsu_logo.png";
 import vsuHomePageLogo from "../../public/assets/images/vsu_home_page_logo2.jpg";
-
+import { useToast } from "@/hooks/use-toast";
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -31,8 +30,10 @@ export default function LoginForm() {
 
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -47,16 +48,38 @@ export default function LoginForm() {
   }, [status, session, router]);
 
   const onSubmit = async (data: LoginFormInputs) => {
-    setError(null);
+    setIsButtonDisabled(true);
+    setTimeout(() => setIsButtonDisabled(false), 5000);
 
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
 
-    if (result?.error) {
-      setError(result.error);
+      if (result?.error) {
+        toast({
+          title: "Login Error",
+          description: "Wrong Credentials, Please try again",
+          variant: "destructive",
+          duration: 2000,
+        });
+      } else {
+        toast({
+          title: "Login Successfull",
+          description: "You have been successfully logged in.",
+          variant: "default",
+          duration: 2000,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occured.Please try again.",
+        variant: "destructive",
+        duration: 2000,
+      });
     }
   };
 
@@ -69,8 +92,6 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {/* Right side - Login form */}
-      {/* <div className="flex w-full items-center justify-center lg:w-1/2 bg-primary text-primary-foreground"> */}
       <div className="flex w-full items-center justify-center lg:w-1/2 bg-[#e5dfda] text-primary">
         <div className="w-full max-w-sm space-y-8">
           <div className="flex flex-col justify-center items-center">
@@ -114,17 +135,17 @@ export default function LoginForm() {
                     placeholder="Enter your password"
                     className="bg-white text-black"
                   />
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground bg-white hover:bg-white shadow-none h-5"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
                     ) : (
                       <Eye className="h-4 w-4" />
                     )}
-                  </button>
+                  </Button>
                 </div>
                 {errors.password && (
                   <p className="text-sm text-destructive">
@@ -137,7 +158,7 @@ export default function LoginForm() {
                 <Button
                   type="submit"
                   className="w-1/2 hover:bg-primary-foreground hover:text-primary transition duration-300 ease-in-out font-semibold border border-accent"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isButtonDisabled}
                 >
                   {isSubmitting ? "Signing in..." : "Log in"}
                 </Button>

@@ -25,7 +25,10 @@ const page = () => {
     <div>
       <div>This is the Dean Page</div>
 
-      <button onClick={handleSignout}> Logout</button>
+      <button onClick={() => handleSignout((session as any).accessToken)}>
+        {" "}
+        Logout
+      </button>
     </div>
   );
 };
