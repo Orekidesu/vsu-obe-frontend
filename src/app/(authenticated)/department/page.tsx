@@ -9,7 +9,11 @@ interface PageProps {
 const Page: React.FC<PageProps> = ({ children }) => {
   const { session, status } = useAuth();
 
-  if (status === "loading" || !session || (session as any).Role !== "Admin") {
+  if (
+    status === "loading" ||
+    !session ||
+    (session as any).Role !== "Department"
+  ) {
     return <div>Loading...</div>;
   }
 
