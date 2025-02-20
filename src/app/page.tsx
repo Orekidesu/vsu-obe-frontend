@@ -11,7 +11,7 @@ export default function LandingPage() {
       {/* Left side - Illustration */}
       <div className="hidden w-1/2 bg-muted lg:block">
         <div className="flex h-full items-center justify-center">
-          <Image src={vsuHomePageLogo} alt="home page logo"></Image>
+          <Image src={vsuHomePageLogo} alt="home page logo" priority></Image>
         </div>
       </div>
 
@@ -19,7 +19,12 @@ export default function LandingPage() {
         <div className="w-full max-w-sm space-y-8">
           <div className="flex flex-col justify-center items-center">
             <div>
-              <Image src={vsuLogo} alt="vsu logo" className="h-28 w-28"></Image>
+              <Image
+                src={vsuLogo}
+                alt="vsu logo"
+                className="h-28 w-28"
+                priority
+              ></Image>
             </div>
             <div className="pt-10 text-center">
               <h1 className="text-3xl font-semibold tracking-tight">
