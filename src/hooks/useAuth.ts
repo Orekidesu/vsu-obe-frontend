@@ -17,17 +17,16 @@ export const useAuth = () => {
           router.push("/");
         } else {
           const role = (session as any).Role;
-          // console.log(role);
-          if (role === "Admin" && !pathName.startsWith("admin")) {
+          if (role === "Admin" && !pathName.startsWith("/admin")) {
             router.push("/admin");
-          } else if (role === "Dean" && !pathName.startsWith("dean")) {
+          } else if (role === "Dean" && !pathName.startsWith("/dean")) {
             router.push("/dean");
           } else if (
             role === "Department" &&
-            !pathName.startsWith("department")
+            !pathName.startsWith("/department")
           ) {
             router.push("/department");
-          } else {
+          } else if (role === "Faculty" && !pathName.startsWith("/faculty")) {
             router.push("/faculty");
           }
         }

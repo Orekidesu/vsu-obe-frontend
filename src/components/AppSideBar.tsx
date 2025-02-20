@@ -7,6 +7,7 @@ import {
   Users,
   LayoutDashboard,
   BookOpenText,
+  LayoutDashboardIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,7 +22,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "./ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import handleSignout from "@/app/utils/handleSignout";
@@ -32,7 +41,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 const roleMenuItems = {
   Admin: [
-    { title: "Vision & Mission", url: "/admin/", icon: Target },
+    { title: "Dashboard", url: "/admin", icon: LayoutDashboardIcon },
     {
       title: "College & Departments",
       url: "/admin/colleges_departments",
@@ -54,14 +63,14 @@ const roleMenuItems = {
   ],
 };
 
-const AppSidebar = () => {
+const AppSidebar = ({
+  role,
+  session,
+}: {
+  role: keyof typeof roleMenuItems;
+  session: any;
+}) => {
   const pathname = usePathname();
-  const { session } = useAuth();
-
-  if (!session) {
-    return null;
-  }
-  const role = (session as any).Role as keyof typeof roleMenuItems;
   const roleBasedMenu = roleMenuItems[role] || [];
 
   return (
@@ -80,27 +89,37 @@ const AppSidebar = () => {
               {roleBasedMenu.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {"submenus" in item ? (
-                    <div>
-                      <SidebarMenuButton className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                      <SidebarGroupContent className="pl-4">
-                        {item.submenus?.map(
-                          (submenu: { title: string; url: string }) => (
-                            <SidebarMenuItem key={submenu.title}>
-                              <Link
-                                href={submenu.url}
-                                className="flex items-center gap-2"
-                              >
-                                <span>- {submenu.title}</span>
-                              </Link>
-                            </SidebarMenuItem>
-                          )
-                        )}
-                      </SidebarGroupContent>
-                    </div>
+                    <Collapsible>
+                      <CollapsibleTrigger>
+                        <SidebarMenuButton className="flex items-center gap-2">
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub className="pl-4">
+                          {item.submenus?.map(
+                            (submenu: { title: string; url: string }) => (
+                              <SidebarMenuSubItem key={submenu.title}>
+                                <SidebarMenuSubButton
+                                  asChild
+                                  isActive={pathname === submenu.url}
+                                >
+                                  <Link
+                                    href={submenu.url}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <span>- {submenu.title}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            )
+                          )}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </Collapsible>
                   ) : (
+                    // =============================End Collapsible ==============
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <SidebarMenuButton
