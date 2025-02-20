@@ -33,7 +33,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import handleSignout from "@/app/utils/handleSignout";
+import handleLogout from "@/app/utils/handleLogout";
 import Image from "next/image";
 import vsuLogo from "../../public/assets/images/vsu_logo.png";
 
@@ -141,6 +141,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
             alt="VSU logo"
             width={80}
             height={80}
+            priority
           />
           <p className="font-semibold">{role}</p>
         </div>
@@ -160,7 +161,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
               <TooltipTrigger asChild>
                 <SidebarMenuButton
                   asChild
-                  onClick={() => handleSignout((session as any).accessToken)}
+                  onClick={() => handleLogout((session as any).accessToken)}
                 >
                   <button className="flex w-full items-center gap-2">
                     <LogOut className="h-4 w-4" />

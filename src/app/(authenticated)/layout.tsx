@@ -31,7 +31,7 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
       <SidebarProvider>
-        <AppSidebar role={role} session={session} />
+        <AppSidebar role={role} session={session as any} />
         <main>
           {/* {status === "authenticated" && <SidebarTrigger />} */}
           {/* {status === "authenticated" && children} */}

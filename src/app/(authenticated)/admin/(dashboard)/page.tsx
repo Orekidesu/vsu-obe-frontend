@@ -1,7 +1,24 @@
+"use client";
 import React from "react";
+import useMissions from "@/hooks/admin/useMission";
+import { useEffect } from "react";
 
-const page = () => {
-  return <div>This is the Dasboard Page</div>;
+const Dashboardpage = () => {
+  const { missions, fetchMissions, loading: missionsLoading } = useMissions();
+  useEffect(() => {
+    fetchMissions();
+  }, [fetchMissions]);
+
+  return (
+    <div>
+      {" "}
+      {missionsLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <pre>{JSON.stringify(missions, null, 2)}</pre>
+      )}
+    </div>
+  );
 };
 
-export default page;
+export default Dashboardpage;
