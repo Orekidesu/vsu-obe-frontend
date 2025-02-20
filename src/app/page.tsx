@@ -5,7 +5,7 @@ import vsuLogo from "../../public/assets/images/vsu_logo.png";
 import vsuHomePageLogo from "../../public/assets/images/vsu_home_page_logo2.jpg";
 import CustomLoginForm from "@/components/CustomLoginForm";
 
-export default function LoginForm() {
+export default function LandingPage() {
   return (
     <div className="flex h-full w-full">
       {/* Left side - Illustration */}
