@@ -1,13 +1,14 @@
 "use client";
 
+import type React from "react";
+
 import {
   LogOut,
   University,
-  Target,
   Users,
   LayoutDashboard,
   BookOpenText,
-  LayoutDashboardIcon,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -32,16 +33,20 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { useAuth } from "@/hooks/useAuth";
 import handleSignout from "@/app/utils/handleSignout";
 import Image from "next/image";
 import vsuLogo from "../../public/assets/images/vsu_logo.png";
-import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
-const roleMenuItems = {
+type MenuItem = {
+  title: string;
+  url?: string;
+  icon: React.ElementType;
+  submenus?: { title: string; url: string }[];
+};
+
+const roleMenuItems: Record<string, MenuItem[]> = {
   Admin: [
-    { title: "Dashboard", url: "/admin", icon: LayoutDashboardIcon },
+    { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
     {
       title: "College & Departments",
       url: "/admin/colleges_departments",
@@ -49,35 +54,94 @@ const roleMenuItems = {
     },
     { title: "User Management", url: "/admin/user_management", icon: Users },
   ],
-  Dean: [{ title: "Dashboard", url: "dean/dashboard", icon: LayoutDashboard }],
+  Dean: [{ title: "Dashboard", url: "/dean/dashboard", icon: LayoutDashboard }],
   Department: [
-    { title: "Dashboard", url: "department/dashboard", icon: LayoutDashboard },
+    { title: "Dashboard", url: "/department/dashboard", icon: LayoutDashboard },
     {
       title: "Programs",
       icon: BookOpenText,
       submenus: [
-        { title: "Manage Courses", url: "department/manage-courses" },
-        { title: "Assign Instructors", url: "department/assign-instructors" },
+        { title: "Manage Courses", url: "/department/manage-courses" },
+        { title: "Assign Instructors", url: "/department/assign-instructors" },
       ],
     },
   ],
 };
 
-const AppSidebar = ({
-  role,
-  session,
-}: {
+interface AppSidebarProps {
   role: keyof typeof roleMenuItems;
-  session: any;
-}) => {
+  session: { accessToken: string };
+}
+
+const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
   const pathname = usePathname();
   const roleBasedMenu = roleMenuItems[role] || [];
+
+  const renderMenuItem = (item: MenuItem) => (
+    <SidebarMenuItem key={item.title}>
+      {"submenus" in item ? (
+        <Collapsible>
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton className="flex w-full items-center justify-between">
+              <span className="flex items-center gap-2">
+                <item.icon className="h-4 w-4" />
+                {item.title}
+              </span>
+              <ChevronDown className="h-4 w-4" />
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <SidebarMenuSub>
+              {item.submenus?.map((submenu) => (
+                <SidebarMenuSubItem key={submenu.title}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <SidebarMenuSubButton
+                        asChild
+                        isActive={pathname === submenu.url}
+                      >
+                        <Link href={submenu.url} className="pl-6">
+                          {submenu.title}
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={40}>
+                      {submenu.title}
+                    </TooltipContent>
+                  </Tooltip>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </Collapsible>
+      ) : (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SidebarMenuButton asChild isActive={pathname === item.url}>
+              <Link href={item.url || "#"} className="flex items-center gap-2">
+                <item.icon className="h-4 w-4" />
+                <span>{item.title}</span>
+              </Link>
+            </SidebarMenuButton>
+          </TooltipTrigger>
+          <TooltipContent side="right" sideOffset={20}>
+            {item.title}
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </SidebarMenuItem>
+  );
 
   return (
     <Sidebar>
       <SidebarHeader className="pt-10">
         <div className="flex flex-col items-center justify-center gap-2 px-2">
-          <Image src={vsuLogo} alt="vsu logo" className="h-20 w-20"></Image>
+          <Image
+            src={vsuLogo || "/placeholder.svg"}
+            alt="VSU logo"
+            width={80}
+            height={80}
+          />
           <p className="font-semibold">{role}</p>
         </div>
       </SidebarHeader>
@@ -85,64 +149,7 @@ const AppSidebar = ({
         <SidebarGroup>
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {roleBasedMenu.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  {"submenus" in item ? (
-                    <Collapsible>
-                      <CollapsibleTrigger>
-                        <SidebarMenuButton className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub className="pl-4">
-                          {item.submenus?.map(
-                            (submenu: { title: string; url: string }) => (
-                              <SidebarMenuSubItem key={submenu.title}>
-                                <SidebarMenuSubButton
-                                  asChild
-                                  isActive={pathname === submenu.url}
-                                >
-                                  <Link
-                                    href={submenu.url}
-                                    className="flex items-center gap-2"
-                                  >
-                                    <span>- {submenu.title}</span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            )
-                          )}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ) : (
-                    // =============================End Collapsible ==============
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={pathname === item.url}
-                        >
-                          <Link
-                            href={item.url || "#"}
-                            className="flex items-center gap-2"
-                          >
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" sideOffset={20}>
-                        {item.title}
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SidebarMenu>{roleBasedMenu.map(renderMenuItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
@@ -151,11 +158,11 @@ const AppSidebar = ({
           <SidebarMenuItem>
             <Tooltip>
               <TooltipTrigger asChild>
-                <SidebarMenuButton asChild>
-                  <button
-                    className="flex w-full items-center gap-2"
-                    onClick={() => handleSignout((session as any).accessToken)}
-                  >
+                <SidebarMenuButton
+                  asChild
+                  onClick={() => handleSignout((session as any).accessToken)}
+                >
+                  <button className="flex w-full items-center gap-2">
                     <LogOut className="h-4 w-4" />
                     <span>Logout</span>
                   </button>
