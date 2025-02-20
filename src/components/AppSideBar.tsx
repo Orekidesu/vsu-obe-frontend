@@ -21,32 +21,34 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarProvider,
 } from "./ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import handleSignout from "@/app/utils/handleSignout";
-import { url } from "inspector";
+import Image from "next/image";
+import vsuLogo from "../../public/assets/images/vsu_logo.png";
+import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 const roleMenuItems = {
   Admin: [
-    { title: "Vision & Mission", url: "/admin/vision-mission", icon: Target },
+    { title: "Vision & Mission", url: "/admin/", icon: Target },
     {
       title: "College & Departments",
-      url: "/admin/colleges-departments",
+      url: "/admin/colleges_departments",
       icon: University,
     },
-    { title: "User Management", url: "/admin/user-management", icon: Users },
+    { title: "User Management", url: "/admin/user_management", icon: Users },
   ],
-  Dean: [{ title: "Dashboard", url: "/dean/dashboard", icon: LayoutDashboard }],
+  Dean: [{ title: "Dashboard", url: "dean/dashboard", icon: LayoutDashboard }],
   Department: [
-    { title: "Dashboard", url: "/department/dashboard", icon: LayoutDashboard },
+    { title: "Dashboard", url: "department/dashboard", icon: LayoutDashboard },
     {
       title: "Programs",
       icon: BookOpenText,
       submenus: [
-        { title: "Manage Courses", url: "/department/manage-courses" },
-        { title: "Assign Instructors", url: "/department/assign-instructors" },
+        { title: "Manage Courses", url: "department/manage-courses" },
+        { title: "Assign Instructors", url: "department/assign-instructors" },
       ],
     },
   ],
@@ -64,9 +66,10 @@ const AppSidebar = () => {
 
   return (
     <Sidebar>
-      <SidebarHeader>
-        <div className="flex items-center justify-center gap-2 px-2">
-          <span className="font-semibold">{role}</span>
+      <SidebarHeader className="pt-10">
+        <div className="flex flex-col items-center justify-center gap-2 px-2">
+          <Image src={vsuLogo} alt="vsu logo" className="h-20 w-20"></Image>
+          <p className="font-semibold">{role}</p>
         </div>
       </SidebarHeader>
       <SidebarContent>

@@ -17,7 +17,7 @@ export const useAuth = () => {
           router.push("/");
         } else {
           const role = (session as any).Role;
-          console.log(role);
+          // console.log(role);
           if (role === "Admin" && !pathName.startsWith("admin")) {
             router.push("/admin");
           } else if (role === "Dean" && !pathName.startsWith("dean")) {

@@ -14,9 +14,8 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
       <SidebarProvider>
         <AppSidebar />
         <main>
-          {/* <SidebarTrigger /> */}
           {status === "authenticated" && <SidebarTrigger />}
-          {children}
+          {status === "authenticated" && children}
         </main>
       </SidebarProvider>
     </div>
