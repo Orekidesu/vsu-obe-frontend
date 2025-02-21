@@ -4,6 +4,10 @@ import useVisions from "@/hooks/admin/useVision";
 import useMissions from "@/hooks/admin/useMission";
 import useGraduateAttributes from "@/hooks/admin/useGraduateAttribute";
 import { useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
+import missionLogo from "../../../../../public/assets/images/mission.png";
+import visionLogo from "../../../../../public/assets/images/vision.png";
 import {
   Card,
   CardContent,
@@ -12,7 +16,11 @@ import {
 } from "@/components/ui/card";
 
 const Dashboardpage = () => {
-  const { missions, fetchMissions, loading: missionsLoading } = useMissions();
+  const {
+    fetchMissions,
+    concatenatedMissions,
+    loading: missionsLoading,
+  } = useMissions();
   const { visions, fetchVisions, loading: visionsLoading } = useVisions();
   const {
     graduateAttributes,
@@ -35,20 +43,45 @@ const Dashboardpage = () => {
   return (
     <div className="grid grid-rows-1 content-center">
       <div className="flex flex-col md:flex-row justify-evenly gap-4">
-        <Card className="w-full text-center border-2 shadow-md ">
-          <CardHeader className="text-4xl font-semi-bold">Vision</CardHeader>
-          <CardContent className="">{visions[0]?.description}</CardContent>
-        </Card>
-        <Card className="w-full text-center border-2 shadow-md ">
-          <CardHeader className="text-4xl font-semi-bold">Mission</CardHeader>
-          <CardContent className="">
-            {missions.map((mission) => (
-              <span key={mission.id}>{mission.description}</span>
-            ))}
-          </CardContent>
-        </Card>
+        {visionsLoading && missionsLoading ? (
+          <Skeleton className="w-full h-52" />
+        ) : (
+          <Card className="w-full text-center border-2 shadow-md ">
+            <CardHeader className="text-4xl font-semi-bold">
+              <span className="flex items-center justify-center gap-2">
+                Vision
+                <Image
+                  className="h-10 w-10"
+                  src={visionLogo}
+                  alt="vision logo"
+                  priority
+                />
+              </span>
+            </CardHeader>
+            <CardContent className="italic">
+              {visions[0]?.description}
+            </CardContent>
+          </Card>
+        )}
+        {missionsLoading && visionsLoading ? (
+          <Skeleton className="w-full h-52" />
+        ) : (
+          <Card className="w-full text-center border-2 shadow-md ">
+            <CardHeader className="text-4xl font-semi-bold">
+              <span className="flex items-center justify-center gap-2">
+                Mission
+                <Image
+                  className="h-8 w-8"
+                  src={missionLogo}
+                  alt="vision logo"
+                  priority
+                />
+              </span>
+            </CardHeader>
+            <CardContent className="italic">{concatenatedMissions}</CardContent>
+          </Card>
+        )}
       </div>
-      <div></div>
     </div>
   );
 };

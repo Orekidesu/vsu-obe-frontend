@@ -9,10 +9,12 @@ import {
 import AppSidebar from "@/components/AppSideBar";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Roboto } from "next/font/google";
+const inter = Roboto({ subsets: ["latin"], weight: "400" });
+
 const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const { status, session } = useAuth();
   const router = useRouter();
-
   useEffect(() => {
     if (status === "loading") {
       return;
@@ -37,7 +39,7 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
       <SidebarProvider>
         <AppSidebar role={role} session={session as any} />
         <SidebarInset>
-          <main>
+          <main className={inter.className}>
             <SidebarTrigger />
             {/* {status === "authenticated" && <SidebarTrigger />} */}
             {/* {status === "authenticated" && children} */}
