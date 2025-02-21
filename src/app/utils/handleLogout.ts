@@ -64,9 +64,12 @@ const handleLogout = async (token: string) => {
     }
 
     const data = await response.json();
-    console.log("Logout response data:", data);
 
+    console.log("Logout response data:", data);
     await signOut({ redirect: false });
+
+    // i clear tanan data na naa sa local storage after logout
+    localStorage.clear();
   } catch (error) {
     console.error("Logout error:", error);
   }

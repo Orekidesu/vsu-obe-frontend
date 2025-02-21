@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useApi from "../useApi";
 
 interface GraduateAttribute {
@@ -6,6 +6,8 @@ interface GraduateAttribute {
   ga_no: number;
   description: string;
 }
+
+const STORAGE_KEY = "graduate_attributes_data";
 
 const useGraduateAttributes = () => {
   const api = useApi();
@@ -16,6 +18,13 @@ const useGraduateAttributes = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const cachedGraduateAttributes = localStorage.getItem(STORAGE_KEY);
+    if (cachedGraduateAttributes) {
+      setGraduateAttributes(JSON.parse(cachedGraduateAttributes));
+    }
+  }, []);
 
   const fetchGraduateAttributes = useCallback(async () => {
     setLoading(false);
@@ -28,7 +37,12 @@ const useGraduateAttributes = () => {
       const response = await api.get<{ data: GraduateAttribute[] }>(
         "admin/graduate-attributes"
       );
-      setGraduateAttributes(response.data.data);
+      const fetchedGraduateAttributes = response.data.data;
+      setGraduateAttributes(fetchedGraduateAttributes);
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(fetchedGraduateAttributes)
+      );
     } catch (error: any) {
       setError("failed to retrieve graduate attributes");
       console.error("failed to retrieve graduate attributes ", error);
