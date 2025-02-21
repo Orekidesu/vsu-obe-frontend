@@ -60,6 +60,8 @@ const Dashboardpage = () => {
           loading={missionsLoading}
         />
       </div>
+
+      <div>Graduate Attributes area</div>
     </div>
   );
 };
