@@ -1,7 +1,11 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSideBar";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -32,12 +36,14 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
     <div>
       <SidebarProvider>
         <AppSidebar role={role} session={session as any} />
-        <main>
-          {/* {status === "authenticated" && <SidebarTrigger />} */}
-          {/* {status === "authenticated" && children} */}
-          <SidebarTrigger />
-          {children}
-        </main>
+        <SidebarInset>
+          <main>
+            <SidebarTrigger />
+            {/* {status === "authenticated" && <SidebarTrigger />} */}
+            {/* {status === "authenticated" && children} */}
+            <div className="pt-10 pl-10 pr-10">{children}</div>
+          </main>
+        </SidebarInset>
       </SidebarProvider>
     </div>
   );

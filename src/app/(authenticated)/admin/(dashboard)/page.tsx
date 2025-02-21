@@ -4,6 +4,12 @@ import useVisions from "@/hooks/admin/useVision";
 import useMissions from "@/hooks/admin/useMission";
 import useGraduateAttributes from "@/hooks/admin/useGraduateAttribute";
 import { useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@/components/ui/card";
 
 const Dashboardpage = () => {
   const { missions, fetchMissions, loading: missionsLoading } = useMissions();
@@ -15,32 +21,34 @@ const Dashboardpage = () => {
   } = useGraduateAttributes();
 
   useEffect(() => {
-    fetchVisions();
-    fetchMissions();
-    fetchGraduateAttributes();
+    if (!localStorage.getItem("vision_data")) {
+      fetchVisions();
+    }
+    if (!localStorage.getItem("mission_data")) {
+      fetchMissions();
+    }
+    if (!localStorage.getItem("graduate_attribute_data")) {
+      fetchGraduateAttributes();
+    }
   }, [fetchVisions, fetchMissions, fetchGraduateAttributes]);
 
   return (
-    <div>
-      <h1>Missions</h1>
-      <ul>
-        {missions.map((mission) => (
-          <li key={mission.id}>
-            {mission.mission_no}: {mission.description}
-          </li>
-        ))}
-      </ul>
-      <h1>Vision</h1>
-      <p>{visions[0]?.description}</p>
-
-      <h1>Graduate Attributes</h1>
-      <ul>
-        {graduateAttributes.map((graduateAttribute) => (
-          <li key={graduateAttribute.id}>
-            {graduateAttribute.ga_no}: {graduateAttribute.description}
-          </li>
-        ))}
-      </ul>
+    <div className="grid grid-rows-1 content-center">
+      <div className="flex flex-col md:flex-row justify-evenly gap-4">
+        <Card className="w-full text-center border-2 shadow-md ">
+          <CardHeader className="text-4xl font-semi-bold">Vision</CardHeader>
+          <CardContent className="">{visions[0]?.description}</CardContent>
+        </Card>
+        <Card className="w-full text-center border-2 shadow-md ">
+          <CardHeader className="text-4xl font-semi-bold">Mission</CardHeader>
+          <CardContent className="">
+            {missions.map((mission) => (
+              <span key={mission.id}>{mission.description}</span>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+      <div></div>
     </div>
   );
 };

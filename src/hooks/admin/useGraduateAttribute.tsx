@@ -7,7 +7,7 @@ interface GraduateAttribute {
   description: string;
 }
 
-const STORAGE_KEY = "graduate_attributes_data";
+const STORAGE_KEY = "graduate_attribute_data";
 
 const useGraduateAttributes = () => {
   const api = useApi();
