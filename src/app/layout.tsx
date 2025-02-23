@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
 import "./globals.css";
 import { getServerSession, Session } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
@@ -31,8 +32,8 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex h-screen w-screen overflow-hidden">
-          <main className="w-full grow">
+        <div className="flex h-screen w-screen overflow-auto">
+          <main className="w-full h-full grow">
             <Provider session={session}>{children}</Provider>
           </main>
           <Toaster />
@@ -40,9 +41,4 @@ export default async function RootLayout({
       </body>
     </html>
   );
-}
-{
-  /* <div className="h-screen flex flex-col">
-  <main className="w-full grow">{children}</main>
-</div>; */
 }

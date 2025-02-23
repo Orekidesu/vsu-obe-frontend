@@ -11,7 +11,12 @@ export default function LandingPage() {
       {/* Left side - Illustration */}
       <div className="hidden w-1/2 bg-muted lg:block">
         <div className="flex h-full items-center justify-center">
-          <Image src={vsuHomePageLogo} alt="home page logo" priority></Image>
+          <Image
+            src={vsuHomePageLogo}
+            className="h-full"
+            alt="home page logo"
+            priority
+          ></Image>
         </div>
       </div>
 
