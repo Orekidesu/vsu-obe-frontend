@@ -32,7 +32,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex h-screen w-screen overflow-hidden">
+        <div className="flex h-screen w-screen overflow-auto">
           <main className="w-full h-full grow">
             <Provider session={session}>{children}</Provider>
           </main>

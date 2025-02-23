@@ -15,6 +15,16 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 const Dashboardpage = () => {
   const {
     fetchMissions,
@@ -61,7 +71,33 @@ const Dashboardpage = () => {
         />
       </div>
 
-      <div>Graduate Attributes area</div>
+      <div className="pt-10">
+        {graduateAttributesLoading ? (
+          <Skeleton className=" h-60 w-full" />
+        ) : (
+          <Table>
+            <TableCaption>List of Graduate Attributes</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="">GA_No.</TableHead>
+                <TableHead className="">Name</TableHead>
+                <TableHead className="">Description</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {graduateAttributes.map((graduateAttribute) => (
+                <TableRow key={graduateAttribute.id}>
+                  <TableCell>{graduateAttribute.ga_no}</TableCell>
+                  <TableCell className="font-semibold">
+                    {graduateAttribute.name}
+                  </TableCell>
+                  <TableCell>{graduateAttribute.description}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
     </div>
   );
 };
