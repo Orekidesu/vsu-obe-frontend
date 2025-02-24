@@ -1,58 +1,58 @@
 import { useCallback, useEffect, useState } from "react";
 import useApi from "../useApi";
-
-interface GraduateAttribute {
-  id: number;
-  ga_no: number;
-  name: string;
-  description: string;
-}
+import { GraduateAttribute } from "@/types/model/GraduateAttributes";
+import { Response } from "@/types/response/Response";
+import localData from "@/hooks/useLocalData";
 
 const STORAGE_KEY = "graduate_attribute_data";
 
 const useGraduateAttributes = () => {
   const api = useApi();
 
-  const [graduateAttributes, setGraduateAttributes] = useState<
-    GraduateAttribute[]
-  >([]);
-
-  const [loading, setLoading] = useState<boolean>(false);
+  const [graduateAttributes, setGraduateAttributes] =
+    useState<Response<GraduateAttribute>>();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const cachedGraduateAttributes = localStorage.getItem(STORAGE_KEY);
-    if (cachedGraduateAttributes) {
-      setGraduateAttributes(JSON.parse(cachedGraduateAttributes));
-    }
+    localData(STORAGE_KEY) &&
+      setGraduateAttributes({
+        loading: false,
+        data: localData(STORAGE_KEY) || [],
+      });
   }, []);
 
-  const fetchGraduateAttributes = useCallback(async () => {
-    setLoading(false);
-    setError(null);
+  const getGraduateAttributes = useCallback(
+    async (forceRefresh = false) => {
+      if (!forceRefresh && localData(STORAGE_KEY)) {
+        return;
+      }
 
-    try {
-      setLoading(true);
+      setGraduateAttributes({ loading: true, data: null });
       setError(null);
 
-      const response = await api.get<{ data: GraduateAttribute[] }>(
-        "admin/graduate-attributes"
-      );
-      const fetchedGraduateAttributes = response.data.data;
-      setGraduateAttributes(fetchedGraduateAttributes);
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(fetchedGraduateAttributes)
-      );
-    } catch (error: any) {
-      setError("failed to retrieve graduate attributes");
-      console.error("failed to retrieve graduate attributes ", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [api]);
+      try {
+        setError(null);
+        const response = await api.get<{ data: GraduateAttribute[] }>(
+          "admin/graduate-attributes"
+        );
+        const fetchedGraduateAttributes = response.data.data;
+        setGraduateAttributes({
+          loading: false,
+          data: fetchedGraduateAttributes,
+        });
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(fetchedGraduateAttributes)
+        );
+      } catch (error: any) {
+        setError("failed to retrieve graduate attributes");
+        console.error("failed to retrieve graduate attributes ", error);
+      }
+    },
+    [api]
+  );
 
-  return { graduateAttributes, fetchGraduateAttributes, loading };
+  return { graduateAttributes, getGraduateAttributes, error };
 };
 
 export default useGraduateAttributes;

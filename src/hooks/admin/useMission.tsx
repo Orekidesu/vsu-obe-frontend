@@ -1,56 +1,50 @@
-/*OPTION 1 */
-import { useCallback, useEffect, useState } from "react";
-import useApi from "../useApi";
-import { json } from "stream/consumers";
-
-interface Mission {
-  id: number;
-  mission_no: number;
-  description: string;
-}
+import { useEffect, useState } from "react";
+import useApi from "@/hooks/useApi";
+import { Mission } from "@/types/model/Mission";
+import { Response } from "@/types/response/Response";
+import localData from "@/hooks/useLocalData";
 
 const STORAGE_KEY = "mission_data";
 
 const useMissions = () => {
   const api = useApi();
-
-  const [missions, setMissions] = useState<Mission[]>([]);
-  const [concatenatedMissions, setConcatenatedMissions] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [missions, setMissions] = useState<Response<Mission>>();
   const [error, setError] = useState<string | null>(null);
 
+  //Fetch Existing Data from Location Storage
   useEffect(() => {
-    const cachedMissions = localStorage.getItem(STORAGE_KEY);
-    if (cachedMissions) {
-      const parsedMissions = JSON.parse(cachedMissions);
-
-      setMissions(parsedMissions);
-      setConcatenatedMissions(
-        parsedMissions.map((mission: Mission) => mission.description).join(", ")
-      );
-    }
+    localData(STORAGE_KEY) &&
+      setMissions({
+        loading: false,
+        data: localData(STORAGE_KEY) || [],
+      });
   }, []);
 
-  const fetchMissions = useCallback(async () => {
-    setLoading(true);
+  const getMissions = async (forceRefresh = false) => {
+    // if data exists in local storage and no force refresh is requested,return early
+    if (!forceRefresh && localData(STORAGE_KEY)) {
+      return;
+    }
+    setMissions({
+      loading: true,
+      data: null,
+    });
     setError(null);
     try {
       const response = await api.get<{ data: Mission[] }>("admin/missions");
       const fetchedMissions = response.data.data;
-      setMissions(fetchedMissions);
-      setConcatenatedMissions(
-        fetchedMissions.map((mission) => mission.description).join(", ")
-      );
+      setMissions({
+        loading: false,
+        data: fetchedMissions,
+      });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(fetchedMissions));
     } catch (error: any) {
       setError("Failed to retrieve missions");
       console.error("failed to fetch missions: ", error);
-    } finally {
-      setLoading(false);
     }
-  }, [api]);
+  };
 
-  return { missions, fetchMissions, concatenatedMissions, loading };
+  return { missions, getMissions, error };
 };
 
 export default useMissions;
