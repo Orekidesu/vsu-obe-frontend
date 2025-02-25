@@ -3,8 +3,8 @@ const getCustomPathname = (path: string) => {
     switch (path) {
       case "/admin":
         return "Dashboard";
-      case "/admin/colleges_departments":
-        return "Colleges and Departments";
+      case "/admin/faculties_departments":
+        return "Faculties and Departments";
       case "/admin/user_management":
         return "User Management";
       default:

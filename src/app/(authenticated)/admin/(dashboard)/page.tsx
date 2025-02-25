@@ -50,7 +50,12 @@ const Dashboardpage = () => {
               {visions?.data?.[0]?.description || ""}
             </CustomCard>
 
-            <CustomCard title="Mission" icon="/assets/images/mission.png">
+            <CustomCard
+              title="Mission"
+              iconHeight="h-8"
+              iconWidth="w-8"
+              icon="/assets/images/mission.png"
+            >
               {concatenatedMissions}
             </CustomCard>
           </>
