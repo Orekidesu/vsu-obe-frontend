@@ -3,6 +3,7 @@ import { Search, MoreVertical, Plus, Pencil, Trash2 } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 import CustomSelect from "@/components/select/CustomSelect";
 import CustomDropdown from "@/components/dropdown/CustomDropdown";
+import CustomDialog from "../Dialog/CustomDialog";
 
 interface Section {
   id: number;
@@ -13,19 +14,20 @@ interface Section {
 interface SectionProps {
   title: string;
   sections: Section[];
-
   isLoading: boolean;
   error: any;
+  formComponent: React.ReactElement<{ setIsOpen: (isOpen: boolean) => void }>;
 }
 
 const CustomSection: React.FC<SectionProps> = ({
   title,
   sections,
-
   isLoading,
   error,
+  formComponent,
 }) => {
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     if (sections.length > 0) {
@@ -93,15 +95,19 @@ const CustomSection: React.FC<SectionProps> = ({
             </div>
           ))}
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className=" px-2 py-2 border-t rounded-md hover:bg-primary/80 hover:text-primary-foreground"
-          onClick={() => {}} // Example create
+
+        <CustomDialog
+          buttonTitle={`Add ${title}`}
+          title={`Add ${title}`}
+          description={`Add ${title}`}
+          footerButtonTitle="Save"
+          isOpen={isDialogOpen}
+          setIsOpen={setIsDialogOpen}
         >
-          <Plus className="h-4 w-4 mr-2" />
-          Add {title}
-        </Button>
+          {React.cloneElement(formComponent, {
+            setIsOpen: setIsDialogOpen,
+          })}
+        </CustomDialog>
       </div>
     </div>
   );

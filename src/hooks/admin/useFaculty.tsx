@@ -21,8 +21,9 @@ const useFaculties = () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data.data));
       return response.data.data;
     },
+
     initialData: () => {
-      const local = localData(STORAGE_KEY);
+      const local = localData(STORAGE_KEY) || null;
       return local;
     },
   });
