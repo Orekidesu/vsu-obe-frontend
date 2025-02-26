@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { QueryClientProvider } from "@tanstack/react-query";
+import queryClient from "@/lib/reactQueryClient";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import "./globals.css";
 import { getServerSession, Session } from "next-auth";
@@ -27,6 +30,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session: Session | null = await getServerSession(authOptions as any);
+  // const sessionObject = session ? JSON.parse(JSON.stringify(session)) : null;
+
   return (
     <html lang="en">
       <body
@@ -34,7 +39,12 @@ export default async function RootLayout({
       >
         <div className="flex h-screen w-screen overflow-auto">
           <main className="w-full h-full grow">
-            <Provider session={session}>{children}</Provider>
+            <QueryClientProvider client={queryClient}>
+              <Provider session={session}>
+                {children}
+                <ReactQueryDevtools initialIsOpen={false} />
+              </Provider>
+            </QueryClientProvider>
           </main>
           <Toaster />
         </div>

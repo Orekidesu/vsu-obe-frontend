@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, MoreVertical, Plus, Pencil, Trash2 } from "lucide-react";
 import { Button, Input } from "@/components/ui";
-
 import CustomSelect from "@/components/select/CustomSelect";
 import CustomDropdown from "@/components/dropdown/CustomDropdown";
 
@@ -14,19 +13,33 @@ interface Section {
 interface SectionProps {
   title: string;
   sections: Section[];
-  fetchSections: () => void;
+
+  isLoading: boolean;
+  error: any;
 }
 
 const CustomSection: React.FC<SectionProps> = ({
   title,
   sections,
-  fetchSections,
+
+  isLoading,
+  error,
 }) => {
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
 
   useEffect(() => {
-    fetchSections();
-  }, []);
+    if (sections.length > 0) {
+      setSelectedSection(sections[0]);
+    }
+  }, [sections]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div className="space-y-4 flex flex-col">
@@ -67,12 +80,12 @@ const CustomSection: React.FC<SectionProps> = ({
                     {
                       label: "Edit",
                       icon: <Pencil className="h-4 w-4 mr-2" />,
-                      onClick: () => console.log("Edit button got clicked"),
+                      onClick: () => {},
                     },
                     {
                       label: "Delete",
                       icon: <Trash2 className="h-4 w-4 mr-2 text-red-500" />,
-                      onClick: () => console.log("Delete button got clicked"),
+                      onClick: () => {},
                     },
                   ]}
                 />
@@ -84,6 +97,7 @@ const CustomSection: React.FC<SectionProps> = ({
           variant="ghost"
           size="sm"
           className=" px-2 py-2 border-t rounded-md hover:bg-primary/80 hover:text-primary-foreground"
+          onClick={() => {}} // Example create
         >
           <Plus className="h-4 w-4 mr-2" />
           Add {title}

@@ -1,46 +1,78 @@
-import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useApi from "../useApi";
 import { Faculty } from "@/types/model/Faculty";
-import { Response } from "@/types/response/Response";
-import localData from "@/hooks/useLocalData";
+import localData from "../useLocalData";
 
 const STORAGE_KEY = "faculty_data";
 
 const useFaculties = () => {
   const api = useApi();
+  const queryClient = useQueryClient();
 
-  const [faculties, setFaculties] = useState<Response<Faculty>>();
-
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    localData(STORAGE_KEY) &&
-      setFaculties({
-        loading: false,
-        data: localData(STORAGE_KEY) || [],
-      });
-  }, []);
-
-  const getFaculties = async () => {
-    setFaculties({
-      loading: true,
-      data: null,
-    });
-
-    setError(null);
-
-    try {
+  // Fetch faculties
+  const {
+    data: faculties,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["faculties"],
+    queryFn: async () => {
       const response = await api.get<{ data: Faculty[] }>("admin/faculties");
-      const fetchedFaculties = response.data.data;
-      setFaculties({ loading: false, data: fetchedFaculties });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(fetchedFaculties));
-    } catch (error: any) {
-      setError("failed to retrieve missions");
-      console.error("failed to fetch missions: ", error);
-    }
-  };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data.data));
+      return response.data.data;
+    },
+    initialData: () => {
+      const local = localData(STORAGE_KEY);
+      return local;
+    },
+  });
 
-  return { faculties, getFaculties, error };
+  // Create Faculty
+  const createFaculty = useMutation({
+    mutationFn: async (newFaculty: Partial<Faculty>) => {
+      const response = await api.post("admin/faculties", newFaculty);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["faculties"] });
+    },
+  });
+
+  // Update Faculty
+  const updateFaculty = useMutation({
+    mutationFn: async ({
+      id,
+      updatedData,
+    }: {
+      id: number;
+      updatedData: Partial<Faculty>;
+    }) => {
+      const response = await api.put(`admin/faculties/${id}`, updatedData);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["faculties"] });
+    },
+  });
+
+  // Delete Faculty
+  const deleteFaculty = useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`admin/faculties/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["faculties"] });
+    },
+  });
+
+  return {
+    faculties,
+    isLoading,
+    error,
+    createFaculty,
+    updateFaculty,
+    deleteFaculty,
+  };
 };
 
 export default useFaculties;
