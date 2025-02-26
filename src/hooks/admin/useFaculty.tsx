@@ -64,6 +64,15 @@ const useFaculties = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["faculties"] });
     },
+    onError: (error: any) => {
+      if (error.response && error.response.data) {
+        throw new Error(
+          error.response.data.message || "failed to update faculty"
+        );
+      } else {
+        console.error(error);
+      }
+    },
   });
 
   // Delete Faculty
