@@ -44,26 +44,28 @@ const CustomSection: React.FC<SectionProps> = ({
   }
 
   return (
-    <div className="space-y-4 flex flex-col">
-      <h2 className="text-lg font-medium">{title}</h2>
+    <div className="space-y-4 flex flex-col h-[500px]">
+      <div className=" flex flex-col border rounded-md gap-2 px-2 pb-2">
+        <h2 className="text-lg font-medium">{title}</h2>
 
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder={`Search ${title}`} className="pl-8" />
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input placeholder={`Search ${title}`} className="pl-8" />
+          </div>
+
+          <CustomSelect
+            defaultValue="asc"
+            options={[
+              { value: "asc", label: "A - Z" },
+              { value: "desc", label: "Z - A" },
+            ]}
+          />
         </div>
-
-        <CustomSelect
-          defaultValue="asc"
-          options={[
-            { value: "asc", label: "A - Z" },
-            { value: "desc", label: "Z - A" },
-          ]}
-        />
       </div>
-
-      <div className="border border-rounded-lg h-64 flex flex-col flex-1 ">
-        <div className="flex-1 overflow-y-auto">
+      {/* this part should not overflow and be scrollable but why is it that it overflowed in the fixed height i set in the page which is 500px */}
+      <div className="border rounded-md flex flex-col flex-1 overflow-auto">
+        <div className="flex-1">
           {sections.map((section) => (
             <div
               key={section.id}
@@ -95,20 +97,19 @@ const CustomSection: React.FC<SectionProps> = ({
             </div>
           ))}
         </div>
-
-        <CustomDialog
-          buttonTitle={`Add ${title}`}
-          title={`Add ${title}`}
-          description={`Add ${title}`}
-          footerButtonTitle="Save"
-          isOpen={isDialogOpen}
-          setIsOpen={setIsDialogOpen}
-        >
-          {React.cloneElement(formComponent, {
-            setIsOpen: setIsDialogOpen,
-          })}
-        </CustomDialog>
       </div>
+      <CustomDialog
+        buttonTitle={`Add ${title}`}
+        title={`Add ${title}`}
+        description={`Add ${title}`}
+        footerButtonTitle="Save"
+        isOpen={isDialogOpen}
+        setIsOpen={setIsDialogOpen}
+      >
+        {React.cloneElement(formComponent, {
+          setIsOpen: setIsDialogOpen,
+        })}
+      </CustomDialog>
     </div>
   );
 };

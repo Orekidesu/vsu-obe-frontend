@@ -37,6 +37,16 @@ const useFaculties = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["faculties"] });
     },
+    onError: (error: any) => {
+      if (error.response && error.response.data) {
+        throw new Error(
+          error.response.data.message || "Failed to create faculty"
+        );
+        console.error("Failed at creating faculty", error.response.data.errors);
+      } else {
+        console.error(error);
+      }
+    },
   });
 
   // Update Faculty

@@ -42,7 +42,7 @@ const FacultyPage = () => {
           <p>Loading...</p>
         ) : (
           <ul className="space-y-2">
-            {faculties?.map((faculty: any) => (
+            {faculties?.map((faculty:any) => (
               <li key={faculty.id} className="border p-3 rounded shadow-sm">
                 <p>
                   <strong>{faculty.name}</strong>

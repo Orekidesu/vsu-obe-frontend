@@ -2,8 +2,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Faculty } from "@/types/model/Faculty";
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "../ui";
+import { useToast } from "@/hooks/use-toast";
 
 const facultySchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -14,12 +15,13 @@ type FacultyFormProps = {
   onSubmit: (data: Partial<Faculty>) => void;
   isLoading: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  error?: string | null;
 };
-
 const FacultyForm: React.FC<FacultyFormProps> = ({
   onSubmit,
   isLoading,
   setIsOpen,
+  error,
 }) => {
   const {
     register,
@@ -27,9 +29,24 @@ const FacultyForm: React.FC<FacultyFormProps> = ({
     formState: { errors },
   } = useForm<Partial<Faculty>>({ resolver: zodResolver(facultySchema) });
 
-  const handleFormSubmit = (data: Partial<Faculty>) => {
-    onSubmit(data);
-    setIsOpen(false);
+  const { toast } = useToast();
+  const handleFormSubmit = async (data: Partial<Faculty>) => {
+    try {
+      await onSubmit(data);
+      setIsOpen(false);
+      toast({
+        description: "Faculty Created Successfulyy",
+        variant: "default",
+      });
+    } catch (error: any) {
+      setIsOpen(true);
+      toast({
+        // description: error.message,
+        description: "Name or Abbreviation is already taken",
+
+        variant: "destructive",
+      });
+    }
   };
 
   return (
