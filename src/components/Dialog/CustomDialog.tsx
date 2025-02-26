@@ -17,6 +17,7 @@ interface CustomDialogProps {
   footerButtonTitle: string;
   children: ReactNode;
   isOpen: boolean;
+  buttonIcon: React.ReactNode;
   setIsOpen: (isOpen: boolean) => void;
 }
 
@@ -26,13 +27,20 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
   description,
   footerButtonTitle,
   children,
+  buttonIcon,
   isOpen,
   setIsOpen,
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">{buttonTitle}</Button>
+        <Button
+          variant="outline"
+          className="hover:bg-primary hover:text-primary-foreground"
+        >
+          <span>{buttonIcon}</span>
+          {buttonTitle}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

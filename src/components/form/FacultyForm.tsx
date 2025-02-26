@@ -16,34 +16,52 @@ type FacultyFormProps = {
   isLoading: boolean;
   setIsOpen: (isOpen: boolean) => void;
   error?: string | null;
+  initialData?: Faculty;
 };
+
 const FacultyForm: React.FC<FacultyFormProps> = ({
   onSubmit,
   isLoading,
   setIsOpen,
   error,
+  initialData,
 }) => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
-  } = useForm<Partial<Faculty>>({ resolver: zodResolver(facultySchema) });
+  } = useForm<Partial<Faculty>>({
+    resolver: zodResolver(facultySchema),
+    defaultValues: initialData || {},
+  });
 
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (initialData) {
+      setValue("id", initialData.id);
+      setValue("name", initialData.name);
+      setValue("abbreviation", initialData.abbreviation);
+    }
+  }, [initialData, setValue]);
+
   const handleFormSubmit = async (data: Partial<Faculty>) => {
+    data["id"] = initialData?.id;
+    console.log(data);
     try {
       await onSubmit(data);
+      console.log("nasubmit");
       setIsOpen(false);
       toast({
-        description: "Faculty Created Successfulyy",
+        description: `Faculty ${initialData ? "Updated" : "Created"} Successfully`,
         variant: "default",
       });
     } catch (error: any) {
+      console.error(error);
       setIsOpen(true);
       toast({
-        // description: error.message,
-        description: "Name or Abbreviation is already taken",
-
+        description: error.message || "Name or Abbreviation is already taken",
         variant: "destructive",
       });
     }
@@ -78,7 +96,11 @@ const FacultyForm: React.FC<FacultyFormProps> = ({
 
       {/* Submit Button */}
       <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Submitting..." : "Create Faculty"}
+        {isLoading
+          ? "Submitting..."
+          : initialData
+            ? "Update Faculty"
+            : "Create Faculty"}
       </Button>
     </form>
   );

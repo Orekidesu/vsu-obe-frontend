@@ -16,7 +16,11 @@ interface SectionProps {
   sections: Section[];
   isLoading: boolean;
   error: any;
-  formComponent: React.ReactElement<{ setIsOpen: (isOpen: boolean) => void }>;
+  formComponent: React.ReactElement<{
+    setIsOpen: (isOpen: boolean) => void;
+    initialData?: Section;
+  }>;
+  onEdit: (data: Section) => void;
 }
 
 const CustomSection: React.FC<SectionProps> = ({
@@ -25,9 +29,11 @@ const CustomSection: React.FC<SectionProps> = ({
   isLoading,
   error,
   formComponent,
+  onEdit,
 }) => {
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     if (sections.length > 0) {
@@ -42,6 +48,12 @@ const CustomSection: React.FC<SectionProps> = ({
   if (error) {
     return <div>Error: {error.message}</div>;
   }
+
+  const handleEdit = (section: Section) => {
+    setSelectedSection(section);
+    setIsEditMode(true);
+    setIsDialogOpen(true);
+  };
 
   return (
     <div className="space-y-4 flex flex-col h-[500px]">
@@ -63,7 +75,6 @@ const CustomSection: React.FC<SectionProps> = ({
           />
         </div>
       </div>
-      {/* this part should not overflow and be scrollable but why is it that it overflowed in the fixed height i set in the page which is 500px */}
       <div className="border rounded-md flex flex-col flex-1 overflow-auto">
         <div className="flex-1">
           {sections.map((section) => (
@@ -84,7 +95,7 @@ const CustomSection: React.FC<SectionProps> = ({
                     {
                       label: "Edit",
                       icon: <Pencil className="h-4 w-4 mr-2" />,
-                      onClick: () => {},
+                      onClick: () => handleEdit(section),
                     },
                     {
                       label: "Delete",
@@ -100,14 +111,19 @@ const CustomSection: React.FC<SectionProps> = ({
       </div>
       <CustomDialog
         buttonTitle={`Add ${title}`}
-        title={`Add ${title}`}
-        description={`Add ${title}`}
+        title={`${isEditMode ? "Edit" : "Add"} ${title}`}
+        description={`${isEditMode ? "Edit" : "Add"} ${title}`}
         footerButtonTitle="Save"
         isOpen={isDialogOpen}
-        setIsOpen={setIsDialogOpen}
+        setIsOpen={(isOpen) => {
+          setIsDialogOpen(isOpen);
+          if (!isOpen) setIsEditMode(false);
+        }}
+        buttonIcon={<Plus />}
       >
         {React.cloneElement(formComponent, {
           setIsOpen: setIsDialogOpen,
+          initialData: isEditMode ? selectedSection || undefined : undefined,
         })}
       </CustomDialog>
     </div>
