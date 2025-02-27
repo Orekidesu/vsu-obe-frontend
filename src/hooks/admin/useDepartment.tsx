@@ -7,49 +7,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const STORAGE_KEY = "department_data";
 
-// const useDepartments = () => {
-//   const api = useApi();
-
-//   const [departments, setDepartments] = useState<Response<Department>>();
-//   const [error, setError] = useState<string | null>(null);
-
-//   useEffect(() => {
-//     localData(STORAGE_KEY) &&
-//       setDepartments({
-//         loading: false,
-//         data: localData(STORAGE_KEY),
-//       });
-//   }, []);
-
-//   const getDepartments = async () => {
-//     setDepartments({
-//       loading: true,
-//       data: null,
-//     });
-
-//     setError(null);
-
-//     try {
-//       const response = await api.get<{ data: Department[] }>(
-//         "admin/departments"
-//       );
-
-//       const fetchedDepartments = response.data.data;
-//       setDepartments({
-//         loading: false,
-//         data: fetchedDepartments,
-//       });
-
-//       localStorage.setItem(STORAGE_KEY, JSON.stringify(fetchedDepartments));
-//     } catch (error: any) {
-//       setError("failed to retrieve departments");
-//       console.log("failed to retrieve departments: ", error);
-//     }
-//   };
-
-//   return { departments, getDepartments, error };
-// };
-
 const useDepartments = () => {
   const api = useApi();
   const queryClient = useQueryClient();
@@ -65,14 +22,15 @@ const useDepartments = () => {
         "admin/departments"
       );
       const responseData = response.data.data;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(responseData));
+      // localStorage.setItem(STORAGE_KEY, JSON.stringify(responseData));
       return responseData;
     },
 
-    initialData: () => {
-      const local = localData(STORAGE_KEY) || null;
-      return local;
-    },
+    // initialData: () => {
+    //   const local = localData(STORAGE_KEY) || null;
+    //   const local = null;
+    //   return local;
+    // },
   });
 
   // create department
@@ -85,6 +43,15 @@ const useDepartments = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
+    },
+    onError: (error: any) => {
+      if (error.response && error.response.data) {
+        throw new Error(
+          error.response.data.message || "Failed to create department"
+        );
+      } else {
+        console.error(error);
+      }
     },
   });
 
@@ -104,6 +71,15 @@ const useDepartments = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
     },
+    onError: (error: any) => {
+      if (error.response && error.response.data) {
+        throw new Error(
+          error.response.data.message || "Failed to update department"
+        );
+      } else {
+        console.error(error);
+      }
+    },
   });
 
   // delete a department
@@ -115,6 +91,15 @@ const useDepartments = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
+    },
+    onError: (error: any) => {
+      if (error.response && error.response.data) {
+        throw new Error(
+          error.response.data.message || "Failed to delete department"
+        );
+      } else {
+        console.error(error);
+      }
     },
   });
 

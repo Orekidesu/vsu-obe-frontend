@@ -47,8 +47,11 @@ const FacultyForm: React.FC<FacultyFormProps> = ({
   }, [initialData, setValue]);
 
   const handleFormSubmit = async (data: Partial<Faculty>) => {
-    data["id"] = initialData?.id;
+    // manually add the id when submitting form (this is for update);
     console.log(data);
+    if (initialData?.id) {
+      data["id"] = initialData.id;
+    }
     try {
       await onSubmit(data);
       console.log("nasubmit");
@@ -69,7 +72,8 @@ const FacultyForm: React.FC<FacultyFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-      {/* Name Field */}
+      {/* for id */}
+      <input type="hidden" {...register("id")} />
       <div>
         <label className="block text-sm font-medium">Name</label>
         <input

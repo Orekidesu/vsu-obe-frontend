@@ -173,7 +173,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="pb-20">
+      <SidebarFooter className="">
         <SidebarMenu>
           <SidebarMenuItem>
             {isMobile ? (
