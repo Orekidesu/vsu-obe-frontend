@@ -1,18 +1,23 @@
-import { Faculty } from "@/types/model/Faculty";
+import { Department } from "@/types/model/Department";
 import { UseMutationResult } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
-
-export const createFacultyHandler = async (
-  createdFaculty: UseMutationResult<any, any, Partial<Faculty>, unknown>,
-  data: Partial<Faculty>,
+export const createDepartmentHandler = async (
+  createdDepartment: UseMutationResult<any, any, Partial<Department>, unknown>,
+  data: Partial<Department>,
   setFormError: (error: string | null) => void
 ) => {
   return new Promise<void>((resolve, reject) => {
-    createdFaculty.mutate(data, {
+    createdDepartment.mutate(data, {
       onError: (error: any) => {
-        setFormError(error?.response?.data?.message || "Something went wrong");
+        setFormError(
+          error?.response?.data?.message ||
+            "something went wrong during adding department"
+        );
         reject(
-          new Error(error?.response?.data?.message || "Something went wrong")
+          new Error(
+            error?.response?.data?.message ||
+              "something went wrong during adding department"
+          )
         );
       },
       onSuccess: () => {
@@ -23,28 +28,30 @@ export const createFacultyHandler = async (
   });
 };
 
-export const updateFacultyHandler = async (
-  updatedFaculty: UseMutationResult<
+export const updateDepartmentHandler = async (
+  updatedDepartment: UseMutationResult<
     any,
     any,
-    { id: number; updatedData: Partial<Faculty> },
+    { id: number; updatedData: Partial<Department> },
     unknown
   >,
-  data: Partial<Faculty>,
+  data: Partial<Department>,
   setFormError: (error: string | null) => void
 ) => {
   return new Promise<void>((resolve, reject) => {
     if (data.id) {
-      updatedFaculty.mutate(
+      updatedDepartment.mutate(
         { id: data.id, updatedData: data },
         {
           onError: (error: any) => {
             setFormError(
-              error?.response?.data?.message || "Something went wrong"
+              error?.response?.data?.message ||
+                "something went wrong during updating department"
             );
             reject(
               new Error(
-                error?.response?.data?.message || "Something went wrong"
+                error?.response?.data?.message ||
+                  "something went wrong during updating department"
               )
             );
           },
@@ -58,7 +65,7 @@ export const updateFacultyHandler = async (
   });
 };
 
-export const deleteFacultyHandler = (
+const deleteDepartmentHandler = async (
   deleteFaculty: UseMutationResult<any, any, number, unknown>,
   id: number
 ) => {
