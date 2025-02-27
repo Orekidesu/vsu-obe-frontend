@@ -10,7 +10,11 @@ import CustomSelect from "@/components/select/CustomSelect";
 import CustomDropdown from "@/components/dropdown/CustomDropdown";
 import CustomDialog from "@/components/Dialog/CustomDialog";
 import { useToast } from "@/hooks/use-toast";
-import { Value } from "@radix-ui/react-select";
+import {
+  handleCreateFaculty,
+  handleDeleteFaculty,
+  handleUpdateFaculty,
+} from "@/app/utils/admin/handleFaculty";
 
 const FacultiesDepartmentsPage = () => {
   const {
@@ -36,52 +40,16 @@ const FacultiesDepartmentsPage = () => {
     }
   }, [faculties]);
 
-  const handleCreateFaculty = async (data: Partial<Faculty>) => {
-    return new Promise<void>((resolve, reject) => {
-      createFaculty.mutate(data, {
-        onError: (error: any) => {
-          setFormError(
-            error?.response?.data?.message || "Something went wrong"
-          );
-          reject(
-            new Error(error?.response?.data?.message || "Something went wrong")
-          );
-        },
-        onSuccess: () => {
-          setFormError(null);
-          resolve();
-        },
-      });
-    });
+  const handleCreate = async (data: Partial<Faculty>) => {
+    await handleCreateFaculty(createFaculty, data, setFormError);
   };
 
-  const handleUpdateFaculty = async (data: Partial<Faculty>) => {
-    return new Promise<void>((resolve, reject) => {
-      if (data.id) {
-        updateFaculty.mutate(
-          { id: data.id, updatedData: data },
-          {
-            onError: (error: any) => {
-              console.error(error);
-              setFormError(
-                error?.response?.data?.message || "Something went wrong"
-              );
-              reject(
-                new Error(
-                  error?.response?.data?.message || "Something went wrong"
-                )
-              );
-            },
-            onSuccess: () => {
-              setFormError(null);
-              resolve();
-            },
-          }
-        );
-      } else {
-        console.log("hindi naka sulod sa if statement");
-      }
-    });
+  const handleUpdate = async (data: Partial<Faculty>) => {
+    await handleUpdateFaculty(updateFaculty, data, setFormError);
+  };
+
+  const handleDelete = (id: number) => {
+    handleDeleteFaculty(deleteFaculty, id);
   };
 
   const handleEdit = (faculty: Faculty) => {
@@ -90,22 +58,6 @@ const FacultiesDepartmentsPage = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    deleteFaculty.mutate(id, {
-      onError: (error: any) => {
-        toast({
-          description: error.message,
-          variant: "destructive",
-        });
-      },
-      onSuccess: () => {
-        toast({
-          description: "Faculty Deleted Successfully",
-          variant: "default",
-        });
-      },
-    });
-  };
   const handleSortOrderChange = (value: string) => {
     setSortOrder(value);
   };
@@ -196,7 +148,7 @@ const FacultiesDepartmentsPage = () => {
         buttonIcon={<Plus />}
       >
         <FacultyForm
-          onSubmit={isEditMode ? handleUpdateFaculty : handleCreateFaculty}
+          onSubmit={isEditMode ? handleUpdate : handleCreate}
           isLoading={isFacultyLoading}
           setIsOpen={setIsDialogOpen}
           error={formError}
