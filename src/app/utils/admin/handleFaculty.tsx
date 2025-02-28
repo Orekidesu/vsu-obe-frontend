@@ -5,14 +5,15 @@ import { toast } from "@/hooks/use-toast";
 export const createFacultyHandler = async (
   createdFaculty: UseMutationResult<any, any, Partial<Faculty>, unknown>,
   data: Partial<Faculty>,
-  setFormError: (error: string | null) => void
+  // setFormError: (error: string | null) => void
+  setFormError: (error: Record<string, string[]> | string | null) => void
 ) => {
   return new Promise<void>((resolve, reject) => {
     createdFaculty.mutate(data, {
       onError: (error: any) => {
-        setFormError(error?.response?.data?.message || "Something went wrong");
+        setFormError(error?.response?.data?.errors || "Something went wrong");
         reject(
-          new Error(error?.response?.data?.message || "Something went wrong")
+          new Error(error?.response?.data?.errors || "Something went wrong")
         );
       },
       onSuccess: () => {
@@ -31,7 +32,8 @@ export const updateFacultyHandler = async (
     unknown
   >,
   data: Partial<Faculty>,
-  setFormError: (error: string | null) => void
+  // setFormError: (error: string | null) => void
+  setFormError: (error: Record<string, string[]> | string | null) => void
 ) => {
   return new Promise<void>((resolve, reject) => {
     if (data.id) {
@@ -40,12 +42,10 @@ export const updateFacultyHandler = async (
         {
           onError: (error: any) => {
             setFormError(
-              error?.response?.data?.message || "Something went wrong"
+              error?.response?.data?.errors || "Something went wrong"
             );
             reject(
-              new Error(
-                error?.response?.data?.message || "Something went wrong"
-              )
+              new Error(error?.response?.data?.errors || "Something went wrong")
             );
           },
           onSuccess: () => {

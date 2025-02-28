@@ -4,18 +4,18 @@ import { toast } from "@/hooks/use-toast";
 export const createDepartmentHandler = async (
   createdDepartment: UseMutationResult<any, any, Partial<Department>, unknown>,
   data: Partial<Department>,
-  setFormError: (error: string | null) => void
+  setFormError: (error: Record<string, string[]> | string | null) => void
 ) => {
   return new Promise<void>((resolve, reject) => {
     createdDepartment.mutate(data, {
       onError: (error: any) => {
         setFormError(
-          error?.response?.data?.message ||
+          error?.response?.data?.errors ||
             "something went wrong during adding department"
         );
         reject(
           new Error(
-            error?.response?.data?.message ||
+            error?.response?.data?.errors ||
               "something went wrong during adding department"
           )
         );
@@ -36,7 +36,7 @@ export const updateDepartmentHandler = async (
     unknown
   >,
   data: Partial<Department>,
-  setFormError: (error: string | null) => void
+  setFormError: (error: Record<string, string[]> | string | null) => void
 ) => {
   return new Promise<void>((resolve, reject) => {
     if (data.id) {
@@ -45,12 +45,12 @@ export const updateDepartmentHandler = async (
         {
           onError: (error: any) => {
             setFormError(
-              error?.response?.data?.message ||
+              error?.response?.data?.errors ||
                 "something went wrong during updating department"
             );
             reject(
               new Error(
-                error?.response?.data?.message ||
+                error?.response?.data?.errors ||
                   "something went wrong during updating department"
               )
             );
