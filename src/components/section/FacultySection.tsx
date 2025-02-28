@@ -14,7 +14,11 @@ import {
   updateFacultyHandler,
 } from "@/app/utils/admin/handleFaculty";
 
-const FacultiesSection = () => {
+type FacultySectionProps = {
+  onSelectFaculty: (facultyId: number) => void;
+};
+
+const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
   const {
     faculties,
     isLoading: isFacultyLoading,
@@ -35,9 +39,17 @@ const FacultiesSection = () => {
 
   useEffect(() => {
     if (faculties && faculties.length > 0) {
-      setSelectedFaculty(faculties[0]);
+      const sortedFaculties = [...faculties].sort((a, b) => {
+        if (sortOrderFaculties === "asc") {
+          return a.name.localeCompare(b.name);
+        } else {
+          return b.name.localeCompare(a.name);
+        }
+      });
+      setSelectedFaculty(sortedFaculties[0]);
+      onSelectFaculty(sortedFaculties[0].id);
     }
-  }, [faculties]);
+  }, []);
 
   const handleCreateFaculty = async (data: Partial<Faculty>) => {
     await createFacultyHandler(createFaculty, data, setFormError);
@@ -112,13 +124,16 @@ const FacultiesSection = () => {
               className={`flex items-center justify-between p-3 hover:bg-muted/70 ${
                 selectedFaculty?.id === faculty.id ? "bg-primary/10" : ""
               }`}
-              onClick={() => setSelectedFaculty(faculty)}
+              onClick={() => {
+                setSelectedFaculty(faculty);
+                onSelectFaculty(faculty.id);
+              }}
             >
               <span>
                 {faculty.name} ({faculty.abbreviation}){" "}
               </span>
 
-              {selectedFaculty === faculty && (
+              {selectedFaculty?.id === faculty.id && (
                 <CustomDropdown
                   actions={[
                     {
@@ -165,4 +180,4 @@ const FacultiesSection = () => {
   );
 };
 
-export default FacultiesSection;
+export default FacultySection;

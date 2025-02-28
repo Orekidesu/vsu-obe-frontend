@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import useDepartments from "@/hooks/admin/useDepartment";
 import DepartmentForm from "@/components/form/DepartmentForm";
 import { Department } from "@/types/model/Department";
@@ -13,9 +13,16 @@ import {
   updateDepartmentHandler,
   deleteDepartmentHandler,
 } from "@/app/utils/admin/handleDepartment";
+
+type DepartmentSectionProps = {
+  selectedFacultyId: number;
+};
+
 import { deleteFacultyHandler } from "@/app/utils/admin/handleFaculty";
 
-const DepartmentsSection = () => {
+const DepartmentSection: React.FC<DepartmentSectionProps> = ({
+  selectedFacultyId,
+}) => {
   const {
     departments,
     isLoading: isDepartmentLoading,
@@ -60,12 +67,13 @@ const DepartmentsSection = () => {
   const filteredDepartments = departments
     ?.filter(
       (department) =>
-        department.name
+        department.faculty_id === selectedFacultyId &&
+        (department.name
           .toLowerCase()
           .includes(searchDepartmentQuery.toLowerCase()) ||
-        department.abbreviation
-          .toLowerCase()
-          .includes(searchDepartmentQuery.toLowerCase())
+          department.abbreviation
+            .toLowerCase()
+            .includes(searchDepartmentQuery.toLowerCase()))
     )
     .sort((a, b) => {
       if (sortOrderDepartments == "asc") {
@@ -164,4 +172,4 @@ const DepartmentsSection = () => {
   );
 };
 
-export default DepartmentsSection;
+export default DepartmentSection;

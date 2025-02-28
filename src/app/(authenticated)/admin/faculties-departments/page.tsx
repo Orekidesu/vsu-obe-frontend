@@ -1,13 +1,22 @@
 "use client";
-import React from "react";
-import FacultiesSection from "@/components/section/FacultySection";
-import DepartmentsSection from "@/components/section/DepartmentSection";
+import React, { useState } from "react";
+import FacultySection from "@/components/section/FacultySection";
+import DepartmentSection from "@/components/section/DepartmentSection";
 
 const FacultiesDepartmentsPage = () => {
+  const [selectedFacultyId, setSelectedFacultyId] = useState<number | null>(
+    null
+  );
+
+  const handleSelectFaculty = (facultyId: number) => {
+    setSelectedFacultyId(facultyId);
+  };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-      <FacultiesSection />
-      <DepartmentsSection />
+      <FacultySection onSelectFaculty={handleSelectFaculty} />
+      {selectedFacultyId !== null && (
+        <DepartmentSection selectedFacultyId={selectedFacultyId} />
+      )}
     </div>
   );
 };
