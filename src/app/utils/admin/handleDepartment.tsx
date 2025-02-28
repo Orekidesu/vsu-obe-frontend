@@ -65,11 +65,11 @@ export const updateDepartmentHandler = async (
   });
 };
 
-const deleteDepartmentHandler = async (
-  deleteFaculty: UseMutationResult<any, any, number, unknown>,
+export const deleteDepartmentHandler = async (
+  deleteDepartment: UseMutationResult<any, any, number, unknown>,
   id: number
 ) => {
-  deleteFaculty.mutate(id, {
+  deleteDepartment.mutate(id, {
     onError: (error: any) => {
       toast({
         description: error.message,
@@ -78,7 +78,7 @@ const deleteDepartmentHandler = async (
     },
     onSuccess: () => {
       toast({
-        description: "Faculty Deleted Successfully",
+        description: "Department Deleted Successfully",
         variant: "success",
       });
     },
