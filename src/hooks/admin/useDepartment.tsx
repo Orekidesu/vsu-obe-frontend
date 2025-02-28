@@ -38,6 +38,7 @@ const useDepartments = () => {
   const createDepartment = useMutation({
     mutationFn: async (newDepartment: Partial<Department>) => {
       const response = await api.post("admin/departments", newDepartment);
+      // console.log("successfull man", response);
       return response.data;
     },
 
@@ -86,7 +87,7 @@ const useDepartments = () => {
 
   const deleteDepartment = useMutation({
     mutationFn: async (id: number) => {
-      await api.delete(`admin/departments${id}`);
+      await api.delete(`admin/departments/${id}`);
     },
 
     onSuccess: () => {

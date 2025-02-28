@@ -49,10 +49,10 @@ const roleMenuItems: Record<string, MenuItem[]> = {
     { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
     {
       title: "Faculties & Departments",
-      url: "/admin/faculties_departments",
+      url: "/admin/faculties-departments",
       icon: University,
     },
-    { title: "User Management", url: "/admin/user_management", icon: Users },
+    { title: "User Management", url: "/admin/user-management", icon: Users },
   ],
   Dean: [{ title: "Dashboard", url: "/dean/dashboard", icon: LayoutDashboard }],
   Department: [

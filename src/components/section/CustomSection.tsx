@@ -3,7 +3,7 @@ import { Search, MoreVertical, Plus, Pencil, Trash2 } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 import CustomSelect from "@/components/select/CustomSelect";
 import CustomDropdown from "@/components/dropdown/CustomDropdown";
-import CustomDialog from "../Dialog/CustomDialog";
+import CustomDialog from "../dialog/CustomDialog";
 
 interface Section {
   id: number;
