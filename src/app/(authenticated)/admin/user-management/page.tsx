@@ -1,7 +1,12 @@
 import React from "react";
-
-const page = () => {
-  return <div>This is the user management page</div>;
+import { UsersTable } from "@/components/UserTable";
+const UserManagementPage = () => {
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-xl font-bold mb-6">Users</h1>
+      <UsersTable />
+    </div>
+  );
 };
 
-export default page;
+export default UserManagementPage;
