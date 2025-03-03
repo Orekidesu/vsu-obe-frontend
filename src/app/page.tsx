@@ -20,7 +20,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <div className="flex w-full items-center justify-center lg:w-1/2 bg-[#e5dfda] text-primary">
+      <div className="flex w-full items-center justify-center lg:w-1/2 bg-background text-primary">
         <div className="w-full max-w-sm space-y-8">
           <div className="flex flex-col justify-center items-center">
             <div>
