@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { number } from "zod";
 
 interface Option {
   value: string;
@@ -17,19 +18,21 @@ interface CustomSelectProps {
   options: Option[];
   defaultValue?: string;
   onChange?: (value: string) => void;
+  contentHeight?: string;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
-  options,
+  options = [],
   defaultValue,
   onChange,
+  contentHeight = "h-20",
 }) => {
   return (
     <Select defaultValue={defaultValue} onValueChange={onChange}>
-      <SelectTrigger className="w-20">
+      <SelectTrigger className="w-full">
         <SelectValue placeholder="Select" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className={contentHeight}>
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}

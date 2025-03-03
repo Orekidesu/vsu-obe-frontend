@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Search, MoreVertical, Plus, Pencil, Trash2 } from "lucide-react";
 import { Button, Input } from "@/components/ui";
-import CustomSelect from "@/components/select/CustomSelect";
-import CustomDropdown from "@/components/dropdown/CustomDropdown";
-import CustomDialog from "../dialog/CustomDialog";
+import CustomSelect from "@/components/commons/select/CustomSelect";
+import CustomDropdown from "@/components/commons/dropdown/CustomDropdown";
+import CustomDialog from "../commons/dialog/CustomDialog";
 
 interface Section {
   id: number;

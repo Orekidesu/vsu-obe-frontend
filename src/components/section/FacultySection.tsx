@@ -3,11 +3,11 @@ import React, { useState, useEffect } from "react";
 import useFaculties from "@/hooks/admin/useFaculty";
 import FacultyForm from "@/components/form/FacultyForm";
 import { Faculty } from "@/types/model/Faculty";
-import { Search, Plus, Pencil, Trash2 } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, FileSearch2 } from "lucide-react";
 import { Input } from "@/components/ui";
-import CustomSelect from "@/components/select/CustomSelect";
-import CustomDropdown from "@/components/dropdown/CustomDropdown";
-import CustomDialog from "@/components/dialog/CustomDialog";
+import CustomSelect from "@/components/commons/select/CustomSelect";
+import CustomDropdown from "@/components/commons/dropdown/CustomDropdown";
+import CustomDialog from "@/components/commons/dialog/CustomDialog";
 import {
   createFacultyHandler,
   deleteFacultyHandler,
@@ -106,14 +106,16 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
             />
           </div>
 
-          <CustomSelect
-            defaultValue="asc"
-            options={[
-              { value: "asc", label: "A - Z" },
-              { value: "desc", label: "Z - A" },
-            ]}
-            onChange={handleSortOrderFaculties}
-          />
+          <div>
+            <CustomSelect
+              defaultValue="asc"
+              options={[
+                { value: "asc", label: "A - Z" },
+                { value: "desc", label: "Z - A" },
+              ]}
+              onChange={handleSortOrderFaculties}
+            />
+          </div>
         </div>
       </div>
       <div className="border rounded-md flex flex-col flex-1 overflow-auto">
@@ -140,6 +142,11 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
                       label: "Edit",
                       icon: <Pencil className="h-4 w-4 mr-2" />,
                       onClick: () => handleEditFaculty(faculty),
+                    },
+                    {
+                      label: "Details",
+                      icon: <FileSearch2 className="h-4 w-4 mr-2 " />,
+                      onClick: () => {},
                     },
                     {
                       label: "Delete",

@@ -3,11 +3,11 @@ import React, { useState } from "react";
 import useDepartments from "@/hooks/admin/useDepartment";
 import DepartmentForm from "@/components/form/DepartmentForm";
 import { Department } from "@/types/model/Department";
-import { Search, Plus, Pencil, Trash2 } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, FileSearch2 } from "lucide-react";
 import { Input } from "@/components/ui";
-import CustomSelect from "@/components/select/CustomSelect";
-import CustomDropdown from "@/components/dropdown/CustomDropdown";
-import CustomDialog from "@/components/dialog/CustomDialog";
+import CustomSelect from "@/components/commons/select/CustomSelect";
+import CustomDropdown from "@/components/commons/dropdown/CustomDropdown";
+import CustomDialog from "@/components/commons/dialog/CustomDialog";
 import {
   createDepartmentHandler,
   updateDepartmentHandler,
@@ -17,8 +17,6 @@ import {
 type DepartmentSectionProps = {
   selectedFacultyId: number;
 };
-
-import { deleteFacultyHandler } from "@/app/utils/admin/handleFaculty";
 
 const DepartmentSection: React.FC<DepartmentSectionProps> = ({
   selectedFacultyId,
@@ -90,7 +88,7 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
 
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground " />
             <Input
               placeholder="Search Departments"
               className="pl-8"
@@ -99,14 +97,16 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
             />
           </div>
 
-          <CustomSelect
-            defaultValue="asc"
-            options={[
-              { value: "asc", label: "A - Z" },
-              { value: "desc", label: "Z - A" },
-            ]}
-            onChange={handleSortOrderDepartments}
-          />
+          <div>
+            <CustomSelect
+              defaultValue="asc"
+              options={[
+                { value: "asc", label: "A - Z" },
+                { value: "desc", label: "Z - A" },
+              ]}
+              onChange={handleSortOrderDepartments}
+            />
+          </div>
         </div>
       </div>
       <div className="border rounded-md flex flex-col flex-1 overflow-auto">
@@ -130,6 +130,11 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
                       label: "Edit",
                       icon: <Pencil className="h-4 w-4 mr-2" />,
                       onClick: () => handleEditDepartment(department),
+                    },
+                    {
+                      label: "Details",
+                      icon: <FileSearch2 className="h-4 w-4 mr-2 " />,
+                      onClick: () => {},
                     },
                     {
                       label: "Delete",

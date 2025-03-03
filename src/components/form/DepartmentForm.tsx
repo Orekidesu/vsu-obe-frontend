@@ -5,6 +5,8 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
+import useFaculties from "@/hooks/admin/useFaculty";
+import CustomSelect from "@/components/commons/select/CustomSelect";
 
 import { Button, Input } from "@/components/ui";
 import {
@@ -15,13 +17,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Value } from "@radix-ui/react-select";
 
 // schema for department
 const departmentSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(2, "Name must be at least 2 characters"),
   abbreviation: z.string().min(2, "Abbreviation must be at least 2 characters"),
-  faculty_id: z.number().default(1),
+  faculty_id: z.number().min(1, "select a faculty"),
 });
 
 // define the props
@@ -43,13 +46,14 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isFormError, setIsFormError] = useState<boolean>(false);
 
+  const { faculties } = useFaculties();
+
   // initialize the form
   const form = useForm<z.infer<typeof departmentSchema>>({
     resolver: zodResolver(departmentSchema),
     defaultValues: initialData || {
       name: "",
       abbreviation: "",
-      faculty_id: 1,
     },
   });
 
@@ -57,7 +61,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   useEffect(() => {
     if (initialData) {
       form.setValue("id", initialData.id);
-      form.setValue("faculty_id", initialData.faculty_id || 1);
+      form.setValue("faculty_id", initialData.faculty_id);
       form.setValue("name", initialData.name);
       form.setValue("abbreviation", initialData.abbreviation);
     }
@@ -94,6 +98,30 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
       >
         <FormField
           control={form.control}
+          name="faculty_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Faulty</FormLabel>
+              <FormControl>
+                <div className="">
+                  <CustomSelect
+                    options={
+                      faculties?.map((faculty) => ({
+                        value: faculty.id.toString(),
+                        label: faculty.name,
+                      })) || []
+                    }
+                    onChange={(value) => field.onChange(parseInt(value))}
+                    contentHeight="h-32"
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
@@ -125,6 +153,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
                   {getErrorMessage("abbreviation")}
                 </div>
               )}
+              <FormMessage />
             </FormItem>
           )}
         />

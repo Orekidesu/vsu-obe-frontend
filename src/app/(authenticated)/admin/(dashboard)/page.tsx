@@ -5,7 +5,7 @@ import useMissions from "@/hooks/admin/useMission";
 import useGraduateAttributes from "@/hooks/admin/useGraduateAttribute";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import CustomCard from "@/components/card/CustomCard";
+import CustomCard from "@/components/commons/card/CustomCard";
 
 import {
   Table,
