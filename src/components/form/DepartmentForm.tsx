@@ -90,6 +90,13 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
     }
     return error?.[field]?.[0];
   };
+
+  const defaultFacultyValue = initialData
+    ? faculties
+        ?.find((faculty) => faculty.id === initialData.faculty_id)
+        ?.id.toString()
+    : undefined;
+
   return (
     <Form {...form}>
       <form
@@ -105,6 +112,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
               <FormControl>
                 <div className="">
                   <CustomSelect
+                    defaultValue={defaultFacultyValue}
                     options={
                       faculties?.map((faculty) => ({
                         value: faculty.id.toString(),
