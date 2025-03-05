@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import useFaculties from "@/hooks/admin/useFaculty";
-import FacultyForm from "@/components/form/FacultyForm";
+import FacultyForm from "@/components/admin-components/form/FacultyForm";
 import { Faculty } from "@/types/model/Faculty";
 import { Search, Plus, Pencil, Trash2, FileSearch2 } from "lucide-react";
 import { Input } from "@/components/ui";
@@ -163,7 +163,6 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
       <CustomDialog
         buttonTitle="Add Faculty"
         title={`${isFacultyEditMode ? "Edit" : "Add"} Faculty`}
-        description={`${isFacultyEditMode ? "Edit" : "Add"} Faculty`}
         footerButtonTitle="Save"
         isOpen={isFacultyDialogOpen}
         setIsOpen={(isOpen) => {

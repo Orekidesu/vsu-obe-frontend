@@ -1,10 +1,14 @@
+import { Department } from "./Department";
+import { Faculty } from "./Faculty";
+import { Role } from "./Role";
+
 export interface User {
   id: number;
   first_name: string;
   last_name: string;
   email: string;
   password: string;
-  role_id: number;
-  faculty_id: number;
-  department: number;
+  role: Role;
+  faculty: Faculty;
+  department: Department;
 }
