@@ -1,14 +1,16 @@
 import useApi from "@/hooks/useApi";
 import { User } from "@/types/model/User";
 
-// Function that initializes API instance inside a valid hook scope
 export const useUserApi = () => {
-  const api = useApi(); // ✅ Hooks are used correctly inside this function
+  const api = useApi();
 
   return {
-    getUsers: async () => {
-      const response = await api.get<{ data: User[] }>("admin/users");
-      return response.data.data;
+    getUsers: async (page: number, itemsPerPage: number) => {
+      const response = await api.get<{ data: User[]; meta: any }>(
+        `admin/users?page=${page}&limit=${itemsPerPage}`
+      );
+      // console.log("API Response:", response.data);
+      return response.data;
     },
 
     getUserById: async (id: number) => {

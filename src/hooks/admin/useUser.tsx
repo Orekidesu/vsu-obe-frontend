@@ -1,10 +1,14 @@
 "use client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { User } from "@/types/model/User";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useUserApi } from "@/app/api/admin/userApi";
 
 const useUsers = () => {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 5;
+
   const {
     getUsers,
     getUserById,
@@ -14,16 +18,20 @@ const useUsers = () => {
     resetUserPassword,
   } = useUserApi();
 
-  // Get all users
-  const {
-    data: users,
-    error,
-    isLoading,
-  } = useQuery({
-    queryKey: ["users"],
-    queryFn: getUsers,
+  // Fetch paginated users
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["users", page, itemsPerPage],
+    queryFn: () => getUsers(page, itemsPerPage),
     staleTime: 1000 * 60 * 5,
   });
+
+  const users = data?.data || [];
+  // console.log("Users data:", users);
+  const pagination = data?.meta || {}; //
+  const totalUsers = pagination.total || 0;
+  const totalPages = pagination.last_page || 1;
+  const startIndex = pagination.from || 0;
+  const endIndex = pagination.to || 0;
 
   // Create User
   const createUserMutation = useMutation({
@@ -31,16 +39,10 @@ const useUsers = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error: any) => {
-      if (error.response?.data) {
-        throw new Error(error.response.data.message) || "Failed to create user";
-      } else {
-        console.error(error);
-      }
-    },
   });
+
   // Update User
-  const updateUserMutaion = useMutation({
+  const updateUserMutation = useMutation({
     mutationFn: async ({
       id,
       updatedData,
@@ -51,16 +53,9 @@ const useUsers = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error: any) => {
-      if (error.response?.data) {
-        throw new Error(error.response.data.message || "Failed to update user");
-      } else {
-        console.error(error);
-      }
-    },
   });
 
-  // get single User
+  // Get single User
   const getUser = async (id: number) => {
     return await getUserById(id);
   };
@@ -71,37 +66,29 @@ const useUsers = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error: any) => {
-      if (error.response?.data) {
-        throw new Error(error.response.data.message || "Failed to delete user");
-      } else {
-        console.error(error);
-      }
-    },
   });
 
   // Reset Password
-
   const resetUserPasswordMutation = useMutation({
     mutationFn: async (id: number) => resetUserPassword(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error: any) => {
-      if (error.response?.data) {
-        throw new Error(error.response.data.message || "Failed to delete user");
-      } else {
-        console.error(error);
-      }
-    },
   });
+
   return {
     users,
+    totalUsers,
+    totalPages,
+    startIndex,
+    endIndex,
     isLoading,
     error,
+    page,
+    setPage, // ✅ Expose setPage to update currentPage from components
     getUser,
     createUser: createUserMutation,
-    updateUser: updateUserMutaion,
+    updateUser: updateUserMutation,
     deleteUser: deleteUserMutation,
     resetUserPassword: resetUserPasswordMutation,
   };
