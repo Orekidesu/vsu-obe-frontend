@@ -6,12 +6,11 @@ type SortKey = "name" | "role" | "department" | "faculty";
 type SortConfig = { key: SortKey; direction: "asc" | "desc" } | null;
 
 export const UserTableLogic = (
-  users: any[],
+  users: any[], // Already paginated users from API
   searchTerm: string,
-  sortConfig: SortConfig,
-  currentPage: number,
-  itemsPerPage: number
+  sortConfig: SortConfig
 ) => {
+  // ✅ Only filter and sort, DO NOT paginate again
   const filteredAndSortedUsers = useMemo(() => {
     return (
       users
@@ -49,11 +48,6 @@ export const UserTableLogic = (
     );
   }, [users, searchTerm, sortConfig]);
 
-  const totalPages = Math.ceil(filteredAndSortedUsers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
-
   const handleSort =
     (key: SortKey) =>
     (prevConfig: SortConfig): SortConfig => {
@@ -66,22 +60,10 @@ export const UserTableLogic = (
       return { key, direction: "asc" };
     };
 
-  const goToPreviousPage = () => {
-    return Math.max(1, currentPage - 1);
-  };
-
-  const goToNextPage = () => {
-    return Math.min(totalPages, currentPage + 1);
-  };
+  console.log("Filtered Users:", filteredAndSortedUsers);
 
   return {
     filteredAndSortedUsers,
-    currentUsers,
-    totalPages,
-    startIndex,
-    endIndex,
     handleSort,
-    goToPreviousPage,
-    goToNextPage,
   };
 };
