@@ -5,12 +5,10 @@ export const useUserApi = () => {
   const api = useApi();
 
   return {
-    getUsers: async (page: number, itemsPerPage: number) => {
-      const response = await api.get<{ data: User[]; meta: any }>(
-        `admin/users?page=${page}&limit=${itemsPerPage}`
-      );
-      // console.log("API Response:", response.data);
+    getUsers: async () => {
+      const response = await api.get<{ data: User[] }>("admin/users");
       return response.data;
+      console.log("response data", response);
     },
 
     getUserById: async (id: number) => {

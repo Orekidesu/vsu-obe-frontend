@@ -18,20 +18,21 @@ const useUsers = () => {
     resetUserPassword,
   } = useUserApi();
 
-  // Fetch paginated users
+  // Fetch all users at once
   const { data, error, isLoading } = useQuery({
-    queryKey: ["users", page, itemsPerPage],
-    queryFn: () => getUsers(page, itemsPerPage),
-    staleTime: 1000 * 60 * 5,
+    queryKey: ["users"],
+    queryFn: () => getUsers(),
+    staleTime: 1000 * 60 * 5, // ✅ Cache users for 5 minutes
   });
 
-  const users = data?.data || [];
-  // console.log("Users data:", users);
-  const pagination = data?.meta || {}; //
-  const totalUsers = pagination.total || 0;
-  const totalPages = pagination.last_page || 1;
-  const startIndex = pagination.from || 0;
-  const endIndex = pagination.to || 0;
+  // Ensure users is always an array
+  const users = data?.data ?? [];
+
+  //  Compute pagination in React (since API is no longer paginating)
+  const totalUsers = users.length;
+  const totalPages = Math.ceil(totalUsers / itemsPerPage);
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalUsers);
 
   // Create User
   const createUserMutation = useMutation({

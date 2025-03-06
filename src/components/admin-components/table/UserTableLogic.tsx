@@ -6,48 +6,65 @@ type SortKey = "name" | "role" | "department" | "faculty";
 type SortConfig = { key: SortKey; direction: "asc" | "desc" } | null;
 
 export const UserTableLogic = (
-  users: any[], // Already paginated users from API
+  users: any[], // Now contains ALL users
   searchTerm: string,
-  sortConfig: SortConfig
+  sortConfig: SortConfig,
+  currentPage: number,
+  itemsPerPage: number
 ) => {
-  // ✅ Only filter and sort, DO NOT paginate again
+  // ✅ First, apply searching & sorting BEFORE paginating
   const filteredAndSortedUsers = useMemo(() => {
-    return (
-      users
-        ?.filter((user) =>
-          Object.values(user).some((value) =>
-            value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        )
-        .sort((a, b) => {
-          if (!sortConfig) return 0;
+    let processedUsers = [...users];
 
-          let aValue, bValue;
-          switch (sortConfig.key) {
-            case "name":
-              aValue = `${a.first_name} ${a.last_name}`;
-              bValue = `${b.first_name} ${b.last_name}`;
-              break;
-            case "role":
-              aValue = a.role.name;
-              bValue = b.role.name;
-              break;
-            case "department":
-              aValue = a.department?.name || "";
-              bValue = b.department?.name || "";
-              break;
-            case "faculty":
-              aValue = a.faculty.name;
-              bValue = b.faculty.name;
-              break;
-          }
-          if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-          if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-          return 0;
-        }) || []
-    );
+    //  Search Users
+    if (searchTerm) {
+      processedUsers = processedUsers.filter((user) =>
+        Object.values(user).some((value) =>
+          value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
+
+    //  Sorting
+    if (sortConfig) {
+      processedUsers.sort((a, b) => {
+        let aValue, bValue;
+        switch (sortConfig.key) {
+          case "name":
+            aValue = `${a.first_name} ${a.last_name}`;
+            bValue = `${b.first_name} ${b.last_name}`;
+            break;
+          case "role":
+            aValue = a.role.name;
+            bValue = b.role.name;
+            break;
+          case "department":
+            aValue = a.department?.name || "";
+            bValue = b.department?.name || "";
+            break;
+          case "faculty":
+            aValue = a.faculty.name;
+            bValue = b.faculty.name;
+            break;
+          default:
+            return 0;
+        }
+        return sortConfig.direction === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      });
+    }
+
+    return processedUsers;
   }, [users, searchTerm, sortConfig]);
 
+  //  Now, apply pagination AFTER filtering & sorting
+  const totalPages = Math.ceil(filteredAndSortedUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
+
+  // Sorting Toggle
   const handleSort =
     (key: SortKey) =>
     (prevConfig: SortConfig): SortConfig => {
@@ -60,10 +77,12 @@ export const UserTableLogic = (
       return { key, direction: "asc" };
     };
 
-  console.log("Filtered Users:", filteredAndSortedUsers);
-
   return {
     filteredAndSortedUsers,
+    currentUsers,
+    totalPages,
+    startIndex,
+    endIndex,
     handleSort,
   };
 };
