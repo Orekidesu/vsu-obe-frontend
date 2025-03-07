@@ -8,7 +8,6 @@ export const useUserApi = () => {
     getUsers: async () => {
       const response = await api.get<{ data: User[] }>("admin/users");
       return response.data;
-      console.log("response data", response);
     },
 
     getUserById: async (id: number) => {
