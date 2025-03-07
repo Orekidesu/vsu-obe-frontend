@@ -12,7 +12,7 @@ export const UserTableLogic = (
   currentPage: number,
   itemsPerPage: number
 ) => {
-  // ✅ First, apply searching & sorting BEFORE paginating
+  //   apply searching & sorting BEFORE paginating
   const filteredAndSortedUsers = useMemo(() => {
     let processedUsers = [...users];
 
@@ -58,7 +58,7 @@ export const UserTableLogic = (
     return processedUsers;
   }, [users, searchTerm, sortConfig]);
 
-  //  Now, apply pagination AFTER filtering & sorting
+  // apply pagination AFTER filtering & sorting
   const totalPages = Math.ceil(filteredAndSortedUsers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
