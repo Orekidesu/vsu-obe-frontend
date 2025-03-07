@@ -22,7 +22,7 @@ const useUsers = () => {
   const { data, error, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: () => getUsers(),
-    staleTime: 1000 * 60 * 5, // ✅ Cache users for 5 minutes
+    staleTime: 1000 * 60 * 5, //  Cache users for 5 minutes
   });
 
   // Ensure users is always an array
