@@ -17,7 +17,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Value } from "@radix-ui/react-select";
 
 // schema for department
 const departmentSchema = z.object({
