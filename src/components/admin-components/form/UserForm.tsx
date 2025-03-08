@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { tree } from "next/dist/build/templates/app-page";
 
 // initialize a schema
 
@@ -48,14 +49,23 @@ const UserForm: React.FC<UserFormProps> = ({
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isFormError, setIsFormError] = useState<boolean>(false);
   const [selectedFaculty, setSelectedFaculty] = useState<number | null>(null);
+  const [isDepartmentDisabled, setIsDepartmentDisabled] = useState(false);
 
-  const { roles } = useRoles();
+  const { roles, isLoading: rolesIsloading, error: rolesError } = useRoles();
   const { faculties } = useFaculties();
 
-  // initialize the form
+  // initialize the form, initialize default values to avoid error
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      id: initialData?.id || undefined,
+      first_name: initialData?.first_name || "",
+      last_name: initialData?.last_name || "",
+      email: initialData?.email || "",
+      role_id: initialData?.role.id || undefined,
+      faculty_id: initialData?.faculty.id || undefined,
+      department_id: initialData?.department?.id || undefined,
+    },
   });
 
   useEffect(() => {
@@ -68,13 +78,25 @@ const UserForm: React.FC<UserFormProps> = ({
       form.setValue("faculty_id", initialData.faculty.id);
       form.setValue("department_id", initialData?.department.id);
       setSelectedFaculty(initialData.faculty.id);
+      setIsDepartmentDisabled(initialData.role.name === "Dean");
     }
   }, [initialData, form]);
+
+  useEffect(() => {
+    if (!selectedFaculty) {
+      setIsDepartmentDisabled(true);
+    }
+  }, []);
 
   const handleFormSubmit = async (data: z.infer<typeof userSchema>) => {
     try {
       setIsButtonDisabled(true);
-      await onSubmit(data);
+
+      const cleanedData = { ...data };
+      if (isDepartmentDisabled) {
+        delete cleanedData.department_id;
+      }
+      await onSubmit(cleanedData);
       setIsOpen(false);
       toast({
         description: `User ${initialData ? "Updated" : "Created"} Successfully`,
@@ -98,7 +120,40 @@ const UserForm: React.FC<UserFormProps> = ({
     const facultyId = parseInt(value);
     setSelectedFaculty(facultyId);
     form.setValue("faculty_id", facultyId);
-    form.setValue("department_id", null); // Reset department when faculty changes
+
+    if (facultyId) {
+      // Restore previous department or reset if faculty changed
+      form.setValue(
+        "department_id",
+        form.getValues("department_id") ?? undefined
+      );
+    } else {
+      form.setValue("department_id", null);
+    }
+
+    form.trigger("department_id"); // Ensure validation updates
+  };
+
+  const handleRoleChange = (value: string) => {
+    const roleId = parseInt(value);
+    const selectedRole = roles?.find((role) => role.id === roleId);
+
+    const isDean = selectedRole?.name === "Dean";
+    setIsDepartmentDisabled(isDean);
+    form.setValue("role_id", roleId);
+
+    if (isDean) {
+      // When switching to "Dean," reset the department
+      form.setValue("department_id", null);
+    } else {
+      // When switching back to "Staff," restore the previous department value
+      form.setValue(
+        "department_id",
+        form.getValues("department_id") ?? undefined
+      );
+    }
+
+    form.trigger("department_id"); // Ensure validation updates
   };
 
   const defaultFacultyValue = initialData
@@ -117,6 +172,10 @@ const UserForm: React.FC<UserFormProps> = ({
         ?.id.toString()
     : undefined;
 
+  if (rolesIsloading) {
+    return <div>please wait...</div>;
+  }
+  console.log(departments.find((department) => department.id !== null));
   return (
     <Form {...form}>
       <form
@@ -142,67 +201,99 @@ const UserForm: React.FC<UserFormProps> = ({
                         label: role.name,
                       })) || []
                     }
-                    onChange={(value) => field.onChange(parseInt(value))}
-                    contentHeight="h-32"
-                  />
-                </div>
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        {/* Faculty */}
-        <FormField
-          control={form.control}
-          name="faculty_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Faculty</FormLabel>
-              <FormControl>
-                <div>
-                  <CustomSelect
-                    defaultValue={defaultFacultyValue}
-                    options={
-                      faculties?.map((faculty) => ({
-                        value: faculty.id.toString(),
-                        label: faculty.name,
-                      })) || []
-                    }
                     onChange={(value) => {
                       field.onChange(parseInt(value));
-                      handleFacultyChange(value);
+                      handleRoleChange(value);
                     }}
                     contentHeight="h-32"
                   />
                 </div>
               </FormControl>
-            </FormItem>
-          )}
-        />
-        {/* Department */}
-        <FormField
-          control={form.control}
-          name="department_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Department</FormLabel>
-              <FormControl>
-                <div>
-                  <CustomSelect
-                    defaultValue={defaultDepartmentValue}
-                    options={
-                      departments?.map((department) => ({
-                        value: department.id.toString(),
-                        label: department.name,
-                      })) || []
-                    }
-                    onChange={(value) => field.onChange(parseInt(value))}
-                    contentHeight="h-32"
-                  />
+              {isFormError && (
+                <div className="text-red-500 text-[12.8px]">
+                  {getServerErrorMessage("role_id")}
                 </div>
-              </FormControl>
+              )}
+              <FormMessage />
             </FormItem>
           )}
         />
+        <div className="grid grid-cols-2 gap-2 w-full">
+          {/* Faculty */}
+          <div className="w-full ">
+            <FormField
+              control={form.control}
+              name="faculty_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Faculty</FormLabel>
+                  <FormControl>
+                    <div>
+                      <CustomSelect
+                        defaultValue={defaultFacultyValue}
+                        options={
+                          faculties?.map((faculty) => ({
+                            value: faculty.id.toString(),
+                            label: faculty.abbreviation,
+                          })) || []
+                        }
+                        onChange={(value) => {
+                          field.onChange(parseInt(value));
+                          handleFacultyChange(value);
+                        }}
+                        contentHeight="h-32"
+                      />
+                    </div>
+                  </FormControl>
+                  {isFormError && (
+                    <div className="text-red-500 text-[12.8px]">
+                      {getServerErrorMessage("faculty_id")}
+                    </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="w-full">
+            {/* Department */}
+            <FormField
+              control={form.control}
+              name="department_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel
+                    className={isDepartmentDisabled ? "text-gray-400" : ""}
+                  >
+                    Department
+                  </FormLabel>
+                  <FormControl>
+                    <div>
+                      <CustomSelect
+                        defaultValue={defaultDepartmentValue}
+                        options={
+                          departments?.map((department) => ({
+                            value: department.id.toString(),
+                            label: department.abbreviation,
+                          })) || []
+                        }
+                        onChange={(value) => field.onChange(parseInt(value))}
+                        contentHeight="h-32"
+                        isDisabled={isDepartmentDisabled}
+                      />
+                    </div>
+                  </FormControl>
+                  {isFormError && (
+                    <div className="text-red-500 text-[12.8px]">
+                      {getServerErrorMessage("department_id")}
+                    </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
 
         {/* First Name */}
         <FormField
@@ -214,6 +305,11 @@ const UserForm: React.FC<UserFormProps> = ({
               <FormControl>
                 <Input placeholder="Enter First name" {...field} />
               </FormControl>
+              {isFormError && (
+                <div className="text-red-500 text-[12.8px]">
+                  {getServerErrorMessage("first_name")}
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -228,6 +324,11 @@ const UserForm: React.FC<UserFormProps> = ({
               <FormControl>
                 <Input placeholder="Enter Last name" {...field} />
               </FormControl>
+              {isFormError && (
+                <div className="text-red-500 text-[12.8px]">
+                  {getServerErrorMessage("last_name")}
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -242,19 +343,26 @@ const UserForm: React.FC<UserFormProps> = ({
               <FormControl>
                 <Input placeholder="Enter Enter Email" {...field} />
               </FormControl>
+              {isFormError && (
+                <div className="text-red-500 text-[12.8px]">
+                  {getServerErrorMessage("email")}
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isButtonDisabled}>
-          {isButtonDisabled
-            ? initialData
-              ? "Updating..."
-              : "Creating..."
-            : initialData
-              ? "Update User"
-              : "Create User"}
-        </Button>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isButtonDisabled}>
+            {isButtonDisabled
+              ? initialData
+                ? "Updating..."
+                : "Creating..."
+              : initialData
+                ? "Update User"
+                : "Create User"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
