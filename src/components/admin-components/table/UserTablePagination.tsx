@@ -24,14 +24,16 @@ export const UserTablePagination: React.FC<UserTablePaginationProps> = ({
   return (
     <div className="flex items-center justify-between px-2 py-4">
       <div className="text-sm text-muted-foreground">
-        {startIndex + 1}-{Math.min(endIndex, totalUsers)} of {totalUsers}
+        {totalUsers === 0
+          ? "No users found"
+          : `${startIndex + 1}-${Math.min(endIndex, totalUsers)} of ${totalUsers}`}
       </div>
       <div className="flex items-center space-x-2">
         <Button
           variant="outline"
           size="icon"
           onClick={goToPreviousPage}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || totalUsers === 0} // ✅ Prevents navigating if no users
         >
           <span className="sr-only">Previous page</span>
           <ChevronLeft className="h-4 w-4" />
@@ -40,7 +42,7 @@ export const UserTablePagination: React.FC<UserTablePaginationProps> = ({
           variant="outline"
           size="icon"
           onClick={goToNextPage}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || totalUsers === 0} // ✅ Prevents navigating if no users
         >
           <span className="sr-only">Next page</span>
           <ChevronRight className="h-4 w-4" />

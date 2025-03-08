@@ -12,11 +12,11 @@ export const UserTableLogic = (
   currentPage: number,
   itemsPerPage: number
 ) => {
-  //   apply searching & sorting BEFORE paginating
+  // 🔍 Apply searching & sorting BEFORE paginating
   const filteredAndSortedUsers = useMemo(() => {
     let processedUsers = [...users];
 
-    //  Search Users
+    // 🔎 Search Users
     if (searchTerm) {
       processedUsers = processedUsers.filter((user) =>
         Object.values(user).some((value) =>
@@ -25,7 +25,7 @@ export const UserTableLogic = (
       );
     }
 
-    //  Sorting
+    // 🔽 Sorting
     if (sortConfig) {
       processedUsers.sort((a, b) => {
         let aValue, bValue;
@@ -58,13 +58,14 @@ export const UserTableLogic = (
     return processedUsers;
   }, [users, searchTerm, sortConfig]);
 
-  // apply pagination AFTER filtering & sorting
-  const totalPages = Math.ceil(filteredAndSortedUsers.length / itemsPerPage);
+  //  Apply pagination AFTER filtering & sorting
+  const totalUsers = filteredAndSortedUsers.length; // ✅ Now updates dynamically
+  const totalPages = Math.ceil(totalUsers / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalUsers);
   const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
 
-  // Sorting Toggle
+  //  Sorting Toggle
   const handleSort =
     (key: SortKey) =>
     (prevConfig: SortConfig): SortConfig => {
@@ -80,6 +81,7 @@ export const UserTableLogic = (
   return {
     filteredAndSortedUsers,
     currentUsers,
+    totalUsers, //  Now passing correct total user count
     totalPages,
     startIndex,
     endIndex,

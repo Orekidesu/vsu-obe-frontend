@@ -38,25 +38,17 @@ const UserTable = () => {
     key: SortKey;
     direction: "asc" | "desc";
   } | null>(null);
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState<boolean>(false);
-  const [isUserEditMode, setIsUserEditMode] = useState<boolean>(false);
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const [formError, setFormError] = useState<
     Record<string, string[]> | string | null
   >(null);
+
   const {
     users,
-    totalUsers,
-    totalPages,
-    startIndex,
-    endIndex,
     isLoading: isUsersLoading,
-    error,
     page,
     setPage,
     createUser,
-    updateUser,
-    deleteUser,
-    resetUserPassword,
   } = useUsers();
 
   // Creating
@@ -64,15 +56,17 @@ const UserTable = () => {
     await createUserHandler(createUser, data, setFormError);
   };
 
-  // Sorting & filtering
-  const { currentUsers, handleSort } = UserTableLogic(
-    users,
-    searchTerm,
-    sortConfig,
-    page,
-    ITEMS_PER_PAGE
-  );
+  // Sorting & filtering logic
+  const {
+    currentUsers,
+    totalUsers,
+    totalPages,
+    startIndex,
+    endIndex,
+    handleSort,
+  } = UserTableLogic(users, searchTerm, sortConfig, page, ITEMS_PER_PAGE);
 
+  // Sorting headers
   const SortableHeader: React.FC<{ column: SortKey; label: string }> = ({
     column,
     label,
@@ -95,6 +89,7 @@ const UserTable = () => {
     Department: "bg-yellow-600",
     Staff: "bg-yellow-600",
   };
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4">
@@ -103,7 +98,10 @@ const UserTable = () => {
           <Input
             placeholder="Search users..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1); // ✅ Reset pagination when searching
+            }}
             className="pl-8 md:w-1/4 w-1/3"
             disabled={isUsersLoading}
           />
@@ -139,13 +137,13 @@ const UserTable = () => {
           <TableBody>
             {isUsersLoading ? (
               <TableRow>
-                <TableCell className="text-center py-4">
-                  Loading Users
+                <TableCell colSpan={6} className="text-center py-4">
+                  Loading Users...
                 </TableCell>
               </TableRow>
             ) : currentUsers.length === 0 ? (
               <TableRow>
-                <TableCell className="text-center py-4">
+                <TableCell colSpan={6} className="text-center py-4">
                   No users found
                 </TableCell>
               </TableRow>
@@ -188,7 +186,7 @@ const UserTable = () => {
                         },
                         {
                           label: "Details",
-                          icon: <FileSearch2 className="h-4 w-4 mr-2" />,
+                          icon: <FileSearch2 className="h-4 w-4 mr-2 " />,
                           onClick: () => {},
                         },
                         {

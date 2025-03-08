@@ -14,7 +14,6 @@ const useRoles = () => {
   });
 
   const roles = data?.data ?? [];
-  console.log("roles data:", roles);
   return {
     roles,
     error,
