@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import useFaculties from "@/hooks/admin/useFaculty";
 import useRoles from "@/hooks/admin/useRole";
 import CustomSelect from "@/components/commons/select/CustomSelect";
+import useUsers from "@/hooks/admin/useUser";
 
 import { Button, Input } from "@/components/ui";
 import {
@@ -50,7 +51,7 @@ const UserForm: React.FC<UserFormProps> = ({
   const [isFormError, setIsFormError] = useState<boolean>(false);
   const [selectedFaculty, setSelectedFaculty] = useState<number | null>(null);
   const [isDepartmentDisabled, setIsDepartmentDisabled] = useState(false);
-
+  const { users } = useUsers();
   const { roles, isLoading: rolesIsloading, error: rolesError } = useRoles();
   const { faculties } = useFaculties();
 
@@ -96,6 +97,49 @@ const UserForm: React.FC<UserFormProps> = ({
       if (isDepartmentDisabled) {
         delete cleanedData.department_id;
       }
+
+      // 🔍 Dynamically Get Role IDs from `roles` List
+      const deanRole = roles.find((role) => role.name === "Dean");
+      const departmentRole = roles.find((role) => role.name === "Department");
+
+      // 🔍 Validation: Restrict Dean per Faculty
+      if (deanRole && cleanedData.role_id === deanRole.id) {
+        const facultyHasDean = users.some(
+          (user) =>
+            user.role.id === deanRole.id &&
+            user.faculty.id === cleanedData.faculty_id
+        );
+
+        if (facultyHasDean) {
+          setIsFormError(true);
+          setIsButtonDisabled(false);
+          toast({
+            description: "A Dean already exists for this faculty.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
+      // 🔍 Validation: Restrict Department Account per Department
+      if (departmentRole && cleanedData.role_id === departmentRole.id) {
+        const departmentHasAccount = users.some(
+          (user) =>
+            user.role.id === departmentRole.id &&
+            user.department?.id === cleanedData.department_id
+        );
+
+        if (departmentHasAccount) {
+          setIsFormError(true);
+          setIsButtonDisabled(false);
+          toast({
+            description: "An account already exists for this department.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
       await onSubmit(cleanedData);
       setIsOpen(false);
       toast({
@@ -175,7 +219,6 @@ const UserForm: React.FC<UserFormProps> = ({
   if (rolesIsloading) {
     return <div>please wait...</div>;
   }
-  console.log(departments.find((department) => department.id !== null));
   return (
     <Form {...form}>
       <form
