@@ -8,7 +8,7 @@ import useFaculties from "@/hooks/admin/useFaculty";
 import useRoles from "@/hooks/admin/useRole";
 import CustomSelect from "@/components/commons/select/CustomSelect";
 import useUsers from "@/hooks/admin/useUser";
-
+import FormInput from "./form-input";
 import { Button, Input } from "@/components/ui";
 import {
   Form,
@@ -19,7 +19,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { tree } from "next/dist/build/templates/app-page";
 
 // initialize a schema
 
@@ -53,7 +52,7 @@ const UserForm: React.FC<UserFormProps> = ({
   const [isDepartmentDisabled, setIsDepartmentDisabled] = useState(false);
   const { users } = useUsers();
   const { roles, isLoading: rolesIsloading, error: rolesError } = useRoles();
-  const { faculties } = useFaculties();
+  const { faculties, isLoading: facultyIsLoading } = useFaculties();
 
   // initialize the form, initialize default values to avoid error
   const form = useForm<z.infer<typeof userSchema>>({
@@ -77,14 +76,14 @@ const UserForm: React.FC<UserFormProps> = ({
       form.setValue("email", initialData.email);
       form.setValue("role_id", initialData.role.id);
       form.setValue("faculty_id", initialData.faculty.id);
-      form.setValue("department_id", initialData?.department.id);
+      form.setValue("department_id", initialData.department.id);
       setSelectedFaculty(initialData.faculty.id);
       setIsDepartmentDisabled(initialData.role.name === "Dean");
     }
   }, [initialData, form]);
 
   useEffect(() => {
-    if (!selectedFaculty) {
+    if (!selectedFaculty && !initialData) {
       setIsDepartmentDisabled(true);
     }
   }, []);
@@ -98,16 +97,17 @@ const UserForm: React.FC<UserFormProps> = ({
         delete cleanedData.department_id;
       }
 
-      // 🔍 Dynamically Get Role IDs from `roles` List
+      //  Dynamically Get Role IDs from `roles` List
       const deanRole = roles.find((role) => role.name === "Dean");
       const departmentRole = roles.find((role) => role.name === "Department");
 
-      // 🔍 Validation: Restrict Dean per Faculty
+      //  Validation: Restrict Dean per Faculty (Exclude Self)
       if (deanRole && cleanedData.role_id === deanRole.id) {
         const facultyHasDean = users.some(
           (user) =>
             user.role.id === deanRole.id &&
-            user.faculty.id === cleanedData.faculty_id
+            user.faculty.id === cleanedData.faculty_id &&
+            user.id !== initialData?.id //  Exclude current user
         );
 
         if (facultyHasDean) {
@@ -121,12 +121,13 @@ const UserForm: React.FC<UserFormProps> = ({
         }
       }
 
-      // 🔍 Validation: Restrict Department Account per Department
+      //  Validation: Restrict Department Account per Department (Exclude Self)
       if (departmentRole && cleanedData.role_id === departmentRole.id) {
         const departmentHasAccount = users.some(
           (user) =>
             user.role.id === departmentRole.id &&
-            user.department?.id === cleanedData.department_id
+            user.department?.id === cleanedData.department_id &&
+            user.id !== initialData?.id //  Exclude current user
         );
 
         if (departmentHasAccount) {
@@ -200,23 +201,11 @@ const UserForm: React.FC<UserFormProps> = ({
     form.trigger("department_id"); // Ensure validation updates
   };
 
-  const defaultFacultyValue = initialData
-    ? faculties
-        ?.find((faculty) => faculty.id === initialData.faculty.id)
-        ?.id.toString()
-    : undefined;
-
   const departments =
     faculties?.find((faculty) => faculty.id === selectedFaculty)?.departments ||
     [];
 
-  const defaultDepartmentValue = initialData
-    ? departments
-        ?.find((department) => department.id === initialData.department.id)
-        ?.id.toString()
-    : undefined;
-
-  if (rolesIsloading) {
+  if (rolesIsloading || facultyIsLoading) {
     return <div>please wait...</div>;
   }
   return (
@@ -273,7 +262,9 @@ const UserForm: React.FC<UserFormProps> = ({
                   <FormControl>
                     <div>
                       <CustomSelect
-                        defaultValue={defaultFacultyValue}
+                        defaultValue={
+                          initialData ? initialData.faculty.id.toString() : ""
+                        }
                         options={
                           faculties?.map((faculty) => ({
                             value: faculty.id.toString(),
@@ -313,7 +304,11 @@ const UserForm: React.FC<UserFormProps> = ({
                   <FormControl>
                     <div>
                       <CustomSelect
-                        defaultValue={defaultDepartmentValue}
+                        defaultValue={
+                          initialData
+                            ? initialData.department.id.toString()
+                            : ""
+                        }
                         options={
                           departments?.map((department) => ({
                             value: department.id.toString(),

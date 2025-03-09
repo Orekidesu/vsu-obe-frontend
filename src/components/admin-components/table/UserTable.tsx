@@ -26,7 +26,10 @@ import { UserTableLogic } from "@/components/admin-components/table/UserTableLog
 import { UserTablePagination } from "./UserTablePagination";
 import UserForm from "../form/UserForm";
 import { User } from "@/types/model/User";
-import { createUserHandler } from "@/app/utils/admin/handleUser";
+import {
+  createUserHandler,
+  updateUserHandler,
+} from "@/app/utils/admin/handleUser";
 
 type SortKey = "name" | "role" | "department" | "faculty";
 
@@ -39,6 +42,8 @@ const UserTable = () => {
     direction: "asc" | "desc";
   } | null>(null);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [isUserEditMode, setIsUserEditMode] = useState<boolean>(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formError, setFormError] = useState<
     Record<string, string[]> | string | null
   >(null);
@@ -49,11 +54,34 @@ const UserTable = () => {
     page,
     setPage,
     createUser,
+    updateUser,
+    deleteUser,
   } = useUsers();
 
-  // Creating
+  // Creating User
   const handleCreateUser = async (data: Partial<User>) => {
     await createUserHandler(createUser, data, setFormError);
+  };
+
+  // Updating User
+  const handleUpdateUser = async (data: Partial<User>) => {
+    await updateUserHandler(updateUser, data, setFormError);
+    setIsUserEditMode(false);
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user); //set selected user state
+    setIsUserEditMode(true);
+    setIsUserDialogOpen(true);
+  };
+
+  // Handling submit form
+  const handleSubmitUserForm = async (data: Partial<User>) => {
+    if (isUserEditMode && selectedUser) {
+      await handleUpdateUser({ ...selectedUser, ...data });
+    } else {
+      await handleCreateUser(data);
+    }
   };
 
   // Sorting & filtering logic
@@ -100,7 +128,7 @@ const UserTable = () => {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setPage(1); // ✅ Reset pagination when searching
+              setPage(1); //  Reset pagination when searching
             }}
             className="pl-8 md:w-1/4 w-1/3"
             disabled={isUsersLoading}
@@ -108,16 +136,20 @@ const UserTable = () => {
         </div>
         <CustomDialog
           buttonTitle="Add User"
-          title="Add User"
+          title={`${isUserEditMode ? "Edit" : "Add"} User`}
           footerButtonTitle="save"
           isOpen={isUserDialogOpen}
-          setIsOpen={setIsUserDialogOpen}
+          setIsOpen={(isOpen) => {
+            setIsUserDialogOpen(isOpen);
+            if (!isOpen) setIsUserEditMode(false);
+          }}
           buttonIcon={<Plus />}
         >
           <UserForm
-            onSubmit={handleCreateUser}
+            onSubmit={handleSubmitUserForm}
             setIsOpen={setIsUserDialogOpen}
             error={formError}
+            initialData={isUserEditMode ? selectedUser || undefined : undefined}
           />
         </CustomDialog>
       </div>
@@ -153,7 +185,10 @@ const UserTable = () => {
                   key={user.id}
                   className={`${
                     index !== currentUsers.length - 1 ? "border-b" : ""
-                  } hover:bg-gray-50 transition-colors`}
+                  } hover:bg-primary/10 transition-colors ${
+                    selectedUser?.id === user.id ? "bg-primary/10" : ""
+                  }`} // Highlight row if user is selected
+                  onClick={() => setSelectedUser(user)}
                 >
                   <TableCell className="py-4 w-1/5">
                     {user.first_name} {user.last_name}
@@ -182,7 +217,7 @@ const UserTable = () => {
                         {
                           label: "Edit",
                           icon: <Pencil className="h-4 w-4 mr-2" />,
-                          onClick: () => {},
+                          onClick: () => handleEditUser(user),
                         },
                         {
                           label: "Details",
