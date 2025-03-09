@@ -64,7 +64,7 @@ const UserForm: React.FC<UserFormProps> = ({
       email: initialData?.email || "",
       role_id: initialData?.role.id || undefined,
       faculty_id: initialData?.faculty.id || undefined,
-      department_id: initialData?.department?.id || undefined,
+      department_id: initialData?.department?.id || null,
     },
   });
 
@@ -76,7 +76,7 @@ const UserForm: React.FC<UserFormProps> = ({
       form.setValue("email", initialData.email);
       form.setValue("role_id", initialData.role.id);
       form.setValue("faculty_id", initialData.faculty.id);
-      form.setValue("department_id", initialData.department.id);
+      form.setValue("department_id", initialData.department?.id ?? null);
       setSelectedFaculty(initialData.faculty.id);
       setIsDepartmentDisabled(initialData.role.name === "Dean");
     }
@@ -305,9 +305,9 @@ const UserForm: React.FC<UserFormProps> = ({
                     <div>
                       <CustomSelect
                         defaultValue={
-                          initialData
+                          initialData?.department?.id
                             ? initialData.department.id.toString()
-                            : ""
+                            : "" //  Ensure it doesn't break when department is null
                         }
                         options={
                           departments?.map((department) => ({

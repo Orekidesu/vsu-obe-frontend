@@ -117,7 +117,6 @@ const UserTable = () => {
     Department: "bg-yellow-600",
     Staff: "bg-yellow-600",
   };
-
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4">
