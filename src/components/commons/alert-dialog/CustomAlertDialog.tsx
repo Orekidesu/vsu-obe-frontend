@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,12 +11,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface CustomAlertDialogProps {
   title: string;
   description?: string;
   cancelText?: string;
   actionText?: string;
+  preActionText?: string;
   actionVariant?:
     | "default"
     | "destructive"
@@ -25,25 +29,28 @@ interface CustomAlertDialogProps {
     | "link";
   actionClassName?: string;
   onCancel?: () => void;
-  onAction?: () => void;
+  onAction?: () => void; // Now only triggers, does not manage state
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChangeAction: (open: boolean) => void;
+  isLoading?: boolean; // ✅ Moved state management to the parent
 }
 
 export function CustomAlertDialog({
   title,
   description,
   cancelText = "Cancel",
-  actionText = "Continue",
-  actionVariant = "default",
+  preActionText = "Delete",
+  actionText = "Deleting...",
+  actionVariant = "destructive",
   actionClassName = "",
   onCancel,
   onAction,
   open,
-  onOpenChange,
+  onOpenChangeAction,
+  isLoading = false, // Controlled externally
 }: CustomAlertDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={onOpenChangeAction}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -52,16 +59,19 @@ export function CustomAlertDialog({
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel onClick={onCancel} disabled={isLoading}>
+            {cancelText}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={onAction}
-            className={`${
-              actionVariant === "destructive"
-                ? "bg-destructive text-white hover:bg-destructive/90"
-                : ""
-            } ${actionClassName}`}
+            disabled={isLoading}
+            className={cn(
+              actionVariant === "destructive" &&
+                "bg-destructive text-white hover:bg-destructive/90",
+              actionClassName
+            )}
           >
-            {actionText}
+            {isLoading ? actionText : preActionText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

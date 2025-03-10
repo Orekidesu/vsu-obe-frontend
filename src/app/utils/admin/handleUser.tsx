@@ -70,12 +70,16 @@ export const deleteUserHandler = async (
   deleteUser: UseMutationResult<any, any, number, unknown>,
   id: number
 ) => {
-  deleteUser.mutate(id, {
-    onError: (error: any) => {
-      toast({ description: error.message, variant: "destructive" });
-    },
-    onSuccess: () => {
-      toast({ description: "User Deleted Successfully", variant: "success" });
-    },
+  return new Promise<void>((resolve, reject) => {
+    deleteUser.mutate(id, {
+      onError: (error: any) => {
+        toast({ description: error.message, variant: "destructive" });
+        reject(error); //  Ensure error is propagated
+      },
+      onSuccess: () => {
+        toast({ description: "User Deleted Successfully", variant: "success" });
+        resolve(); // Ensure success resolves the Promise
+      },
+    });
   });
 };

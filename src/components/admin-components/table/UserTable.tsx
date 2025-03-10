@@ -51,6 +51,7 @@ const UserTable = () => {
     Record<string, string[]> | string | null
   >(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const {
     users,
     isLoading: isUsersLoading,
@@ -79,8 +80,22 @@ const UserTable = () => {
   };
 
   const handleDeleteUser = async (id: number) => {
-    await deleteUserHandler(deleteUser, id);
-    setIsAlertDialogOpen(false);
+    setIsDeleting(true); //  Show "Deleting..."
+    try {
+      await deleteUserHandler(deleteUser, id); //  Wait until deletion is done
+      setIsAlertDialogOpen(false); //  Close dialog only AFTER deletion
+      setUserToDelete(null);
+    } catch (error) {
+      console.error("Deletion failed:", error);
+    } finally {
+      setIsDeleting(false); //  Reset button state
+    }
+  };
+
+  // Trigger delete modal from dropdown
+  const confirmDeleteUser = (user: User) => {
+    setUserToDelete(user);
+    setIsAlertDialogOpen(true);
   };
   // Handling submit form
   const handleSubmitUserForm = async (data: Partial<User>) => {
@@ -235,10 +250,10 @@ const UserTable = () => {
                           icon: (
                             <Trash2 className="h-4 w-4 mr-2 text-red-500" />
                           ),
-                          onClick: () => {
-                            setUserToDelete(user); //set the user to delete
-                            setIsAlertDialogOpen(true); // set the alert dialog to true
-                          },
+
+                          onClick: () => confirmDeleteUser(user),
+                          // setUserToDelete(user); //set the user to delete
+                          // setIsAlertDialogOpen(true); // set the alert dialog to true
                         },
                       ]}
                     />
@@ -266,18 +281,11 @@ const UserTable = () => {
         description="Are you sure you want to delete this user? This action cannot be undone."
         actionText="Delete"
         actionVariant="destructive"
-        onAction={() => {
-          if (userToDelete) {
-            handleDeleteUser(userToDelete.id);
-          }
-        }}
-        cancelText="Cancel"
-        onCancel={() => setUserToDelete(null)}
+        isLoading={isDeleting} //  Pass state from UserTable
+        onAction={() => userToDelete && handleDeleteUser(userToDelete.id)}
+        onCancel={() => setIsAlertDialogOpen(false)}
         open={isAlertDialogOpen}
-        onOpenChange={(open) => {
-          setIsAlertDialogOpen(open);
-          if (!open) setUserToDelete(null); // Cleanup user selection
-        }}
+        onOpenChangeAction={setIsAlertDialogOpen}
       />
     </div>
   );
