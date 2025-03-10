@@ -22,6 +22,7 @@ import {
 import useUsers from "@/hooks/admin/useUser";
 import CustomDropdown from "@/components/commons/dropdown/CustomDropdown";
 import CustomDialog from "@/components/commons/dialog/CustomDialog";
+import { CustomAlertDialog } from "@/components/commons/alert-dialog/CustomAlertDialog";
 import { UserTableLogic } from "@/components/admin-components/table/UserTableLogic";
 import { UserTablePagination } from "./UserTablePagination";
 import UserForm from "../form/UserForm";
@@ -29,6 +30,7 @@ import { User } from "@/types/model/User";
 import {
   createUserHandler,
   updateUserHandler,
+  deleteUserHandler,
 } from "@/app/utils/admin/handleUser";
 
 type SortKey = "name" | "role" | "department" | "faculty";
@@ -42,12 +44,13 @@ const UserTable = () => {
     direction: "asc" | "desc";
   } | null>(null);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState<boolean>(false);
   const [isUserEditMode, setIsUserEditMode] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formError, setFormError] = useState<
     Record<string, string[]> | string | null
   >(null);
-
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const {
     users,
     isLoading: isUsersLoading,
@@ -75,6 +78,10 @@ const UserTable = () => {
     setIsUserDialogOpen(true);
   };
 
+  const handleDeleteUser = async (id: number) => {
+    await deleteUserHandler(deleteUser, id);
+    setIsAlertDialogOpen(false);
+  };
   // Handling submit form
   const handleSubmitUserForm = async (data: Partial<User>) => {
     if (isUserEditMode && selectedUser) {
@@ -228,7 +235,10 @@ const UserTable = () => {
                           icon: (
                             <Trash2 className="h-4 w-4 mr-2 text-red-500" />
                           ),
-                          onClick: () => {},
+                          onClick: () => {
+                            setUserToDelete(user); //set the user to delete
+                            setIsAlertDialogOpen(true); // set the alert dialog to true
+                          },
                         },
                       ]}
                     />
@@ -239,7 +249,7 @@ const UserTable = () => {
           </TableBody>
         </Table>
       </div>
-
+      {/* Pagination Area */}
       <UserTablePagination
         currentPage={page}
         totalPages={totalPages}
@@ -248,6 +258,26 @@ const UserTable = () => {
         totalUsers={totalUsers}
         goToPreviousPage={() => setPage((prev) => Math.max(1, prev - 1))}
         goToNextPage={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+      />
+
+      {/* Custom Alert Dialog Area */}
+      <CustomAlertDialog
+        title="Delete User"
+        description="Are you sure you want to delete this user? This action cannot be undone."
+        actionText="Delete"
+        actionVariant="destructive"
+        onAction={() => {
+          if (userToDelete) {
+            handleDeleteUser(userToDelete.id);
+          }
+        }}
+        cancelText="Cancel"
+        onCancel={() => setUserToDelete(null)}
+        open={isAlertDialogOpen}
+        onOpenChange={(open) => {
+          setIsAlertDialogOpen(open);
+          if (!open) setUserToDelete(null); // Cleanup user selection
+        }}
       />
     </div>
   );
