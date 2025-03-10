@@ -90,7 +90,11 @@ const UserTable = () => {
     setIsUserEditMode(true);
     setIsUserDialogOpen(true);
   };
-
+  // Trigger delete modal from dropdown
+  const confirmDeleteUser = (user: User) => {
+    setUserToDelete(user);
+    setIsAlertDialogOpen(true);
+  };
   const handleDeleteUser = async (id: number) => {
     setIsDeleting(true); //  Show "Deleting..."
     try {
@@ -116,11 +120,6 @@ const UserTable = () => {
     }
   };
 
-  // Trigger delete modal from dropdown
-  const confirmDeleteUser = (user: User) => {
-    setUserToDelete(user);
-    setIsAlertDialogOpen(true);
-  };
   // Handling submit form
   const handleSubmitUserForm = async (data: Partial<User>) => {
     if (isUserEditMode && selectedUser) {
