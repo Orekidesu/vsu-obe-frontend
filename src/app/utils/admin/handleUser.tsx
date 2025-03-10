@@ -1,6 +1,8 @@
+import { toast } from "@/hooks/use-toast";
 import { User } from "@/types/model/User";
 import { UseMutationResult } from "@tanstack/react-query";
 import { rejects } from "assert";
+import { error } from "console";
 import { set } from "react-hook-form";
 import { number } from "zod";
 
@@ -61,5 +63,19 @@ export const updateUserHandler = async (
         }
       );
     }
+  });
+};
+
+export const deleteUserHandler = async (
+  deleteUser: UseMutationResult<any, any, number, unknown>,
+  id: number
+) => {
+  deleteUser.mutate(id, {
+    onError: (error: any) => {
+      toast({ description: error.message, variant: "destructive" });
+    },
+    onSuccess: () => {
+      toast({ description: "User Deleted Successfully", variant: "success" });
+    },
   });
 };
