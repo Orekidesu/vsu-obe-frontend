@@ -6,6 +6,7 @@ import { error } from "console";
 import { set } from "react-hook-form";
 import { number } from "zod";
 
+// create
 export const createUserHandler = async (
   createUserMutation: UseMutationResult<any, any, Partial<User>, unknown>,
   data: Partial<User>,
@@ -30,6 +31,7 @@ export const createUserHandler = async (
   });
 };
 
+// update
 export const updateUserHandler = async (
   updateUserMutation: UseMutationResult<
     any,
@@ -66,6 +68,8 @@ export const updateUserHandler = async (
   });
 };
 
+// delete
+
 export const deleteUserHandler = async (
   deleteUser: UseMutationResult<any, any, number, unknown>,
   id: number
@@ -81,5 +85,27 @@ export const deleteUserHandler = async (
         resolve(); // Ensure success resolves the Promise
       },
     });
+  });
+};
+
+// reset password
+
+export const resetUserPasswordHandler = async (
+  resetUserPassword: UseMutationResult<any, any, number, unknown>,
+  id: number
+) => {
+  resetUserPassword.mutate(id, {
+    onError: (error: any) => {
+      toast({
+        description: error.message || "Failed to reset password.",
+        variant: "destructive",
+      });
+    },
+    onSuccess: () => {
+      toast({
+        description: "Password has been reset successfully!",
+        variant: "success",
+      });
+    },
   });
 };

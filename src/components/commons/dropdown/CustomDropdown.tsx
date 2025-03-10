@@ -17,9 +17,10 @@ interface DropdownAction {
 
 interface CustomDropdownProps {
   actions: DropdownAction[];
+  margin?: string; // Add margin prop
 }
 
-const CustomDropdown: React.FC<CustomDropdownProps> = ({ actions }) => {
+const CustomDropdown: React.FC<CustomDropdownProps> = ({ actions, margin }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,7 +30,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ actions }) => {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent>
+      <DropdownMenuContent style={{ margin: margin || "0" }}>
         {actions.map((action, index) => (
           <DropdownMenuItem key={index} onClick={action.onClick}>
             {action.icon}

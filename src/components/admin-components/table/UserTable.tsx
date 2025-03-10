@@ -31,6 +31,7 @@ import {
   createUserHandler,
   updateUserHandler,
   deleteUserHandler,
+  resetUserPasswordHandler,
 } from "@/app/utils/admin/handleUser";
 
 type SortKey = "name" | "role" | "department" | "faculty";
@@ -38,20 +39,6 @@ type SortKey = "name" | "role" | "department" | "faculty";
 const ITEMS_PER_PAGE = 5;
 
 const UserTable = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState<{
-    key: SortKey;
-    direction: "asc" | "desc";
-  } | null>(null);
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
-  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState<boolean>(false);
-  const [isUserEditMode, setIsUserEditMode] = useState<boolean>(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [formError, setFormError] = useState<
-    Record<string, string[]> | string | null
-  >(null);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const {
     users,
     isLoading: isUsersLoading,
@@ -60,7 +47,32 @@ const UserTable = () => {
     createUser,
     updateUser,
     deleteUser,
+    resetUserPassword,
   } = useUsers();
+
+  // Searching & Sorting
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState<{
+    key: SortKey;
+    direction: "asc" | "desc";
+  } | null>(null);
+
+  // Dialog states
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState<boolean>(false);
+  const [isUserEditMode, setIsUserEditMode] = useState<boolean>(false);
+  const [userToReset, setUserToReset] = useState<User | null>(null);
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState<boolean>(false);
+
+  // user state
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  // Error states
+  const [formError, setFormError] = useState<
+    Record<string, string[]> | string | null
+  >(null);
+
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Creating User
   const handleCreateUser = async (data: Partial<User>) => {
@@ -89,6 +101,18 @@ const UserTable = () => {
       console.error("Deletion failed:", error);
     } finally {
       setIsDeleting(false); //  Reset button state
+    }
+  };
+
+  const handleResetUserPassword = async (id: number) => {
+    try {
+      await resetUserPasswordHandler(resetUserPassword, id); // Wait until password reset is done
+      setTimeout(() => {
+        setIsResetDialogOpen(false); // Close dialog only AFTER reset and delay
+        setUserToReset(null);
+      }, 2000); // Delay of 2 seconds before closing the dialog
+    } catch (error) {
+      console.error("Password reset failed:", error);
     }
   };
 
@@ -174,7 +198,6 @@ const UserTable = () => {
           />
         </CustomDialog>
       </div>
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -246,16 +269,29 @@ const UserTable = () => {
                           onClick: () => {},
                         },
                         {
+                          label: "Reset Password",
+                          icon: (
+                            <img
+                              src="\assets\icons\change-password.svg"
+                              alt=""
+                              className="h-4 w-4 mr-2"
+                            />
+                          ),
+                          onClick: () => {
+                            setUserToReset(user);
+                            setIsResetDialogOpen(true);
+                          },
+                        },
+                        {
                           label: "Delete",
                           icon: (
                             <Trash2 className="h-4 w-4 mr-2 text-red-500" />
                           ),
 
                           onClick: () => confirmDeleteUser(user),
-                          // setUserToDelete(user); //set the user to delete
-                          // setIsAlertDialogOpen(true); // set the alert dialog to true
                         },
                       ]}
+                      margin="0 20px 0 0"
                     />
                   </TableCell>
                 </TableRow>
@@ -274,8 +310,7 @@ const UserTable = () => {
         goToPreviousPage={() => setPage((prev) => Math.max(1, prev - 1))}
         goToNextPage={() => setPage((prev) => Math.min(totalPages, prev + 1))}
       />
-
-      {/* Custom Alert Dialog Area */}
+      {/* Custom Alert Dialog  For Deleting User Area */}
       <CustomAlertDialog
         title="Delete User"
         description="Are you sure you want to delete this user? This action cannot be undone."
@@ -286,6 +321,26 @@ const UserTable = () => {
         onCancel={() => setIsAlertDialogOpen(false)}
         open={isAlertDialogOpen}
         onOpenChangeAction={setIsAlertDialogOpen}
+      />
+      {/* Custom Alert Dialog for Reseting User Password Area */}
+      <CustomAlertDialog
+        title="Reset Password"
+        description={`Are you sure you want to reset the password for ${userToReset?.first_name} ${userToReset?.last_name}? This action cannot be undone.`}
+        actionText="Resetting..."
+        preActionText="Reset"
+        actionVariant="destructive"
+        onAction={() => {
+          if (userToReset) {
+            handleResetUserPassword(userToReset.id);
+          }
+        }}
+        cancelText="Cancel"
+        onCancel={() => {
+          setIsResetDialogOpen(false);
+          setUserToReset(null);
+        }}
+        open={isResetDialogOpen}
+        onOpenChangeAction={setIsResetDialogOpen}
       />
     </div>
   );
