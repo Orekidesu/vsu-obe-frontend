@@ -113,9 +113,9 @@ const UserTable = () => {
   );
 
   const roleColors: { [key: string]: string } = {
-    Dean: "bg-green-600",
-    Department: "bg-yellow-600",
-    Staff: "bg-yellow-600",
+    Dean: "bg-green-200 text-green-800",
+    Department: "bg-yellow-200 text-yellow-800",
+    Staff: "bg-orange-200 text-orange-800",
   };
   return (
     <div className="w-full">
@@ -194,7 +194,7 @@ const UserTable = () => {
                   </TableCell>
                   <TableCell className="py-4 w-1/8">
                     <span
-                      className={`px-2 py-1 rounded-lg text-white ${roleColors[user.role.name] || "bg-gray-600"}`}
+                      className={`px-2 py-1  rounded-lg ${roleColors[user.role.name] || "bg-gray-600"}`}
                     >
                       {user.role.name}
                     </span>
