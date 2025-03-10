@@ -72,15 +72,6 @@ const UserForm: React.FC<UserFormProps> = ({
 
   useEffect(() => {
     if (initialData) {
-      form.setValue("id", initialData.id);
-      form.setValue("first_name", initialData.first_name);
-      form.setValue("last_name", initialData.last_name);
-      form.setValue("email", initialData.email);
-      form.setValue("role_id", initialData.role.id);
-      form.setValue("faculty_id", initialData.faculty.id);
-      form.setValue("department_id", initialData.department?.id ?? null);
-      // setIsDepartmentDisabled(initialData.role.name === "Dean");
-
       // Set all fields to disable when there is initial data: which means it does not allow to change roles and update faculty and department
       // so only the name and email is allowed to change when updating a user
       setSelectedFaculty(initialData.faculty.id);
