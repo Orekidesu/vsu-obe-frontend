@@ -49,6 +49,8 @@ const UserForm: React.FC<UserFormProps> = ({
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isFormError, setIsFormError] = useState<boolean>(false);
   const [selectedFaculty, setSelectedFaculty] = useState<number | null>(null);
+  const [isRoleDisabled, setIsRoleDisabled] = useState(false);
+  const [isFacultyDisabled, setIsFacultyDisabled] = useState(false);
   const [isDepartmentDisabled, setIsDepartmentDisabled] = useState(false);
   const { users } = useUsers();
   const { roles, isLoading: rolesIsloading, error: rolesError } = useRoles();
@@ -77,8 +79,14 @@ const UserForm: React.FC<UserFormProps> = ({
       form.setValue("role_id", initialData.role.id);
       form.setValue("faculty_id", initialData.faculty.id);
       form.setValue("department_id", initialData.department?.id ?? null);
+      // setIsDepartmentDisabled(initialData.role.name === "Dean");
+
+      // Set all fields to disable when there is initial data: which means it does not allow to change roles and update faculty and department
+      // so only the name and email is allowed to change when updating a user
       setSelectedFaculty(initialData.faculty.id);
-      setIsDepartmentDisabled(initialData.role.name === "Dean");
+      setIsRoleDisabled(true);
+      setIsFacultyDisabled(true);
+      setIsDepartmentDisabled(true);
     }
   }, [initialData, form]);
 
@@ -208,6 +216,7 @@ const UserForm: React.FC<UserFormProps> = ({
   if (rolesIsloading || facultyIsLoading) {
     return <div>please wait...</div>;
   }
+  console.log(initialData);
   return (
     <Form {...form}>
       <form
@@ -220,7 +229,9 @@ const UserForm: React.FC<UserFormProps> = ({
           name="role_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Roles</FormLabel>
+              <FormLabel className={isRoleDisabled ? "text-gray-600" : ""}>
+                Roles
+              </FormLabel>
               <FormControl>
                 <div>
                   <CustomSelect
@@ -238,6 +249,7 @@ const UserForm: React.FC<UserFormProps> = ({
                       handleRoleChange(value);
                     }}
                     contentHeight="h-32"
+                    isDisabled={isRoleDisabled}
                   />
                 </div>
               </FormControl>
@@ -258,7 +270,11 @@ const UserForm: React.FC<UserFormProps> = ({
               name="faculty_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Faculty</FormLabel>
+                  <FormLabel
+                    className={isFacultyDisabled ? "text-gray-600" : ""}
+                  >
+                    Faculty
+                  </FormLabel>
                   <FormControl>
                     <div>
                       <CustomSelect
@@ -276,6 +292,7 @@ const UserForm: React.FC<UserFormProps> = ({
                           handleFacultyChange(value);
                         }}
                         contentHeight="h-32"
+                        isDisabled={isFacultyDisabled}
                       />
                     </div>
                   </FormControl>
@@ -297,7 +314,7 @@ const UserForm: React.FC<UserFormProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel
-                    className={isDepartmentDisabled ? "text-gray-400" : ""}
+                    className={isDepartmentDisabled ? "text-gray-600" : ""}
                   >
                     Department
                   </FormLabel>
