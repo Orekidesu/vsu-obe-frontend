@@ -61,10 +61,38 @@ const useUsers = () => {
     return await getUserById(id);
   };
 
-  // Delete User
   const deleteUserMutation = useMutation({
     mutationFn: async (id: number) => deleteUser(id),
-    onSuccess: () => {
+
+    //  Optimistically update UI before API response
+    onMutate: async (id: number) => {
+      await queryClient.cancelQueries({ queryKey: ["users"] });
+
+      // Snapshot previous users before deletion
+      const previousUsers = queryClient.getQueryData<{ data: User[] }>([
+        "users",
+      ]);
+
+      // Optimistically remove user from the UI
+      queryClient.setQueryData(["users"], (oldData: any) => {
+        return {
+          ...oldData,
+          data: oldData.data.filter((user: User) => user.id !== id),
+        };
+      });
+
+      return { previousUsers };
+    },
+
+    //  Rollback on error
+    onError: (error, id, context) => {
+      if (context?.previousUsers) {
+        queryClient.setQueryData(["users"], context.previousUsers);
+      }
+    },
+
+    //  Refetch to ensure data consistency
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
