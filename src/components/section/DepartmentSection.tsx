@@ -8,6 +8,7 @@ import { Input } from "@/components/ui";
 import CustomSelect from "@/components/commons/select/CustomSelect";
 import CustomDropdown from "@/components/commons/dropdown/CustomDropdown";
 import CustomDialog from "@/components/commons/dialog/CustomDialog";
+import { CustomAlertDialog } from "../commons/alert-dialog/CustomAlertDialog";
 import {
   createDepartmentHandler,
   updateDepartmentHandler,
@@ -40,6 +41,15 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
   const [searchDepartmentQuery, setSearchDepartmentQuery] = useState("");
   const [sortOrderDepartments, setSortOrderDepartments] = useState("asc");
 
+  // Dialog for deleting
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState<boolean>(false);
+
+  const [isDepartmentDetailsDialogOpen, setIsDepartmentDetailsDialogOpen] =
+    useState<boolean>(false);
+  const [departmentToDelete, setDepartmentToDelete] =
+    useState<Department | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
   const handleCreateDepartment = async (data: Partial<Department>) => {
     await createDepartmentHandler(createDepartment, data, setFormError);
   };
@@ -48,8 +58,26 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
     await updateDepartmentHandler(updateDepartment, data, setFormError);
     setIsDepartmentEditMode(false);
   };
+  const handleViewDepartmentDetails = (department: Department) => {
+    setSelectedDepartment(department);
+    setIsDepartmentDetailsDialogOpen(true);
+  };
+
+  const confirmDeleteDepartment = (department: Department) => {
+    setDepartmentToDelete(department);
+    setIsAlertDialogOpen(true);
+  };
+
   const handleDeleteDepartment = async (id: number) => {
-    deleteDepartmentHandler(deleteDepartment, id);
+    try {
+      setIsDeleting(true);
+      deleteDepartmentHandler(deleteDepartment, id);
+      setIsAlertDialogOpen(false);
+      setDepartmentToDelete(null);
+      setIsDeleting(false);
+    } catch (error) {
+      console.error("Deletion failed:", error);
+    }
   };
 
   const handleEditDepartment = (department: Department) => {
@@ -134,12 +162,12 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
                     {
                       label: "Details",
                       icon: <FileSearch2 className="h-4 w-4 mr-2 " />,
-                      onClick: () => {},
+                      onClick: () => handleViewDepartmentDetails(department),
                     },
                     {
                       label: "Delete",
                       icon: <Trash2 className="h-4 w-4 mr-2 text-red-500" />,
-                      onClick: () => handleDeleteDepartment(department.id),
+                      onClick: () => confirmDeleteDepartment(department),
                     },
                   ]}
                 />
@@ -171,6 +199,45 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
             isDepartmentEditMode ? selectedDepartment || undefined : undefined
           }
         />
+      </CustomDialog>
+      {/* Custom Alert Dialog for deleting faculty */}
+      <CustomAlertDialog
+        title="Delete Department"
+        description="Are you sure you want to delete this department? All data associated with this department including users will also be deleted. This action cannot be undone."
+        actionText="Delete"
+        actionVariant="destructive"
+        isLoading={isDeleting} // Pass state from UserTable
+        onAction={() =>
+          departmentToDelete && handleDeleteDepartment(departmentToDelete.id)
+        }
+        onCancel={() => setIsAlertDialogOpen(false)}
+        open={isAlertDialogOpen}
+        onOpenChangeAction={setIsAlertDialogOpen}
+      />
+      {/* Custom dialog for faculty details */}
+      <CustomDialog
+        title={`Department Details`}
+        footerButtonTitle="Close"
+        isOpen={isDepartmentDetailsDialogOpen}
+        setIsOpen={setIsDepartmentDetailsDialogOpen}
+      >
+        {selectedDepartment && (
+          <div className="flex flex-col gap-2">
+            <p>
+              <span className="font-semibold">Name: </span>{" "}
+              {selectedDepartment.name}
+            </p>
+            <p>
+              <span className="font-semibold">Abbreviation: </span>
+              {selectedDepartment.abbreviation}
+            </p>
+
+            <p>
+              <span className="font-semibold">No. of Programs: </span>
+              5(static)
+            </p>
+          </div>
+        )}
       </CustomDialog>
     </div>
   );

@@ -234,6 +234,10 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
               <span className="font-semibold">No. of Departments: </span>
               {selectedFaculty.departments.length}
             </p>
+            <p>
+              <span className="font-semibold">Total no. of Programs: </span>
+              5(static)
+            </p>
           </div>
         )}
       </CustomDialog>
