@@ -31,6 +31,8 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
   const [isFacultyDialogOpen, setIsFacultyDialogOpen] = useState(false);
   const [isFacultyEditMode, setIsFacultyEditMode] = useState(false);
+  const [isFacultyDetailsDialogOpen, setIsFacultyDetailsDialogOpen] =
+    useState<boolean>(false);
   const [formError, setFormError] = useState<
     Record<string, string[]> | string | null
   >(null);
@@ -60,6 +62,11 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
     setIsFacultyEditMode(false);
   };
 
+  //View faculty detail
+  const handleViewFacultyDetails = (faculty: Faculty) => {
+    setSelectedFaculty(faculty);
+    setIsFacultyDetailsDialogOpen(true);
+  };
   const handleDeleteFaculty = (id: number) => {
     deleteFacultyHandler(deleteFaculty, id);
   };
@@ -146,7 +153,7 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
                     {
                       label: "Details",
                       icon: <FileSearch2 className="h-4 w-4 mr-2 " />,
-                      onClick: () => {},
+                      onClick: () => handleViewFacultyDetails(faculty),
                     },
                     {
                       label: "Delete",
@@ -160,6 +167,7 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
           ))}
         </div>
       </div>
+      {/* Custom Dialog For Adding/Editting Faculty */}
       <CustomDialog
         buttonTitle="Add Faculty"
         title={`${isFacultyEditMode ? "Edit" : "Add"} Faculty`}
@@ -181,6 +189,30 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
             isFacultyEditMode ? selectedFaculty || undefined : undefined
           }
         />
+      </CustomDialog>
+
+      <CustomDialog
+        title={`Faculty Details`}
+        footerButtonTitle="Close"
+        isOpen={isFacultyDetailsDialogOpen}
+        setIsOpen={setIsFacultyDetailsDialogOpen}
+      >
+        {selectedFaculty && (
+          <div className="flex flex-col gap-2">
+            <p>
+              <span className="font-semibold">Name: </span>{" "}
+              {selectedFaculty.name}
+            </p>
+            <p>
+              <span className="font-semibold">Abbreviation: </span>
+              {selectedFaculty.abbreviation}
+            </p>
+            <p>
+              <span className="font-semibold">No. of Departments: </span>
+              {selectedFaculty.departments.length}
+            </p>
+          </div>
+        )}
       </CustomDialog>
     </div>
   );
