@@ -98,6 +98,7 @@ const useFaculties = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["faculties"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 
