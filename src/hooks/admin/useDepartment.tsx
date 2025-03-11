@@ -89,11 +89,23 @@ const useDepartments = () => {
     mutationFn: async (id: number) => {
       await api.delete(`admin/departments/${id}`);
     },
+    onMutate: async (id: number) => {
+      await queryClient.cancelQueries({ queryKey: ["departments"] });
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["departments"] });
+      const previousDepartments = queryClient.getQueryData<Department[]>([
+        "departments",
+      ]);
+
+      queryClient.setQueryData<Department[]>(["departments"], (old) =>
+        old ? old.filter((department) => department.id !== id) : []
+      );
+
+      return { previousDepartments };
     },
-    onError: (error: any) => {
+    onError: (error: any, id: number, context: any) => {
+      if (context?.previousDepartments) {
+        queryClient.setQueryData(["departments"], context.previousDepartments);
+      }
       if (error.response && error.response.data) {
         throw new Error(
           error.response.data.message || "Failed to delete department"
@@ -101,6 +113,10 @@ const useDepartments = () => {
       } else {
         console.error(error);
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 

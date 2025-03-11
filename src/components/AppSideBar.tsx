@@ -32,7 +32,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import handleLogout from "@/app/utils/handleLogout";
 import Image from "next/image";
 import vsuLogo from "../../public/assets/images/vsu_logo.png";
@@ -95,58 +94,26 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
             <SidebarMenuSub>
               {item.submenus?.map((submenu) => (
                 <SidebarMenuSubItem key={submenu.title}>
-                  {isMobile ? (
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === submenu.url}
-                    >
-                      <Link href={submenu.url} className="pl-6">
-                        {submenu.title}
-                      </Link>
-                    </SidebarMenuButton>
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuSubButton
-                          asChild
-                          isActive={pathname === submenu.url}
-                        >
-                          <Link href={submenu.url} className="pl-6">
-                            {submenu.title}
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" sideOffset={40}>
-                        {submenu.title}
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === submenu.url}
+                  >
+                    <Link href={submenu.url} className="pl-6">
+                      {submenu.title}
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuSubItem>
               ))}
             </SidebarMenuSub>
           </CollapsibleContent>
         </Collapsible>
-      ) : isMobile ? (
+      ) : (
         <SidebarMenuButton asChild isActive={pathname === item.url}>
           <Link href={item.url || "#"} className="flex items-center gap-2">
             <item.icon className="h-4 w-4" />
             <span>{item.title}</span>
           </Link>
         </SidebarMenuButton>
-      ) : (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <SidebarMenuButton asChild isActive={pathname === item.url}>
-              <Link href={item.url || "#"} className="flex items-center gap-2">
-                <item.icon className="h-4 w-4" />
-                <span>{item.title}</span>
-              </Link>
-            </SidebarMenuButton>
-          </TooltipTrigger>
-          <TooltipContent side="right" sideOffset={20}>
-            {item.title}
-          </TooltipContent>
-        </Tooltip>
       )}
     </SidebarMenuItem>
   );
@@ -176,34 +143,15 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
       <SidebarFooter className="">
         <SidebarMenu>
           <SidebarMenuItem>
-            {isMobile ? (
-              <SidebarMenuButton
-                asChild
-                onClick={() => handleLogout((session as any).accessToken)}
-              >
-                <button className="flex w-full items-center gap-2">
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
-                </button>
-              </SidebarMenuButton>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <SidebarMenuButton
-                    asChild
-                    onClick={() => handleLogout((session as any).accessToken)}
-                  >
-                    <button className="flex w-full items-center gap-2">
-                      <LogOut className="h-4 w-4" />
-                      <span>Logout</span>
-                    </button>
-                  </SidebarMenuButton>
-                </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={20}>
-                  Logout
-                </TooltipContent>
-              </Tooltip>
-            )}
+            <SidebarMenuButton
+              asChild
+              onClick={() => handleLogout((session as any).accessToken)}
+            >
+              <button className="flex w-full items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </button>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
