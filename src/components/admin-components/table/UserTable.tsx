@@ -32,6 +32,7 @@ import {
   updateUserHandler,
   deleteUserHandler,
   resetUserPasswordHandler,
+  getUserHandler,
 } from "@/app/utils/admin/handleUser";
 
 type SortKey = "name" | "role" | "department" | "faculty";
@@ -48,6 +49,7 @@ const UserTable = () => {
     updateUser,
     deleteUser,
     resetUserPassword,
+    getUser,
   } = useUsers();
 
   // Searching & Sorting
@@ -63,6 +65,8 @@ const UserTable = () => {
   const [isUserEditMode, setIsUserEditMode] = useState<boolean>(false);
   const [userToReset, setUserToReset] = useState<User | null>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState<boolean>(false);
+  const [isUserDetailsDialogOpen, setIsUserDetailsDialogOpen] =
+    useState<boolean>(false);
 
   // user state
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -77,6 +81,15 @@ const UserTable = () => {
   // Creating User
   const handleCreateUser = async (data: Partial<User>) => {
     await createUserHandler(createUser, data, setFormError);
+  };
+
+  // Get single user
+  const handleGetUser = async (userId: number) => {
+    const userDetails = await getUserHandler(getUser, userId);
+  };
+  const handleViewUserDetails = (user: User) => {
+    setSelectedUser(user);
+    setIsUserDetailsDialogOpen(true);
   };
 
   // Updating User
@@ -265,7 +278,7 @@ const UserTable = () => {
                         {
                           label: "Details",
                           icon: <FileSearch2 className="h-4 w-4 mr-2 " />,
-                          onClick: () => {},
+                          onClick: () => handleViewUserDetails(user),
                         },
                         {
                           label: "Reset Password",
@@ -309,6 +322,7 @@ const UserTable = () => {
         goToPreviousPage={() => setPage((prev) => Math.max(1, prev - 1))}
         goToNextPage={() => setPage((prev) => Math.min(totalPages, prev + 1))}
       />
+
       {/* Custom Alert Dialog  For Deleting User Area */}
       <CustomAlertDialog
         title="Delete User"
@@ -341,6 +355,35 @@ const UserTable = () => {
         open={isResetDialogOpen}
         onOpenChangeAction={setIsResetDialogOpen}
       />
+
+      <CustomDialog
+        title={`${selectedUser?.first_name}  ${selectedUser?.last_name}`}
+        footerButtonTitle="Close"
+        isOpen={isUserDetailsDialogOpen}
+        setIsOpen={setIsUserDetailsDialogOpen}
+      >
+        {selectedUser && (
+          <div className="flex flex-col gap-2">
+            <p>
+              <span className="font-semibold">Role:</span>{" "}
+              {selectedUser.role.name}
+            </p>
+            <p>
+              <span className="font-semibold">Email:</span> {selectedUser.email}
+            </p>
+            <p>
+              <span className="font-semibold">Faculty:</span>{" "}
+              {selectedUser.faculty.name}
+            </p>
+            {selectedUser.department && (
+              <p>
+                <span className="font-semibold">Department:</span>{" "}
+                {selectedUser.department?.name}
+              </p>
+            )}
+          </div>
+        )}
+      </CustomDialog>
     </div>
   );
 };

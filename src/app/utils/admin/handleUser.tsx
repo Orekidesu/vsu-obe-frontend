@@ -31,6 +31,25 @@ export const createUserHandler = async (
   });
 };
 
+// get single user
+
+export const getUserHandler = async (
+  getUser: (id: number) => Promise<User>,
+  id: number
+): Promise<User | null> => {
+  try {
+    const userDetails = await getUser(id);
+    return userDetails;
+  } catch (error: any) {
+    toast({
+      description: "Failed to get user details",
+      variant: "destructive",
+    });
+    console.error("Error fetching user details:", error);
+    return null;
+  }
+};
+
 // update
 export const updateUserHandler = async (
   updateUserMutation: UseMutationResult<
