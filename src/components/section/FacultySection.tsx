@@ -8,11 +8,13 @@ import { Input } from "@/components/ui";
 import CustomSelect from "@/components/commons/select/CustomSelect";
 import CustomDropdown from "@/components/commons/dropdown/CustomDropdown";
 import CustomDialog from "@/components/commons/dialog/CustomDialog";
+import { CustomAlertDialog } from "../commons/alert-dialog/CustomAlertDialog";
 import {
   createFacultyHandler,
   deleteFacultyHandler,
   updateFacultyHandler,
 } from "@/app/utils/admin/handleFaculty";
+import { tree } from "next/dist/build/templates/app-page";
 
 type FacultySectionProps = {
   onSelectFaculty: (facultyId: number) => void;
@@ -33,6 +35,13 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
   const [isFacultyEditMode, setIsFacultyEditMode] = useState(false);
   const [isFacultyDetailsDialogOpen, setIsFacultyDetailsDialogOpen] =
     useState<boolean>(false);
+
+  // Dialog for deleting
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState<boolean>(false);
+
+  const [facultyToDelete, setFacultyToDelete] = useState<Faculty | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
   const [formError, setFormError] = useState<
     Record<string, string[]> | string | null
   >(null);
@@ -67,8 +76,22 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
     setSelectedFaculty(faculty);
     setIsFacultyDetailsDialogOpen(true);
   };
+
+  const confirmDeleteFaculty = (faculty: Faculty) => {
+    setFacultyToDelete(faculty);
+    setIsAlertDialogOpen(true);
+  };
+
   const handleDeleteFaculty = (id: number) => {
-    deleteFacultyHandler(deleteFaculty, id);
+    try {
+      setIsDeleting(true);
+      deleteFacultyHandler(deleteFaculty, id);
+      setIsAlertDialogOpen(false);
+      setFacultyToDelete(null);
+      setIsDeleting(false);
+    } catch (error) {
+      console.error("Deletion failed:", error);
+    }
   };
 
   const handleEditFaculty = (faculty: Faculty) => {
@@ -158,7 +181,7 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
                     {
                       label: "Delete",
                       icon: <Trash2 className="h-4 w-4 mr-2 text-red-500" />,
-                      onClick: () => handleDeleteFaculty(faculty.id),
+                      onClick: () => confirmDeleteFaculty(faculty),
                     },
                   ]}
                 />
@@ -190,7 +213,7 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
           }
         />
       </CustomDialog>
-
+      {/* Custom dialog for faculty details */}
       <CustomDialog
         title={`Faculty Details`}
         footerButtonTitle="Close"
@@ -214,6 +237,20 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
           </div>
         )}
       </CustomDialog>
+      {/* Custom Alert Dialog for deleting faculty */}
+      <CustomAlertDialog
+        title="Delete Faculty"
+        description="Are you sure you want to delete this faculty? All data associated with this faculty including users will also be deleted. This action cannot be undone."
+        actionText="Delete"
+        actionVariant="destructive"
+        isLoading={isDeleting} // Pass state from UserTable
+        onAction={() =>
+          facultyToDelete && handleDeleteFaculty(facultyToDelete.id)
+        }
+        onCancel={() => setIsAlertDialogOpen(false)}
+        open={isAlertDialogOpen}
+        onOpenChangeAction={setIsAlertDialogOpen}
+      />
     </div>
   );
 };

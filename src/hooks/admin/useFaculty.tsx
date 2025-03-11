@@ -15,15 +15,9 @@ const useFaculties = () => {
     queryKey: ["faculties"],
     queryFn: async () => {
       const response = await api.get<{ data: Faculty[] }>("admin/faculties");
-      // localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data.data));
+
       return response.data.data;
     },
-
-    // initialData: () => {
-    //   const local = localData(STORAGE_KEY) || null;
-    //   const local = null;
-    //   return local;
-    // },
   });
 
   // Create Faculty
@@ -77,10 +71,23 @@ const useFaculties = () => {
     mutationFn: async (id: number) => {
       await api.delete(`admin/faculties/${id}`);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["faculties"] });
+    onMutate: async (id: number) => {
+      await queryClient.cancelQueries({ queryKey: ["faculties"] });
+
+      const previousFaculties = queryClient.getQueryData<Faculty[]>([
+        "faculties",
+      ]);
+
+      queryClient.setQueryData<Faculty[]>(["faculties"], (old) =>
+        old ? old.filter((faculty) => faculty.id !== id) : []
+      );
+
+      return { previousFaculties };
     },
-    onError: (error: any) => {
+    onError: (error: any, id: number, context: any) => {
+      if (context?.previousFaculties) {
+        queryClient.setQueryData(["faculties"], context.previousFaculties);
+      }
       if (error.response && error.response.data) {
         throw new Error(
           error.response.data.message || "Failed to delete faculty"
@@ -88,6 +95,9 @@ const useFaculties = () => {
       } else {
         console.error(error);
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["faculties"] });
     },
   });
 
