@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import useFaculties from "@/hooks/admin/useFaculty";
-import FacultyForm from "@/components/form/FacultyForm";
+import FacultyForm from "@/components/admin-components/form/FacultyForm";
 import { Faculty } from "@/types/model/Faculty";
 import { Search, Plus, Pencil, Trash2, FileSearch2 } from "lucide-react";
 import { Input } from "@/components/ui";
@@ -31,6 +31,8 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
   const [isFacultyDialogOpen, setIsFacultyDialogOpen] = useState(false);
   const [isFacultyEditMode, setIsFacultyEditMode] = useState(false);
+  const [isFacultyDetailsDialogOpen, setIsFacultyDetailsDialogOpen] =
+    useState<boolean>(false);
   const [formError, setFormError] = useState<
     Record<string, string[]> | string | null
   >(null);
@@ -60,6 +62,11 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
     setIsFacultyEditMode(false);
   };
 
+  //View faculty detail
+  const handleViewFacultyDetails = (faculty: Faculty) => {
+    setSelectedFaculty(faculty);
+    setIsFacultyDetailsDialogOpen(true);
+  };
   const handleDeleteFaculty = (id: number) => {
     deleteFacultyHandler(deleteFaculty, id);
   };
@@ -146,7 +153,7 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
                     {
                       label: "Details",
                       icon: <FileSearch2 className="h-4 w-4 mr-2 " />,
-                      onClick: () => {},
+                      onClick: () => handleViewFacultyDetails(faculty),
                     },
                     {
                       label: "Delete",
@@ -160,10 +167,10 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
           ))}
         </div>
       </div>
+      {/* Custom Dialog For Adding/Editting Faculty */}
       <CustomDialog
         buttonTitle="Add Faculty"
         title={`${isFacultyEditMode ? "Edit" : "Add"} Faculty`}
-        description={`${isFacultyEditMode ? "Edit" : "Add"} Faculty`}
         footerButtonTitle="Save"
         isOpen={isFacultyDialogOpen}
         setIsOpen={(isOpen) => {
@@ -182,6 +189,30 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
             isFacultyEditMode ? selectedFaculty || undefined : undefined
           }
         />
+      </CustomDialog>
+
+      <CustomDialog
+        title={`Faculty Details`}
+        footerButtonTitle="Close"
+        isOpen={isFacultyDetailsDialogOpen}
+        setIsOpen={setIsFacultyDetailsDialogOpen}
+      >
+        {selectedFaculty && (
+          <div className="flex flex-col gap-2">
+            <p>
+              <span className="font-semibold">Name: </span>{" "}
+              {selectedFaculty.name}
+            </p>
+            <p>
+              <span className="font-semibold">Abbreviation: </span>
+              {selectedFaculty.abbreviation}
+            </p>
+            <p>
+              <span className="font-semibold">No. of Departments: </span>
+              {selectedFaculty.departments.length}
+            </p>
+          </div>
+        )}
       </CustomDialog>
     </div>
   );

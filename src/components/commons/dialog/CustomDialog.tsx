@@ -11,13 +11,13 @@ import {
 import React, { ReactNode } from "react";
 
 interface CustomDialogProps {
-  buttonTitle: string;
+  buttonTitle?: string;
   title: string;
   description?: string;
   footerButtonTitle: string;
   children: ReactNode;
   isOpen: boolean;
-  buttonIcon: React.ReactNode;
+  buttonIcon?: React.ReactNode;
   setIsOpen: (isOpen: boolean) => void;
 }
 
@@ -33,15 +33,17 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="hover:bg-primary hover:text-primary-foreground"
-        >
-          <span>{buttonIcon}</span>
-          {buttonTitle}
-        </Button>
-      </DialogTrigger>
+      {buttonTitle && (
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            className="hover:bg-primary hover:text-primary-foreground"
+          >
+            <span>{buttonIcon}</span>
+            {buttonTitle}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

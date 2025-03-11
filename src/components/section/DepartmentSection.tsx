@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import useDepartments from "@/hooks/admin/useDepartment";
-import DepartmentForm from "@/components/form/DepartmentForm";
+import DepartmentForm from "@/components/admin-components/form/DepartmentForm";
 import { Department } from "@/types/model/Department";
 import { Search, Plus, Pencil, Trash2, FileSearch2 } from "lucide-react";
 import { Input } from "@/components/ui";
@@ -65,7 +65,7 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
   const filteredDepartments = departments
     ?.filter(
       (department) =>
-        department.faculty_id === selectedFacultyId &&
+        department.faculty.id === selectedFacultyId &&
         (department.name
           .toLowerCase()
           .includes(searchDepartmentQuery.toLowerCase()) ||
@@ -151,7 +151,6 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
       <CustomDialog
         buttonTitle="Add Department"
         title={`${isDepartmentEditMode ? "Edit" : "Add"} Department`}
-        description={`${isDepartmentEditMode ? "Edit" : "Add"} Department`}
         footerButtonTitle="Save"
         isOpen={isDepartmentDialogOpen}
         setIsOpen={(isOpen) => {

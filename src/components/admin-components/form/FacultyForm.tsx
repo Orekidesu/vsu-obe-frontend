@@ -1,14 +1,12 @@
-import { Department } from "@/types/model/Department";
+import type { Faculty } from "@/types/model/Faculty";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
-import useFaculties from "@/hooks/admin/useFaculty";
-import CustomSelect from "@/components/commons/select/CustomSelect";
 
-import { Button, Input } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -17,26 +15,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Value } from "@radix-ui/react-select";
+import { Input } from "@/components/ui/input";
 
-// schema for department
-const departmentSchema = z.object({
+//Define schema
+const facultySchema = z.object({
   id: z.number().optional(),
   name: z.string().min(2, "Name must be at least 2 characters"),
   abbreviation: z.string().min(2, "Abbreviation must be at least 2 characters"),
-  faculty_id: z.number().min(1, "select a faculty"),
 });
 
-// define the props
-
-type DepartmentFormProps = {
-  onSubmit: (data: Partial<Department>) => void;
+// Define the props for the FacultyForm component
+type FacultyFormProps = {
+  onSubmit: (data: Partial<Faculty>) => void;
   setIsOpen: (isOpen: boolean) => void;
   error?: Record<string, string[]> | string | null;
-  initialData?: Department;
+  initialData?: Faculty;
 };
 
-const DepartmentForm: React.FC<DepartmentFormProps> = ({
+const FacultyForm: React.FC<FacultyFormProps> = ({
   onSubmit,
   setIsOpen,
   error,
@@ -45,12 +41,9 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   const { toast } = useToast();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isFormError, setIsFormError] = useState<boolean>(false);
-
-  const { faculties } = useFaculties();
-
-  // initialize the form
-  const form = useForm<z.infer<typeof departmentSchema>>({
-    resolver: zodResolver(departmentSchema),
+  // Initialize the form with default values and resolver
+  const form = useForm<z.infer<typeof facultySchema>>({
+    resolver: zodResolver(facultySchema),
     defaultValues: initialData || {
       name: "",
       abbreviation: "",
@@ -61,20 +54,20 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   useEffect(() => {
     if (initialData) {
       form.setValue("id", initialData.id);
-      form.setValue("faculty_id", initialData.faculty_id);
       form.setValue("name", initialData.name);
       form.setValue("abbreviation", initialData.abbreviation);
     }
   }, [initialData, form]);
 
   // handle form submission
-  const handleFormSubmit = async (data: z.infer<typeof departmentSchema>) => {
+  const handleFormSubmit = async (data: z.infer<typeof facultySchema>) => {
     try {
       setIsButtonDisabled(true);
       await onSubmit(data);
+
       setIsOpen(false);
       toast({
-        description: `Department ${initialData ? "Updated" : "Created"} Successfully`,
+        description: `Faculty ${initialData ? "Updated" : "Created"} Successfully`,
         variant: "success",
       });
     } catch (error: any) {
@@ -83,19 +76,12 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
       setIsFormError(true);
     }
   };
-
   const getErrorMessage = (field: string) => {
     if (typeof error === "string") {
       return error;
     }
     return error?.[field]?.[0];
   };
-
-  const defaultFacultyValue = initialData
-    ? faculties
-        ?.find((faculty) => faculty.id === initialData.faculty_id)
-        ?.id.toString()
-    : undefined;
 
   return (
     <Form {...form}>
@@ -105,44 +91,19 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
       >
         <FormField
           control={form.control}
-          name="faculty_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Faulty</FormLabel>
-              <FormControl>
-                <div className="">
-                  <CustomSelect
-                    defaultValue={defaultFacultyValue}
-                    options={
-                      faculties?.map((faculty) => ({
-                        value: faculty.id.toString(),
-                        label: faculty.name,
-                      })) || []
-                    }
-                    onChange={(value) => field.onChange(parseInt(value))}
-                    contentHeight="h-32"
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter department name" {...field} />
+                <Input placeholder="Enter faculty name" {...field} />
               </FormControl>
+              <FormMessage />
               {isFormError && (
                 <div className="text-red-500 text-[12.8px]">
                   {getErrorMessage("name")}
                 </div>
               )}
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -156,26 +117,29 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
               <FormControl>
                 <Input placeholder="Enter abbreviation" {...field} />
               </FormControl>
+
+              <FormMessage />
               {isFormError && (
                 <div className="text-red-500 text-[12.8px]">
                   {getErrorMessage("abbreviation")}
                 </div>
               )}
-              <FormMessage />
             </FormItem>
           )}
         />
 
         <Button type="submit" disabled={isButtonDisabled}>
           {isButtonDisabled
-            ? "submitting..."
+            ? initialData
+              ? "Submitting..."
+              : "Creating..."
             : initialData
-              ? "Update Department"
-              : "Create Department"}
+              ? "Update Faculty"
+              : "Create Faculty"}
         </Button>
       </form>
     </Form>
   );
 };
 
-export default DepartmentForm;
+export default FacultyForm;

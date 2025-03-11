@@ -19,6 +19,7 @@ interface CustomSelectProps {
   defaultValue?: string;
   onChange?: (value: string) => void;
   contentHeight?: string;
+  isDisabled?: boolean;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -26,9 +27,14 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   defaultValue,
   onChange,
   contentHeight = "h-20",
+  isDisabled,
 }) => {
   return (
-    <Select defaultValue={defaultValue} onValueChange={onChange}>
+    <Select
+      defaultValue={defaultValue}
+      onValueChange={onChange}
+      disabled={isDisabled}
+    >
       <SelectTrigger className="w-full">
         <SelectValue placeholder="Select" />
       </SelectTrigger>
