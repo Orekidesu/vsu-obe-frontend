@@ -32,7 +32,6 @@ import {
   updateUserHandler,
   deleteUserHandler,
   resetUserPasswordHandler,
-  getUserHandler,
 } from "@/app/utils/admin/handleUser";
 
 type SortKey = "name" | "role" | "department" | "faculty";
@@ -84,9 +83,6 @@ const UserTable = () => {
   };
 
   // Get single user
-  const handleGetUser = async (userId: number) => {
-    const userDetails = await getUserHandler(getUser, userId);
-  };
   const handleViewUserDetails = (user: User) => {
     setSelectedUser(user);
     setIsUserDetailsDialogOpen(true);
@@ -322,14 +318,13 @@ const UserTable = () => {
         goToPreviousPage={() => setPage((prev) => Math.max(1, prev - 1))}
         goToNextPage={() => setPage((prev) => Math.min(totalPages, prev + 1))}
       />
-
-      {/* Custom Alert Dialog  For Deleting User Area */}
+      {/*  Custom Alert Dialog For Deleting User Area */}
       <CustomAlertDialog
         title="Delete User"
-        description="Are you sure you want to delete this user? This action cannot be undone."
+        description="Are you sure you want to delete this user? All data associated with this user will also be deleted. This action cannot be undone."
         actionText="Delete"
         actionVariant="destructive"
-        isLoading={isDeleting} //  Pass state from UserTable
+        isLoading={isDeleting} // Pass state from UserTable
         onAction={() => userToDelete && handleDeleteUser(userToDelete.id)}
         onCancel={() => setIsAlertDialogOpen(false)}
         open={isAlertDialogOpen}
@@ -355,7 +350,6 @@ const UserTable = () => {
         open={isResetDialogOpen}
         onOpenChangeAction={setIsResetDialogOpen}
       />
-
       <CustomDialog
         title={`${selectedUser?.first_name}  ${selectedUser?.last_name}`}
         footerButtonTitle="Close"
