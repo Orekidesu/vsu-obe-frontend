@@ -31,10 +31,16 @@ const Dashboardpage = () => {
   };
 
   useEffect(() => {
-    isFetched("vision_data") && getVisions();
-    isFetched("mission_data") && getMissions();
-    isFetched("graduate_attribute_data") && getGraduateAttributes();
-  }, []);
+    if (isFetched("vision_data")) {
+      getVisions();
+    }
+    if (isFetched("mission_data")) {
+      getMissions();
+    }
+    if (isFetched("graduate_attribute_data")) {
+      getGraduateAttributes();
+    }
+  }, [getVisions, getMissions, getGraduateAttributes]);
 
   return (
     <div className="grid grid-rows-1 content-center">

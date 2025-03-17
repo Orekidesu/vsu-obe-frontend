@@ -6,13 +6,12 @@ import { usePathname } from "next/navigation";
 import getCustomPathname from "@/app/utils/getCustomPathname";
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const { status } = useAuth();
+  const pathname = usePathname();
+  const customPathname = getCustomPathname(pathname);
 
   if (status === "loading") {
     return <div>Loading...</div>;
   }
-
-  const pathname = usePathname();
-  const customPathname = getCustomPathname(pathname);
 
   return (
     <div>
