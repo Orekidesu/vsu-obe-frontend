@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import {
   LogOut,
   University,
@@ -24,7 +23,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "./ui/sidebar";
 import {
@@ -68,14 +66,13 @@ const roleMenuItems: Record<string, MenuItem[]> = {
 };
 
 interface AppSidebarProps {
-  role: keyof typeof roleMenuItems;
-  session: { accessToken: string };
+  role: string; 
+  session: { accessToken?: string };
 }
 
 const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
   const pathname = usePathname();
   const roleBasedMenu = roleMenuItems[role] || [];
-  const isMobile = useIsMobile();
 
   const renderMenuItem = (item: MenuItem) => (
     <SidebarMenuItem key={item.title}>
@@ -145,7 +142,9 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              onClick={() => handleLogout((session as any).accessToken)}
+              onClick={() =>
+                session.accessToken && handleLogout(session.accessToken)
+              }
             >
               <button className="flex w-full items-center gap-2">
                 <LogOut className="h-4 w-4" />
