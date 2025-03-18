@@ -10,7 +10,9 @@ interface PageProps {
 const Page: React.FC<PageProps> = ({ children }) => {
   const { session, status } = useAuth();
 
-  const role = (session as Session)?.role;
+  const role = (session as Session)?.Role;
+
+  console.log(role);
   if (status === "loading" || !session || role !== "Dean") {
     return <div>Loading...</div>;
   }
