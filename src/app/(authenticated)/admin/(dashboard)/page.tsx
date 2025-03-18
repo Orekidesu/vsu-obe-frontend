@@ -3,7 +3,6 @@ import React from "react";
 import useVisions from "@/hooks/admin/useVision";
 import useMissions from "@/hooks/admin/useMission";
 import useGraduateAttributes from "@/hooks/admin/useGraduateAttribute";
-import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import CustomCard from "@/components/commons/card/CustomCard";
 
@@ -18,28 +17,20 @@ import {
 } from "@/components/ui/table";
 
 const Dashboardpage = () => {
-  const { getMissions, missions } = useMissions();
-  const { visions, getVisions } = useVisions();
-  const { graduateAttributes, getGraduateAttributes } = useGraduateAttributes();
+  const { missions, isFetching: isFetchingMissions } = useMissions();
+
+  const { vision, isFetching: isFetchingVision } = useVisions();
+  const { graduateAttributes, isFetching: isFetchingGraduateAttributes } =
+    useGraduateAttributes();
 
   const concatenatedMissions = React.useMemo(() => {
-    return missions?.data?.map((mission) => mission.description).join(", ");
+    return missions?.map((mission) => mission.description).join(", ");
   }, [missions]);
-
-  const isFetched = (key: string) => {
-    return !localStorage.getItem(key);
-  };
-
-  useEffect(() => {
-    isFetched("vision_data") && getVisions();
-    isFetched("mission_data") && getMissions();
-    isFetched("graduate_attribute_data") && getGraduateAttributes();
-  }, []);
 
   return (
     <div className="grid grid-rows-1 content-center">
       <div className="flex flex-col md:flex-row justify-evenly gap-4">
-        {missions?.loading && visions?.loading ? (
+        {isFetchingMissions && isFetchingVision ? (
           <>
             <Skeleton className="w-full h-52" />
             <Skeleton className="w-full h-52" />
@@ -47,7 +38,7 @@ const Dashboardpage = () => {
         ) : (
           <>
             <CustomCard title="Vision" icon="/assets/images/vision.png">
-              {visions?.data?.[0]?.description || ""}
+              {vision?.[0]?.description || ""}
             </CustomCard>
 
             <CustomCard
@@ -63,7 +54,7 @@ const Dashboardpage = () => {
       </div>
 
       <div className="pt-10">
-        {graduateAttributes?.loading ? (
+        {isFetchingGraduateAttributes ? (
           <Skeleton className=" h-60 w-full" />
         ) : (
           <Table>
@@ -76,7 +67,7 @@ const Dashboardpage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {graduateAttributes?.data?.map((graduateAttribute) => (
+              {(graduateAttributes || []).map((graduateAttribute) => (
                 <TableRow key={graduateAttribute.id}>
                   <TableCell>{graduateAttribute.ga_no}</TableCell>
                   <TableCell className="font-semibold">
