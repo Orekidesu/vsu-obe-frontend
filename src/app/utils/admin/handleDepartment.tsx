@@ -1,29 +1,7 @@
 import { Department } from "@/types/model/Department";
 import { UseMutationResult } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
-
-interface APIError {
-  response?: {
-    data?: {
-      errors?: Record<string, string[]> | string;
-    };
-  };
-  message?: string;
-}
-
-//  Utility function to handle errors
-const handleMutationError = (
-  error: APIError,
-  defaultMessage: string,
-  setFormError?: (error: Record<string, string[]> | string | null) => void
-) => {
-  const errorMessage =
-    typeof error?.response?.data?.errors === "string"
-      ? error.response.data.errors
-      : defaultMessage;
-  setFormError?.(error?.response?.data?.errors || null);
-  return new Error(errorMessage);
-};
+import { APIError, handleMutationError } from "../errorHandler";
 
 //  Create Department Handler
 export const createDepartmentHandler = async (
