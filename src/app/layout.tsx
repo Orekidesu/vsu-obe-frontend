@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-// import { Geist, Geist_Mono } from "next/font/google";
-import { Roboto, Roboto_Mono } from "next/font/google";
+import { Roboto } from "next/font/google";
 import { QueryClientProvider } from "@tanstack/react-query";
 import queryClient from "@/lib/reactQueryClient";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -9,22 +8,9 @@ import { getServerSession, Session } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import Provider from "@/components/Provider";
 import { Toaster } from "@/components/ui/toaster";
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
 
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
 const robotoSans = Roboto({
   variable: "--font-roboto-sans",
-  subsets: ["latin"],
-  weight: "400",
-});
-const robotoMono = Roboto({
-  variable: "--font-roboto-mono",
   subsets: ["latin"],
   weight: "400",
 });
@@ -39,13 +25,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session: Session | null = await getServerSession(authOptions as any);
-  // const sessionObject = session ? JSON.parse(JSON.stringify(session)) : null;
+  const session: Session | null = await getServerSession(authOptions);
 
   return (
     <html lang="en">
       <body
-        // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         className={`${robotoSans.variable} ${robotoSans.variable} antialiased`}
       >
         <div className="flex h-screen w-screen overflow-auto">
