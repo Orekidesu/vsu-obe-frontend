@@ -12,7 +12,7 @@ interface AuthUser {
 
 // Extend the default session type
 export interface Session extends DefaultSession {
-  accessToken?: string | {};
+  accessToken?: string;
   role?: string;
 }
 
