@@ -14,6 +14,7 @@ interface AuthUser {
 export interface Session extends DefaultSession {
   accessToken?: string;
   role?: string;
+  Role?: string;
 }
 
 export const authOptions: NextAuthOptions = {
