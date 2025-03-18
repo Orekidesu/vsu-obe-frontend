@@ -10,6 +10,8 @@ import AppSidebar from "@/components/AppSideBar";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Roboto } from "next/font/google";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
+
 const inter = Roboto({ subsets: ["latin"], weight: "400" });
 
 const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
@@ -32,12 +34,11 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  const role = (session as any).Role;
-
+  const role = (session as Session)?.Role;
   return (
     <div>
       <SidebarProvider>
-        <AppSidebar role={role} session={session as any} />
+        <AppSidebar role={role || ""} session={session as Session} />
         <SidebarInset>
           <main className={inter.className}>
             <SidebarTrigger className="fixed" />

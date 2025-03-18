@@ -1,6 +1,7 @@
 "use client";
 import React, { ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions"; // Import the correct session type
 
 interface PageProps {
   children: ReactNode;
@@ -8,12 +9,9 @@ interface PageProps {
 
 const Page: React.FC<PageProps> = ({ children }) => {
   const { session, status } = useAuth();
+  const role = (session as Session)?.Role;
 
-  if (
-    status === "loading" ||
-    !session ||
-    (session as any).Role !== "Department"
-  ) {
+  if (status === "loading" || !session || role !== "Department") {
     return <div>Loading...</div>;
   }
 
