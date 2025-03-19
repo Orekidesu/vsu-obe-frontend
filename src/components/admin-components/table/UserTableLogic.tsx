@@ -1,22 +1,23 @@
 "use client";
 
 import { useMemo } from "react";
+import { User } from "@/types/model/User";
 
 type SortKey = "name" | "role" | "department" | "faculty";
 type SortConfig = { key: SortKey; direction: "asc" | "desc" } | null;
 
 export const UserTableLogic = (
-  users: any[], // Now contains ALL users
+  users: User[], // Now contains ALL users
   searchTerm: string,
   sortConfig: SortConfig,
   currentPage: number,
   itemsPerPage: number
 ) => {
-  // 🔍 Apply searching & sorting BEFORE paginating
+  // Apply searching & sorting BEFORE paginating
   const filteredAndSortedUsers = useMemo(() => {
     let processedUsers = [...users];
 
-    // 🔎 Search Users
+    // Search Users
     if (searchTerm) {
       processedUsers = processedUsers.filter((user) =>
         Object.values(user).some((value) =>
@@ -25,7 +26,7 @@ export const UserTableLogic = (
       );
     }
 
-    // 🔽 Sorting
+    //  Sorting
     if (sortConfig) {
       processedUsers.sort((a, b) => {
         let aValue, bValue;
@@ -59,7 +60,7 @@ export const UserTableLogic = (
   }, [users, searchTerm, sortConfig]);
 
   //  Apply pagination AFTER filtering & sorting
-  const totalUsers = filteredAndSortedUsers.length; // ✅ Now updates dynamically
+  const totalUsers = filteredAndSortedUsers.length; //  Now updates dynamically
   const totalPages = Math.ceil(totalUsers / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalUsers);
