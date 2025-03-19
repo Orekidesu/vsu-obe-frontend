@@ -1,10 +1,9 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useRoleApi } from "@/app/api/admin/roleApi";
 
 const useRoles = () => {
-  const queryClient = useQueryClient();
   const { getRoles } = useRoleApi();
 
   const { data, error, isLoading } = useQuery({
