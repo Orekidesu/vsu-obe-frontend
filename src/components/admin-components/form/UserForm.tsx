@@ -78,13 +78,13 @@ const UserForm: React.FC<UserFormProps> = ({
       setIsFacultyDisabled(true);
       setIsDepartmentDisabled(true);
     }
-  }, [initialData, form]);
+  }, [initialData]);
 
   useEffect(() => {
     if (!selectedFaculty && !initialData) {
       setIsDepartmentDisabled(true);
     }
-  }, []);
+  }, [selectedFaculty, initialData]);
 
   const handleFormSubmit = async (data: z.infer<typeof userSchema>) => {
     try {
@@ -145,7 +145,7 @@ const UserForm: React.FC<UserFormProps> = ({
         description: `User ${initialData ? "Updated" : "Created"} Successfully`,
         variant: "success",
       });
-    } catch (error: any) {
+    } catch {
       setIsOpen(true);
       setIsButtonDisabled(false);
       setIsFormError(true);
@@ -206,7 +206,9 @@ const UserForm: React.FC<UserFormProps> = ({
   if (rolesIsloading || facultyIsLoading) {
     return <div>please wait...</div>;
   }
-  console.log(initialData);
+  if (rolesError) {
+    return <div>Error in Fetching roles.</div>;
+  }
   return (
     <Form {...form}>
       <form
