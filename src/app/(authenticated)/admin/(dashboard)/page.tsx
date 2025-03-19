@@ -29,7 +29,7 @@ const Dashboardpage = () => {
 
   return (
     <div className="grid grid-rows-1 content-center">
-      <div className="flex flex-col md:flex-row justify-evenly gap-4">
+      <div className="flex flex-col md:flex-row justify-evenly gap-4 ">
         {isFetchingMissions && isFetchingVision ? (
           <>
             <Skeleton className="w-full h-52" />
@@ -37,14 +37,19 @@ const Dashboardpage = () => {
           </>
         ) : (
           <>
-            <CustomCard title="Vision" icon="/assets/images/vision.png">
+            <CustomCard
+              title="Vision"
+              icon="/assets/images/vision.png"
+              iconHeight={40}
+              iconWidth={40}
+            >
               {vision?.[0]?.description || ""}
             </CustomCard>
 
             <CustomCard
               title="Mission"
-              iconHeight="h-8"
-              iconWidth="w-8"
+              iconHeight={32}
+              iconWidth={32}
               icon="/assets/images/mission.png"
             >
               {concatenatedMissions}
