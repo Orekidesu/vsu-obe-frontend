@@ -1,30 +1,33 @@
 import React, { ReactNode } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import Image from "next/image";
 
 interface CardProps {
   title: string;
   icon: string;
   children: ReactNode;
-  iconHeight?: string;
-  iconWidth?: string;
+  iconHeight?: number;
+  iconWidth?: number;
 }
 
 const CustomCard: React.FC<CardProps> = ({
   title,
   icon,
   children,
-  iconHeight = "h-10",
-  iconWidth = "w-10",
+  iconHeight = 0, //same as h-10 but in px
+  iconWidth = 0,
 }) => {
   return (
     <Card className="w-full text-center border-2 shadow-md">
       <CardHeader className="text-4xl font-semi-bold">
         <span className="flex items-center justify-center gap-2">
           {title}
-          <img
+          <Image
             src={icon}
             alt={title}
-            className={`${iconHeight} ${iconWidth}`}
+            height={iconHeight}
+            width={iconWidth}
+            priority
           />
         </span>
       </CardHeader>
