@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Search, MoreVertical, Plus, Pencil, Trash2 } from "lucide-react";
-import { Button, Input } from "@/components/ui";
+import { Search, Plus, Pencil, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui";
 import CustomSelect from "@/components/commons/select/CustomSelect";
 import CustomDropdown from "@/components/commons/dropdown/CustomDropdown";
 import CustomDialog from "../commons/dialog/CustomDialog";
@@ -15,7 +15,7 @@ interface SectionProps {
   title: string;
   sections: Section[];
   isLoading: boolean;
-  error: any;
+  error: Error;
   formComponent: React.ReactElement<{
     setIsOpen: (isOpen: boolean) => void;
     initialData?: Section;
@@ -29,7 +29,6 @@ const CustomSection: React.FC<SectionProps> = ({
   isLoading,
   error,
   formComponent,
-  onEdit,
 }) => {
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
