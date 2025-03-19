@@ -2,6 +2,7 @@ export interface APIError {
   response?: {
     data?: {
       errors?: Record<string, string[]> | string;
+      message?: string;
     };
   };
   message?: string;
