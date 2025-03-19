@@ -14,7 +14,6 @@ import {
   deleteFacultyHandler,
   updateFacultyHandler,
 } from "@/app/utils/admin/handleFaculty";
-import { tree } from "next/dist/build/templates/app-page";
 
 type FacultySectionProps = {
   onSelectFaculty: (facultyId: number) => void;
@@ -23,8 +22,7 @@ type FacultySectionProps = {
 const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
   const {
     faculties,
-    isLoading: isFacultyLoading,
-    error: facultiesError,
+
     createFaculty,
     updateFaculty,
     deleteFaculty,
@@ -60,7 +58,7 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
       setSelectedFaculty(sortedFaculties[0]);
       onSelectFaculty(sortedFaculties[0].id);
     }
-  }, []);
+  }, [faculties, onSelectFaculty, sortOrderFaculties]);
 
   const handleCreateFaculty = async (data: Partial<Faculty>) => {
     await createFacultyHandler(createFaculty, data, setFormError);
@@ -150,7 +148,7 @@ const FacultySection: React.FC<FacultySectionProps> = ({ onSelectFaculty }) => {
       </div>
       <div className="border rounded-md flex flex-col flex-1 overflow-auto">
         <div className="flex-1">
-          {filteredFaculties?.map((faculty: any) => (
+          {filteredFaculties?.map((faculty: Faculty) => (
             <div
               key={faculty.id}
               className={`flex items-center justify-between p-3 hover:bg-muted/70 ${
