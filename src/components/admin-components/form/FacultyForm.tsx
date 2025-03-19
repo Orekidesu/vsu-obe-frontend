@@ -70,7 +70,7 @@ const FacultyForm: React.FC<FacultyFormProps> = ({
         description: `Faculty ${initialData ? "Updated" : "Created"} Successfully`,
         variant: "success",
       });
-    } catch (error: any) {
+    } catch {
       setIsOpen(true);
       setIsButtonDisabled(false);
       setIsFormError(true);

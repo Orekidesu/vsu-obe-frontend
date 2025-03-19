@@ -76,7 +76,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
         description: `Department ${initialData ? "Updated" : "Created"} Successfully`,
         variant: "success",
       });
-    } catch (error: any) {
+    } catch {
       setIsOpen(true);
       setIsButtonDisabled(false);
       setIsFormError(true);
