@@ -33,6 +33,7 @@ import {
   deleteUserHandler,
   resetUserPasswordHandler,
 } from "@/app/utils/admin/handleUser";
+import Image from "next/image";
 
 type SortKey = "name" | "role" | "department" | "faculty";
 
@@ -48,7 +49,6 @@ const UserTable = () => {
     updateUser,
     deleteUser,
     resetUserPassword,
-    getUser,
   } = useUsers();
 
   // Searching & Sorting
@@ -279,10 +279,13 @@ const UserTable = () => {
                         {
                           label: "Reset Password",
                           icon: (
-                            <img
-                              src="\assets\icons\change-password.svg"
-                              alt=""
-                              className="h-4 w-4 mr-2"
+                            <Image
+                              src="/assets/icons/change-password.svg"
+                              alt="Reset Password"
+                              height={16} // 4 * 4 (tailwind h-4)
+                              width={16} // 4 * 4 (tailwind w-4)
+                              className="mr-2"
+                              priority
                             />
                           ),
                           onClick: () => {
