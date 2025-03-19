@@ -22,14 +22,8 @@ type DepartmentSectionProps = {
 const DepartmentSection: React.FC<DepartmentSectionProps> = ({
   selectedFacultyId,
 }) => {
-  const {
-    departments,
-    isLoading: isDepartmentLoading,
-    error: departmentError,
-    createDepartment,
-    updateDepartment,
-    deleteDepartment,
-  } = useDepartments();
+  const { departments, createDepartment, updateDepartment, deleteDepartment } =
+    useDepartments();
 
   const [selectedDepartment, setSelectedDepartment] =
     useState<Department | null>(null);
@@ -139,7 +133,7 @@ const DepartmentSection: React.FC<DepartmentSectionProps> = ({
       </div>
       <div className="border rounded-md flex flex-col flex-1 overflow-auto">
         <div className="flex-1">
-          {filteredDepartments?.map((department: any) => (
+          {filteredDepartments?.map((department: Department) => (
             <div
               key={department.id}
               className={`flex items-center justify-between p-3 hover:bg-muted/70 ${
