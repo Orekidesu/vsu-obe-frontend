@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { Input, Label, Button } from "@/components/ui";
 import { useToast } from "@/hooks/use-toast";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -35,7 +36,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      const role = (session as any).Role;
+      const role = (session as Session).Role;
       console.log("ang role ani kay: ", role);
       if (role === "Admin") {
         router.push("/admin");
@@ -72,6 +73,11 @@ export default function LoginForm() {
         });
       }
     } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
       toast({
         title: "Login Error",
         description: "An unexpected error occurred. Please try again.",

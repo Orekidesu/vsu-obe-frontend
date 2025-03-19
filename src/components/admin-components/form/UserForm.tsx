@@ -8,7 +8,6 @@ import useFaculties from "@/hooks/admin/useFaculty";
 import useRoles from "@/hooks/admin/useRole";
 import CustomSelect from "@/components/commons/select/CustomSelect";
 import useUsers from "@/hooks/admin/useUser";
-import FormInput from "./form-input";
 import { Button, Input } from "@/components/ui";
 import {
   Form,
