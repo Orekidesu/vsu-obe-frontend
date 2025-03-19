@@ -7,11 +7,13 @@ export const createFacultyHandler = async (
   createdFaculty: UseMutationResult<void, APIError, Partial<Faculty>, unknown>,
   data: Partial<Faculty>,
   setFormError: (error: Record<string, string[]> | string | null) => void
-) => {
+): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
     createdFaculty.mutate(data, {
       onError: (error) =>
-        reject(handleMutationError(error, "Failed to add faculty")),
+        reject(
+          handleMutationError(error, "Failed to add faculty", setFormError)
+        ),
       onSuccess: () => {
         setFormError(null);
         resolve();
@@ -29,14 +31,20 @@ export const updateFacultyHandler = async (
   >,
   data: Partial<Faculty>,
   setFormError: (error: Record<string, string[]> | string | null) => void
-) => {
+): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
     if (data.id) {
       updatedFaculty.mutate(
         { id: data.id, updatedData: data },
         {
           onError: (error) =>
-            reject(handleMutationError(error, "Failed to updated faculty")),
+            reject(
+              handleMutationError(
+                error,
+                "Failed to updated faculty",
+                setFormError
+              )
+            ),
           onSuccess: () => {
             setFormError(null);
             resolve();
@@ -50,19 +58,24 @@ export const updateFacultyHandler = async (
 export const deleteFacultyHandler = (
   deleteFaculty: UseMutationResult<void, APIError, number, unknown>,
   id: number
-) => {
-  deleteFaculty.mutate(id, {
-    onError: (error) => {
-      toast({
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-    onSuccess: () => {
-      toast({
-        description: "Faculty Deleted Successfully",
-        variant: "success",
-      });
-    },
+): Promise<void> => {
+  return new Promise<void>((resolve, reject) => {
+    deleteFaculty.mutate(id, {
+      onError: (error) => {
+        const errorMessage = error?.message || "Failed to delete department";
+        toast({
+          description: error.message,
+          variant: "destructive",
+        });
+        reject(new Error(errorMessage));
+      },
+      onSuccess: () => {
+        toast({
+          description: "Faculty Deleted Successfully",
+          variant: "success",
+        });
+        resolve();
+      },
+    });
   });
 };
