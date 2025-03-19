@@ -1,6 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useApi from "../useApi";
 import { Faculty } from "@/types/model/Faculty";
+import { APIError } from "@/app/utils/errorHandler";
+
+interface DeleteFacultyContext {
+  previousFaculties?: Faculty[];
+}
 
 const useFaculties = () => {
   const api = useApi();
@@ -20,8 +25,12 @@ const useFaculties = () => {
     },
   });
 
+  const getErrorMessage = (error: APIError, defaultMessage: string): string => {
+    return error?.response?.data?.message || error?.message || defaultMessage;
+  };
+
   // Create Faculty
-  const createFaculty = useMutation({
+  const createFaculty = useMutation<void, APIError, Partial<Faculty>>({
     mutationFn: async (newFaculty: Partial<Faculty>) => {
       const response = await api.post("admin/faculties", newFaculty);
       return response.data;
@@ -29,49 +38,40 @@ const useFaculties = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["faculties"] });
     },
-    onError: (error: any) => {
-      if (error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "Failed to create faculty"
-        );
-      } else {
-        console.error(error);
-      }
+    onError: (error) => {
+      throw new Error(getErrorMessage(error, "Failed to create Faculty"));
     },
   });
 
   // Update Faculty
-  const updateFaculty = useMutation({
-    mutationFn: async ({
-      id,
-      updatedData,
-    }: {
-      id: number;
-      updatedData: Partial<Faculty>;
-    }) => {
+  const updateFaculty = useMutation<
+    void,
+    APIError,
+    { id: number; updatedData: Partial<Faculty> }
+  >({
+    mutationFn: async ({ id, updatedData }) => {
       const response = await api.put(`admin/faculties/${id}`, updatedData);
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["faculties"] });
     },
-    onError: (error: any) => {
-      if (error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "failed to update faculty"
-        );
-      } else {
-        console.error(error);
-      }
+    onError: (error) => {
+      throw new Error(getErrorMessage(error, "Failed to updated faculty"));
     },
   });
 
   // Delete Faculty
-  const deleteFaculty = useMutation({
-    mutationFn: async (id: number) => {
+  const deleteFaculty = useMutation<
+    void,
+    APIError,
+    number,
+    DeleteFacultyContext
+  >({
+    mutationFn: async (id) => {
       await api.delete(`admin/faculties/${id}`);
     },
-    onMutate: async (id: number) => {
+    onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["faculties"] });
 
       const previousFaculties = queryClient.getQueryData<Faculty[]>([
@@ -84,17 +84,11 @@ const useFaculties = () => {
 
       return { previousFaculties };
     },
-    onError: (error: any, id: number, context: any) => {
+    onError: (error, id, context) => {
       if (context?.previousFaculties) {
         queryClient.setQueryData(["faculties"], context.previousFaculties);
       }
-      if (error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "Failed to delete faculty"
-        );
-      } else {
-        console.error(error);
-      }
+      throw new Error(getErrorMessage(error, "Failed to delete faculty"));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["faculties"] });
