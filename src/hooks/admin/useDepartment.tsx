@@ -1,11 +1,11 @@
-import { useState, useEffect, use } from "react";
 import useApi from "@/hooks/useApi";
 import { Department } from "@/types/model/Department";
-import { Response } from "@/types/response/Response";
-import localData from "@/hooks/useLocalData";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { APIError } from "@/app/utils/errorHandler";
 
-const STORAGE_KEY = "department_data";
+interface DeleteDepartmentContext {
+  previousDepartments?: Department[];
+}
 
 const useDepartments = () => {
   const api = useApi();
@@ -22,49 +22,37 @@ const useDepartments = () => {
         "admin/departments"
       );
       const responseData = response.data.data;
-      // localStorage.setItem(STORAGE_KEY, JSON.stringify(responseData));
       return responseData;
     },
-
-    // initialData: () => {
-    //   const local = localData(STORAGE_KEY) || null;
-    //   const local = null;
-    //   return local;
-    // },
   });
+
+  const getErrorMessage = (error: APIError, defaultMessage: string): string => {
+    return error?.response?.data?.message || error?.message || defaultMessage;
+  };
 
   // create department
 
-  const createDepartment = useMutation({
+  const createDepartment = useMutation<void, APIError, Partial<Department>>({
     mutationFn: async (newDepartment: Partial<Department>) => {
       const response = await api.post("admin/departments", newDepartment);
-      // console.log("successfull man", response);
       return response.data;
     },
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
     },
-    onError: (error: any) => {
-      if (error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "Failed to create department"
-        );
-      } else {
-        console.error(error);
-      }
+    onError: (error) => {
+      throw new Error(getErrorMessage(error, "Failed to create Department"));
     },
   });
 
   // update a department
-  const updateDepartment = useMutation({
-    mutationFn: async ({
-      id,
-      updatedData,
-    }: {
-      id: number;
-      updatedData: Partial<Department>;
-    }) => {
+  const updateDepartment = useMutation<
+    void,
+    APIError,
+    { id: number; updatedData: Partial<Department> }
+  >({
+    mutationFn: async ({ id, updatedData }) => {
       const response = await api.put(`admin/departments/${id}`, updatedData);
       const responseData = response.data;
       return responseData;
@@ -72,24 +60,23 @@ const useDepartments = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
     },
-    onError: (error: any) => {
-      if (error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "Failed to update department"
-        );
-      } else {
-        console.error(error);
-      }
+    onError: (error) => {
+      throw new Error(getErrorMessage(error, "Failed to updated Department"));
     },
   });
 
   // delete a department
 
-  const deleteDepartment = useMutation({
-    mutationFn: async (id: number) => {
+  const deleteDepartment = useMutation<
+    void,
+    APIError,
+    number,
+    DeleteDepartmentContext
+  >({
+    mutationFn: async (id) => {
       await api.delete(`admin/departments/${id}`);
     },
-    onMutate: async (id: number) => {
+    onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["departments"] });
 
       const previousDepartments = queryClient.getQueryData<Department[]>([
@@ -102,17 +89,11 @@ const useDepartments = () => {
 
       return { previousDepartments };
     },
-    onError: (error: any, id: number, context: any) => {
+    onError: (error, id, context) => {
       if (context?.previousDepartments) {
         queryClient.setQueryData(["departments"], context.previousDepartments);
       }
-      if (error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "Failed to delete department"
-        );
-      } else {
-        console.error(error);
-      }
+      throw new Error(getErrorMessage(error, "Failed to delete department"));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
