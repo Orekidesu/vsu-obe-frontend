@@ -74,12 +74,17 @@ const useUsers = () => {
       ]);
 
       // Optimistically remove user from the UI
-      queryClient.setQueryData(["users"], (oldData: any) => {
-        return {
-          ...oldData,
-          data: oldData.data.filter((user: User) => user.id !== id),
-        };
-      });
+      queryClient.setQueryData<{ data: User[] } | undefined>(
+        ["users"],
+        (oldData) => {
+          if (!oldData) return undefined;
+
+          return {
+            ...oldData,
+            data: oldData.data.filter((user) => user.id !== id),
+          };
+        }
+      );
 
       return { previousUsers };
     },
