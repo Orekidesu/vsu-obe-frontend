@@ -1,4 +1,4 @@
-import { Department } from "@types/model/Department";
+import { Department } from "@/types/model/Department";
 export interface Faculty {
   id: number;
   name: string;
