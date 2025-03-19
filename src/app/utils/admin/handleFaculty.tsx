@@ -11,7 +11,9 @@ export const createFacultyHandler = async (
   return new Promise<void>((resolve, reject) => {
     createdFaculty.mutate(data, {
       onError: (error) =>
-        reject(handleMutationError(error, "Failed to add faculty")),
+        reject(
+          handleMutationError(error, "Failed to add faculty", setFormError)
+        ),
       onSuccess: () => {
         setFormError(null);
         resolve();
@@ -36,7 +38,13 @@ export const updateFacultyHandler = async (
         { id: data.id, updatedData: data },
         {
           onError: (error) =>
-            reject(handleMutationError(error, "Failed to updated faculty")),
+            reject(
+              handleMutationError(
+                error,
+                "Failed to updated faculty",
+                setFormError
+              )
+            ),
           onSuccess: () => {
             setFormError(null);
             resolve();
