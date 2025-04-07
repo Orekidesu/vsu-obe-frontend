@@ -22,8 +22,12 @@ const getCustomPathname = (path: string) => {
         return "Pending Programs";
       case "/department/programs/add":
         return "Add Program";
+      case "/department/programs/archive":
+        return "Archived";
       case "/department/committees":
         return "Committees";
+      case "/department/settings":
+        return "Settings";
       default:
         if (path.startsWith("/department/programs")) {
           return "Programs";
