@@ -18,6 +18,8 @@ const getCustomPathname = (path: string) => {
         return "Dashboard";
       case "/department/programs/all-programs":
         return "All Programs";
+      case "/department/programs/archive":
+        return "Archived Programs";
       // case "/department/programs/active":
       //   return "Active Programs";
       // case "/department/programs/pending":
@@ -32,6 +34,11 @@ const getCustomPathname = (path: string) => {
         return "Committees";
       case "/department/settings":
         return "Settings";
+
+      // Not visible to side bar
+      case "/department/proposals/new-program":
+        return "Propose Program Page";
+
       default:
         if (path.startsWith("/department/programs")) {
           return "Programs";

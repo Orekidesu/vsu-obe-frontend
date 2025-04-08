@@ -74,7 +74,7 @@ export default function ProgramTabs() {
 
   // Function to navigate to the new proposal page
   const navigateToNewProposal = () => {
-    router.push("/department/program-proposals/new");
+    router.push("/department/proposals/new-program");
   };
 
   // Show the add button in the header only for the active tab IF that tab has content
