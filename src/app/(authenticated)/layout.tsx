@@ -40,11 +40,11 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
       <SidebarProvider>
         <AppSidebar role={role || ""} session={session as Session} />
         <SidebarInset>
-          <main className={inter.className}>
+          <main className={`${inter.className} grow`}>
             <SidebarTrigger className="fixed" />
             {/* {status === "authenticated" && <SidebarTrigger />} */}
             {/* {status === "authenticated" && children} */}
-            <div className="p-10">{children}</div>
+            <div className="p-10 h-full">{children}</div>
           </main>
         </SidebarInset>
       </SidebarProvider>
