@@ -24,8 +24,11 @@ const DashboardPage = () => {
   const departmentPrograms = programs?.filter(
     (program) => program.department.id === session?.Department?.id
   );
-  const pendingPrograms = programs?.filter(
+  const activePrograms = departmentPrograms?.filter(
     (program) => program.status === "active"
+  );
+  const pendingPrograms = departmentPrograms?.filter(
+    (program) => program.status === "pending"
   );
   return (
     <div className="grid grid-rows-1 content-center">
@@ -39,7 +42,7 @@ const DashboardPage = () => {
           <>
             <CustomCard2
               title="All Programs"
-              value={departmentPrograms?.length || 0}
+              value={activePrograms?.length || 0}
               description="Total number of approved programs in your department"
             />
             <CustomCard2
