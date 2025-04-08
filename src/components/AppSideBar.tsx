@@ -61,9 +61,10 @@ const roleMenuItems: Record<string, MenuItem[]> = {
       title: "Programs",
       icon: BookOpenText,
       submenus: [
-        { title: "Active Programs", url: "/department/programs/active" },
-        { title: "Pending Programs", url: "/department/programs/pending" },
-        { title: "Add Program", url: "/department/programs/add" },
+        { title: "All Programs", url: "/department/programs/all-programs" },
+        // { title: "Active Programs", url: "/department/programs/active" },
+        // { title: "Pending Programs", url: "/department/programs/pending" },
+        // { title: "Add Program", url: "/department/programs/add" },
         { title: "Archived", url: "/department/programs/archive" },
       ],
     },
