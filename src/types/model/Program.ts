@@ -7,4 +7,5 @@ export interface Program {
   abbreviation: string;
   status: string;
   version: number;
+  updated_at: string;
 }
