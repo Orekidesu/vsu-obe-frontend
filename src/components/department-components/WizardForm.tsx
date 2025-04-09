@@ -1,24 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWizardStore } from "@/store/wizard-store";
-import { Card, CardContent } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { Progress } from "@/components/ui/progress";
 import usePrograms from "@/hooks/department/useProgram";
+import useMissions from "@/hooks/shared/useMission";
 import { filterActivePrograms } from "@/app/utils/department/programFilter";
 import { useAuth } from "@/hooks/useAuth";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
+
+// Import the step components
+import { FormTypeStep } from "./form-steps/FormType";
+import { NewProgramStep } from "./form-steps/NewProgram";
+import { UpdateProgramStep } from "./form-steps/UpdateProgram";
+import { PEOsStep } from "./form-steps/PEO";
+import { MappingStep } from "./form-steps/PEOMapping";
 
 export default function WizardForm() {
   const [step, setStep] = useState(1);
@@ -31,14 +28,27 @@ export default function WizardForm() {
     setProgramName,
     setProgramAbbreviation,
     setSelectedProgram,
+    peos,
+    mappings,
+    addPEO,
+    updatePEO,
+    removePEO,
+    toggleMapping,
   } = useWizardStore();
 
   const { programs, isLoading: programsLoading } = usePrograms();
+  const { missions, isFetching: missionsLoading } = useMissions();
   const { session } = useAuth() as { session: Session | null };
 
   const departmentId = session?.Department?.id;
 
   const activePrograms = filterActivePrograms(programs, departmentId);
+
+  // Load missions when component mounts
+  useEffect(() => {
+    // Optionally trigger mission fetching if needed
+    // getMissions(true);
+  }, []);
 
   const handleNext = () => {
     setStep(step + 1);
@@ -55,6 +65,8 @@ export default function WizardForm() {
       programName,
       programAbbreviation,
       selectedProgram,
+      peos,
+      mappings,
     });
     alert("Form submitted successfully!");
     // Reset form
@@ -66,7 +78,29 @@ export default function WizardForm() {
   };
 
   // Calculate progress percentage
-  const progressValue = (step / 2) * 100;
+  const progressValue = (step / 4) * 100;
+  const isStepValid = () => {
+    if (step === 1) return !!formType;
+    if (step === 2) {
+      return formType === "new"
+        ? !!programName && !!programAbbreviation
+        : !!selectedProgram;
+    }
+    if (step === 3) {
+      return (
+        peos.length > 0 && peos.every((peo) => peo.statement.trim() !== "")
+      );
+    }
+    if (step === 4) {
+      // At least one mapping per PEO is required
+      return peos.every((peo) =>
+        mappings.some((mapping) => mapping.peoId === peo.id)
+      );
+    }
+    return false;
+  };
+
+  console.log(missions);
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -74,116 +108,53 @@ export default function WizardForm() {
         Propose a Program
       </h1>
 
+      {/* Step 1: Select form type */}
       {step === 1 && (
-        <>
-          <h2 className="text-2xl font-semibold text-center mb-8">
-            What would you like to do?
-          </h2>
-
-          <RadioGroup
-            value={formType}
-            onValueChange={setFormType}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          >
-            <Card
-              className={`cursor-pointer hover:border-green-500 transition-all ${formType === "new" ? "border-green-500 border-2" : ""}`}
-            >
-              <CardContent className="flex items-center p-6">
-                <RadioGroupItem
-                  value="new"
-                  id="new"
-                  className="text-green-600"
-                />
-                <Label htmlFor="new" className="ml-4 text-lg cursor-pointer">
-                  Make a new program
-                </Label>
-              </CardContent>
-            </Card>
-
-            <Card
-              className={`cursor-pointer hover:border-green-500 transition-all ${formType === "update" ? "border-green-500 border-2" : ""}`}
-            >
-              <CardContent className="flex items-center p-6">
-                <RadioGroupItem
-                  value="update"
-                  id="update"
-                  className="text-green-600"
-                />
-                <Label htmlFor="update" className="ml-4 text-lg cursor-pointer">
-                  Update existing program
-                </Label>
-              </CardContent>
-            </Card>
-          </RadioGroup>
-        </>
+        <FormTypeStep formType={formType} setFormType={setFormType} />
       )}
 
+      {/* Step 2: New program details */}
       {step === 2 && formType === "new" && (
-        <>
-          <h2 className="text-2xl font-semibold text-center mb-8">
-            Enter program details
-          </h2>
-
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="programName">Program Name</Label>
-              <Input
-                id="programName"
-                placeholder="Enter program name"
-                value={programName}
-                onChange={(e) => setProgramName(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="programAbbreviation">Program Abbreviation</Label>
-              <Input
-                id="programAbbreviation"
-                placeholder="Enter abbreviation"
-                value={programAbbreviation}
-                onChange={(e) => setProgramAbbreviation(e.target.value)}
-              />
-            </div>
-          </div>
-        </>
+        <NewProgramStep
+          programName={programName}
+          programAbbreviation={programAbbreviation}
+          setProgramName={setProgramName}
+          setProgramAbbreviation={setProgramAbbreviation}
+        />
       )}
 
+      {/* Step 2: Select program to update */}
       {step === 2 && formType === "update" && (
-        <>
-          <h2 className="text-2xl font-semibold text-center mb-8">
-            Select a program to update
-          </h2>
-
-          <div className="space-y-6">
-            {programsLoading ? (
-              <div className="text-center">Loading programs...</div>
-            ) : (
-              <Select
-                value={selectedProgram}
-                onValueChange={setSelectedProgram}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a program" />
-                </SelectTrigger>
-                <SelectContent>
-                  {activePrograms &&
-                    activePrograms.map((program) => (
-                      <SelectItem
-                        key={program.id}
-                        value={program.id.toString()}
-                      >
-                        {program.name} ({program.abbreviation})
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-        </>
+        <UpdateProgramStep
+          selectedProgram={selectedProgram}
+          setSelectedProgram={setSelectedProgram}
+          activePrograms={activePrograms}
+          programsLoading={programsLoading}
+        />
       )}
 
-      {/* Progress bar using shadcn Progress component */}
-      {/* Progress bar using shadcn Progress component */}
+      {/* Step 3: Program Educational Objectives */}
+      {step === 3 && (
+        <PEOsStep
+          peos={peos}
+          addPEO={addPEO}
+          updatePEO={updatePEO}
+          removePEO={removePEO}
+        />
+      )}
+
+      {/* Step 4: PEOs to Mission Mapping */}
+      {step === 4 && (
+        <MappingStep
+          peos={peos}
+          missions={missions || []}
+          mappings={mappings}
+          toggleMapping={toggleMapping}
+          isLoading={missionsLoading}
+        />
+      )}
+
+      {/* Progress bar */}
       <div className="mt-12 mb-8">
         <Progress value={progressValue} className="h-2 bg-gray-200" />
       </div>
@@ -197,23 +168,20 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 2 && (
+          {step < 4 && (
             <Button
               onClick={handleNext}
-              disabled={!formType}
+              disabled={!isStepValid()}
               className="bg-green-600 hover:bg-green-700"
             >
               Next
             </Button>
           )}
-          {step === 2 && (
+
+          {step === 4 && (
             <Button
               onClick={handleSubmit}
-              disabled={
-                (formType === "new" &&
-                  (!programName || !programAbbreviation)) ||
-                (formType === "update" && !selectedProgram)
-              }
+              disabled={!isStepValid()}
               className="bg-green-600 hover:bg-green-700"
             >
               Submit
