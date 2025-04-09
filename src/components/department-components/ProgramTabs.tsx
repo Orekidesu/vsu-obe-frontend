@@ -9,6 +9,10 @@ import useProgramProposals from "@/hooks/department/useProgramProposal";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import {
+  filterActivePrograms,
+  getDepartmentProgramIds,
+} from "@/app/utils/department/programFilter";
 
 export default function ProgramTabs() {
   const { programs = [], isLoading: programsLoading } = usePrograms();
@@ -22,24 +26,13 @@ export default function ProgramTabs() {
   const departmentId = session?.Department?.id;
 
   // get all the programs that has the same department with the session
-  // Filter programs and proposals by department
-  const departmentPrograms = departmentId
-    ? programs.filter((program) => program?.department?.id === departmentId)
-    : [];
-
   // Filter active programs by department - with null checks
-  const activePrograms = departmentId
-    ? departmentPrograms.filter(
-        (program) =>
-          program?.department?.id === departmentId &&
-          program.status === "active"
-      )
-    : [];
+  const activePrograms = filterActivePrograms(programs, departmentId);
 
   // Get all department program IDs for filtering proposals
-  const departmentProgramIds = departmentPrograms.map((program) => program.id);
+  const departmentProgramIds = getDepartmentProgramIds(programs, departmentId);
 
-  // Filter program proposals using program IDs from department programs
+  // Filter programs and proposals by department
   const departmentProposals = programProposals.filter((proposal) =>
     departmentProgramIds.includes(proposal?.program?.id)
   );
