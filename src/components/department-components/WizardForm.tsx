@@ -16,6 +16,22 @@ import { NewProgramStep } from "./form-steps/NewProgram";
 import { UpdateProgramStep } from "./form-steps/UpdateProgram";
 import { PEOsStep } from "./form-steps/PEO";
 import { MappingStep } from "./form-steps/PEOMapping";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 export default function WizardForm() {
   const [step, setStep] = useState(1);
@@ -29,11 +45,14 @@ export default function WizardForm() {
     setProgramAbbreviation,
     setSelectedProgram,
     peos,
+    graduateAttributes,
     mappings,
+    gaToPEOMappings,
     addPEO,
     updatePEO,
     removePEO,
     toggleMapping,
+    toggleGAToPEOMapping,
   } = useWizardStore();
 
   const { programs, isLoading: programsLoading } = usePrograms();
@@ -67,6 +86,7 @@ export default function WizardForm() {
       selectedProgram,
       peos,
       mappings,
+      gaToPEOMappings,
     });
     alert("Form submitted successfully!");
     // Reset form
@@ -78,7 +98,7 @@ export default function WizardForm() {
   };
 
   // Calculate progress percentage
-  const progressValue = (step / 4) * 100;
+  const progressValue = (step / 5) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -97,9 +117,24 @@ export default function WizardForm() {
         mappings.some((mapping) => mapping.peoId === peo.id)
       );
     }
+    if (step === 5) {
+      // At least one GA to PEO mapping per GA is required
+      return graduateAttributes.every((ga) =>
+        gaToPEOMappings.some((mapping) => mapping.gaId === ga.id)
+      );
+    }
     return false;
   };
 
+  const isGAToPEOMapped = (gaId: string, peoId: number) => {
+    return gaToPEOMappings.some((m) => m.gaId === gaId && m.peoId === peoId);
+  };
+  const truncateText = (text: string, maxLength = 40) => {
+    if (!text) return "";
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
+  };
   console.log(missions);
 
   return (
@@ -153,6 +188,88 @@ export default function WizardForm() {
           isLoading={missionsLoading}
         />
       )}
+      {step === 5 && (
+        <>
+          <h2 className="text-2xl font-semibold text-center mb-8">
+            Graduate Attributes to PEOs Mapping
+          </h2>
+
+          <TooltipProvider>
+            <div className="mb-4 flex items-center justify-end">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Info className="mr-1 h-4 w-4" />
+                    <span>Check boxes to map Graduate Attributes to PEOs</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Each Graduate Attribute should map to at least one PEO</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
+
+          <div className="overflow-x-auto">
+            <Table className="border">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px] border">GAs</TableHead>
+                  <TableHead className="w-[250px] border">
+                    GRADUATE ATTRIBUTES (GA) STATEMENTS
+                  </TableHead>
+                  {peos.map((peo) => (
+                    <TableHead key={peo.id} className="text-center border">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="font-semibold">PEO{peo.id}</div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[300px]">
+                          <p>{peo.statement}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {graduateAttributes.map((ga) => (
+                  <TableRow key={ga.id}>
+                    <TableCell className="font-medium border">
+                      {ga.id}
+                    </TableCell>
+                    <TableCell className="border">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span>{truncateText(ga.statement)}</span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[300px]">
+                          <p>{ga.statement}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableCell>
+                    {peos.map((peo) => (
+                      <TableCell key={peo.id} className="text-center border">
+                        <Checkbox
+                          checked={isGAToPEOMapped(ga.id, peo.id)}
+                          onCheckedChange={() =>
+                            toggleGAToPEOMapping(ga.id, peo.id)
+                          }
+                          className="mx-auto"
+                        />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="mt-4 text-sm text-muted-foreground">
+            <p>Hover over PEO IDs or GA statements to view full text</p>
+          </div>
+        </>
+      )}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
@@ -168,7 +285,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 4 && (
+          {step < 5 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -178,7 +295,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
