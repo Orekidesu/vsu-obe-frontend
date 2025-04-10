@@ -2,7 +2,11 @@ import { create } from "zustand";
 import { GraduateAttribute } from "@/types/model/GraduateAttributes";
 import { ProgramEducationalObjective } from "@/types/model/ProgramEducationalObjective";
 
-// Define the PEO interface
+interface ProgramOutcome {
+  id: number;
+  name: string;
+  statement: string;
+}
 
 // Define the Mapping interface
 interface Mapping {
@@ -21,6 +25,7 @@ interface WizardState {
   programAbbreviation: string;
   selectedProgram: string;
   peos: ProgramEducationalObjective[];
+  programOutcomes: ProgramOutcome[];
   graduateAttributes: GraduateAttribute[];
   mappings: Mapping[];
   gaToPEOMappings: GAToPEOMapping[];
@@ -35,6 +40,9 @@ interface WizardState {
   addPEO: () => void;
   updatePEO: (id: number, statement: string) => void;
   removePEO: (id: number) => void;
+  addProgramOutcome: () => void;
+  updateProgramOutcome: (id: number, name: string, statement: string) => void;
+  removeProgramOutcome: (id: number) => void;
   toggleMapping: (peoId: number, missionId: number) => void;
   toggleGAToPEOMapping: (gaId: string, peoId: number) => void;
 }
@@ -48,6 +56,7 @@ export const useWizardStore = create<WizardState>((set) => ({
   programAbbreviation: "",
   selectedProgram: "",
   peos: [{ id: 1, statement: "" }], // Start with one empty PEO
+  programOutcomes: [{ id: 1, name: "", statement: "" }], // Start with one empty Program Outcome
   graduateAttributes: defaultGraduateAttributes, // Start with empty array
   mappings: [],
   gaToPEOMappings: [],
@@ -83,6 +92,31 @@ export const useWizardStore = create<WizardState>((set) => ({
       gaToPEOMappings: state.gaToPEOMappings.filter(
         (mapping) => mapping.peoId !== id
       ),
+    })),
+  addProgramOutcome: () =>
+    set((state) => {
+      const newId =
+        state.programOutcomes.length > 0
+          ? Math.max(...state.programOutcomes.map((po) => po.id)) + 1
+          : 1;
+      return {
+        programOutcomes: [
+          ...state.programOutcomes,
+          { id: newId, name: "", statement: "" },
+        ],
+      };
+    }),
+
+  updateProgramOutcome: (id, name, statement) =>
+    set((state) => ({
+      programOutcomes: state.programOutcomes.map((po) =>
+        po.id === id ? { ...po, name, statement } : po
+      ),
+    })),
+
+  removeProgramOutcome: (id) =>
+    set((state) => ({
+      programOutcomes: state.programOutcomes.filter((po) => po.id !== id),
     })),
 
   toggleMapping: (peoId, missionId) =>
