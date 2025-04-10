@@ -15,12 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
 import { ProgramEducationalObjective } from "@/types/model/ProgramEducationalObjective";
-
-interface ProgramOutcome {
-  id: number;
-  name: string;
-  statement: string;
-}
+import { ProgramOutcome } from "@/types/model/ProgramOutcome";
 
 interface POToPEOMapping {
   poId: number;
