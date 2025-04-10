@@ -1,11 +1,8 @@
 import { create } from "zustand";
 import { GraduateAttribute } from "@/types/model/GraduateAttributes";
+import { ProgramEducationalObjective } from "@/types/model/ProgramEducationalObjective";
 
 // Define the PEO interface
-interface PEO {
-  id: number;
-  statement: string;
-}
 
 // Define the Mapping interface
 interface Mapping {
@@ -23,7 +20,7 @@ interface WizardState {
   programName: string;
   programAbbreviation: string;
   selectedProgram: string;
-  peos: PEO[];
+  peos: ProgramEducationalObjective[];
   graduateAttributes: GraduateAttribute[];
   mappings: Mapping[];
   gaToPEOMappings: GAToPEOMapping[];
