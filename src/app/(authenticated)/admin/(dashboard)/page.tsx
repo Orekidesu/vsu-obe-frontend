@@ -2,7 +2,7 @@
 import React from "react";
 import useVisions from "@/hooks/admin/useVision";
 import useMissions from "@/hooks/shared/useMission";
-import useGraduateAttributes from "@/hooks/admin/useGraduateAttribute";
+import useGraduateAttributes from "@/hooks/shared/useGraduateAttribute";
 import { Skeleton } from "@/components/ui/skeleton";
 import CustomCard from "@/components/commons/card/CustomCard";
 

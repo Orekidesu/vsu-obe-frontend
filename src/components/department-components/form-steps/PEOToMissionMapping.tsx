@@ -16,11 +16,7 @@ import {
 import { Info } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Mission } from "@/types/model/Mission";
-
-interface PEO {
-  id: number;
-  statement: string;
-}
+import { ProgramEducationalObjective } from "@/types/model/ProgramEducationalObjective";
 
 interface Mapping {
   peoId: number;
@@ -28,7 +24,7 @@ interface Mapping {
 }
 
 interface MappingStepProps {
-  peos: PEO[];
+  peos: ProgramEducationalObjective[];
   missions: Mission[];
   mappings: Mapping[];
   toggleMapping: (peoId: number, missionId: number) => void;
