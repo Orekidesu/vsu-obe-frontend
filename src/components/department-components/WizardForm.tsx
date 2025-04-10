@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import usePrograms from "@/hooks/department/useProgram";
 import useMissions from "@/hooks/shared/useMission";
-import useGraduateAttributes from "@/hooks/admin/useGraduateAttribute";
+import useGraduateAttributes from "@/hooks/shared/useGraduateAttribute";
 import { filterActivePrograms } from "@/app/utils/department/programFilter";
 import { useAuth } from "@/hooks/useAuth";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
@@ -16,7 +16,7 @@ import { FormTypeStep } from "./form-steps/FormType";
 import { NewProgramStep } from "./form-steps/NewProgram";
 import { UpdateProgramStep } from "./form-steps/UpdateProgram";
 import { PEOsStep } from "./form-steps/PEO";
-import { MappingStep } from "./form-steps/PEOMapping";
+import { MappingStep } from "./form-steps/PEOToMissionMapping";
 import { GAToPEOMappingStep } from "@/components/department-components/form-steps/GAToPEOMapping";
 
 export default function WizardForm() {
