@@ -17,10 +17,11 @@ import { FormTypeStep } from "./form-steps/FormType";
 import { NewProgramStep } from "./form-steps/NewProgram";
 import { UpdateProgramStep } from "./form-steps/UpdateProgram";
 import { PEOsStep } from "./form-steps/PEO";
-import { MappingStep } from "./form-steps/PEOToMissionMapping";
+import { PEOToMission } from "./form-steps/PEOToMissionMapping";
 import { GAToPEOMappingStep } from "@/components/department-components/form-steps/GAToPEOMapping";
 import { ProgramOutcomeStep } from "./form-steps/PO";
 import { POToPEOMappingStep } from "./form-steps/POToPEOMapping";
+import { POToGAMappingStep } from "./form-steps/POToGAMapping";
 
 export default function WizardForm() {
   const [step, setStep] = useState(1);
@@ -38,6 +39,7 @@ export default function WizardForm() {
     graduateAttributes,
     mappings,
     gaToPEOMappings,
+    poToGAMappings,
     addPEO,
     updatePEO,
     removePEO,
@@ -49,6 +51,7 @@ export default function WizardForm() {
     setGraduateAttributes,
     poToPEOMappings,
     togglePOToPEOMapping,
+    togglePOToGAMapping,
   } = useWizardStore();
 
   const { programs, isLoading: programsLoading } = usePrograms();
@@ -89,6 +92,7 @@ export default function WizardForm() {
       mappings,
       gaToPEOMappings,
       poToPEOMappings,
+      poToGAMappings,
     });
     alert("Form submitted successfully!");
     // Reset form
@@ -100,7 +104,7 @@ export default function WizardForm() {
   };
 
   // Calculate progress percentage
-  const progressValue = (step / 7) * 100;
+  const progressValue = (step / 8) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -122,7 +126,7 @@ export default function WizardForm() {
     if (step === 5) {
       // At least one GA to PEO mapping per GA is required
       return graduateAttributes.every((ga) =>
-        gaToPEOMappings.some((mapping) => mapping.gaId === ga.id.toString())
+        gaToPEOMappings.some((mapping) => mapping.gaId === ga.id)
       );
     }
 
@@ -139,6 +143,12 @@ export default function WizardForm() {
       // Each PO should map to at least one PEO
       return programOutcomes.every((po) =>
         poToPEOMappings.some((mapping) => mapping.poId === po.id)
+      );
+    }
+    if (step === 8) {
+      // At least one PO to GA mapping per PO is required
+      return programOutcomes.every((po) =>
+        poToGAMappings.some((mapping) => mapping.poId === po.id)
       );
     }
     return false;
@@ -187,7 +197,7 @@ export default function WizardForm() {
 
       {/* Step 4: PEOs to Mission Mapping */}
       {step === 4 && (
-        <MappingStep
+        <PEOToMission
           peos={peos}
           missions={missions || []}
           mappings={mappings}
@@ -225,6 +235,15 @@ export default function WizardForm() {
           togglePOToPEOMapping={togglePOToPEOMapping}
         />
       )}
+      {/* Step 8: Program Outcomes to Graduate Attributes Mapping */}
+      {step === 8 && (
+        <POToGAMappingStep
+          programOutcomes={programOutcomes}
+          graduateAttributes={graduateAttributes}
+          poToGAMappings={poToGAMappings}
+          togglePOToGAMapping={togglePOToGAMapping}
+        />
+      )}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
@@ -240,7 +259,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 7 && (
+          {step < 8 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -250,7 +269,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 7 && (
+          {step === 8 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
