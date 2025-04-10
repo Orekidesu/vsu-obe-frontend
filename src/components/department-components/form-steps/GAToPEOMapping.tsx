@@ -16,22 +16,18 @@ import {
 import { Info } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GraduateAttribute } from "@/types/model/GraduateAttributes";
-
-interface PEO {
-  id: number;
-  statement: string;
-}
+import { ProgramEducationalObjective } from "@/types/model/ProgramEducationalObjective";
 
 interface GAToPEOMapping {
-  gaId: string;
+  gaId: number;
   peoId: number;
 }
 
 interface GAToPEOMappingStepProps {
-  peos: PEO[];
+  peos: ProgramEducationalObjective[];
   graduateAttributes: GraduateAttribute[];
   gaToPEOMappings: GAToPEOMapping[];
-  toggleGAToPEOMapping: (gaId: string, peoId: number) => void;
+  toggleGAToPEOMapping: (gaId: number, peoId: number) => void;
   isLoading?: boolean;
 }
 
@@ -43,7 +39,7 @@ export function GAToPEOMappingStep({
   isLoading = false,
 }: GAToPEOMappingStepProps) {
   // Helper function to check if a GA is mapped to a PEO
-  const isGAToPEOMapped = (gaId: string, peoId: number) => {
+  const isGAToPEOMapped = (gaId: number, peoId: number) => {
     return gaToPEOMappings.some((m) => m.gaId === gaId && m.peoId === peoId);
   };
 
@@ -146,9 +142,9 @@ export function GAToPEOMappingStep({
                 {peos.map((peo) => (
                   <TableCell key={peo.id} className="text-center border">
                     <Checkbox
-                      checked={isGAToPEOMapped(ga.id.toString(), peo.id)}
+                      checked={isGAToPEOMapped(ga.id, peo.id)}
                       onCheckedChange={() =>
-                        toggleGAToPEOMapping(ga.id.toString(), peo.id)
+                        toggleGAToPEOMapping(ga.id, peo.id)
                       }
                       className="mx-auto"
                     />
