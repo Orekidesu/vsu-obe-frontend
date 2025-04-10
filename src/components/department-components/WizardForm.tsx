@@ -20,6 +20,7 @@ import { PEOsStep } from "./form-steps/PEO";
 import { MappingStep } from "./form-steps/PEOToMissionMapping";
 import { GAToPEOMappingStep } from "@/components/department-components/form-steps/GAToPEOMapping";
 import { ProgramOutcomeStep } from "./form-steps/PO";
+import { POToPEOMappingStep } from "./form-steps/POToPEOMapping";
 
 export default function WizardForm() {
   const [step, setStep] = useState(1);
@@ -46,6 +47,8 @@ export default function WizardForm() {
     toggleMapping,
     toggleGAToPEOMapping,
     setGraduateAttributes,
+    poToPEOMappings,
+    togglePOToPEOMapping,
   } = useWizardStore();
 
   const { programs, isLoading: programsLoading } = usePrograms();
@@ -85,6 +88,7 @@ export default function WizardForm() {
       programOutcomes,
       mappings,
       gaToPEOMappings,
+      poToPEOMappings,
     });
     alert("Form submitted successfully!");
     // Reset form
@@ -96,7 +100,7 @@ export default function WizardForm() {
   };
 
   // Calculate progress percentage
-  const progressValue = (step / 6) * 100;
+  const progressValue = (step / 7) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -128,6 +132,13 @@ export default function WizardForm() {
         programOutcomes.every(
           (po) => po.name.trim() !== "" && po.statement.trim() !== ""
         )
+      );
+    }
+
+    if (step === 7) {
+      // Each PO should map to at least one PEO
+      return programOutcomes.every((po) =>
+        poToPEOMappings.some((mapping) => mapping.poId === po.id)
       );
     }
     return false;
@@ -205,6 +216,15 @@ export default function WizardForm() {
           removeProgramOutcome={removeProgramOutcome}
         />
       )}
+      {/* Step 7: Program Outcomes to PEOs Mapping */}
+      {step === 7 && (
+        <POToPEOMappingStep
+          peos={peos}
+          programOutcomes={programOutcomes}
+          poToPEOMappings={poToPEOMappings}
+          togglePOToPEOMapping={togglePOToPEOMapping}
+        />
+      )}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
@@ -220,7 +240,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 6 && (
+          {step < 7 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -230,7 +250,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 6 && (
+          {step === 7 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
