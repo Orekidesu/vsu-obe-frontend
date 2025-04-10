@@ -31,7 +31,7 @@ interface MappingStepProps {
   isLoading?: boolean;
 }
 
-export function MappingStep({
+export function PEOToMission({
   peos,
   missions,
   mappings,
