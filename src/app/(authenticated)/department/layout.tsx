@@ -29,7 +29,7 @@ const DepartmentLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="h-full flex flex-col">
-      <header className="text-2xl font-bold pt-5 pb-8 flex items-center gap-2">
+      <header className="text-2xl font-bold pt-5 pb-8 flex items-center gap-2 sticky top-0 z-10 bg-white">
         {shouldDisplayBackButton && (
           <button
             onClick={() => router.back()}
