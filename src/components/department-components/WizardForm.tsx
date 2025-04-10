@@ -37,7 +37,7 @@ export default function WizardForm() {
     peos,
     programOutcomes,
     graduateAttributes,
-    mappings,
+    peoToMissionMappings,
     gaToPEOMappings,
     poToGAMappings,
     addPEO,
@@ -89,7 +89,7 @@ export default function WizardForm() {
       selectedProgram,
       peos,
       programOutcomes,
-      mappings,
+      peoToMissionMappings,
       gaToPEOMappings,
       poToPEOMappings,
       poToGAMappings,
@@ -120,7 +120,7 @@ export default function WizardForm() {
     if (step === 4) {
       // At least one mapping per PEO is required
       return peos.every((peo) =>
-        mappings.some((mapping) => mapping.peoId === peo.id)
+        peoToMissionMappings.some((mapping) => mapping.peoId === peo.id)
       );
     }
     if (step === 5) {
@@ -200,7 +200,7 @@ export default function WizardForm() {
         <PEOToMission
           peos={peos}
           missions={missions || []}
-          mappings={mappings}
+          mappings={peoToMissionMappings}
           toggleMapping={toggleMapping}
           isLoading={missionsLoading}
         />

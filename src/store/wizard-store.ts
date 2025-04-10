@@ -36,7 +36,7 @@ interface WizardState {
   peos: ProgramEducationalObjective[];
   programOutcomes: ProgramOutcome[];
   graduateAttributes: GraduateAttribute[];
-  mappings: PEOToMissionMapping[];
+  peoToMissionMappings: PEOToMissionMapping[];
   gaToPEOMappings: GAToPEOMapping[];
   poToPEOMappings: POToPEOMapping[];
   poToGAMappings: POToGAMapping[];
@@ -71,7 +71,8 @@ export const useWizardStore = create<WizardState>((set) => ({
   peos: [{ id: 1, statement: "" }], // Start with one empty PEO
   programOutcomes: [{ id: 1, name: "", statement: "" }], // Start with one empty Program Outcome
   graduateAttributes: defaultGraduateAttributes, // Start with empty array
-  mappings: [],
+  // mappings: [],
+  peoToMissionMappings: [],
   gaToPEOMappings: [],
   poToPEOMappings: [],
   poToGAMappings: [],
@@ -103,7 +104,9 @@ export const useWizardStore = create<WizardState>((set) => ({
   removePEO: (id) =>
     set((state) => ({
       peos: state.peos.filter((peo) => peo.id !== id),
-      mappings: state.mappings.filter((mapping) => mapping.peoId !== id),
+      peoToMissionMappings: state.peoToMissionMappings.filter(
+        (mapping) => mapping.peoId !== id
+      ),
       gaToPEOMappings: state.gaToPEOMappings.filter(
         (mapping) => mapping.peoId !== id
       ),
@@ -142,19 +145,22 @@ export const useWizardStore = create<WizardState>((set) => ({
 
   toggleMapping: (peoId, missionId) =>
     set((state) => {
-      const existingMapping = state.mappings.find(
+      const existingMapping = state.peoToMissionMappings.find(
         (m) => m.peoId === peoId && m.missionId === missionId
       );
 
       if (existingMapping) {
         return {
-          mappings: state.mappings.filter(
+          mappings: state.peoToMissionMappings.filter(
             (m) => !(m.peoId === peoId && m.missionId === missionId)
           ),
         };
       } else {
         return {
-          mappings: [...state.mappings, { peoId, missionId }],
+          peoToMissionMappings: [
+            ...state.peoToMissionMappings,
+            { peoId, missionId },
+          ],
         };
       }
     }),
