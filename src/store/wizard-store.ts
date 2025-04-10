@@ -9,19 +9,24 @@ interface ProgramOutcome {
 }
 
 // Define the Mapping interface
-interface Mapping {
+interface PEOToMissionMapping {
   peoId: number;
   missionId: number;
 }
 
 interface GAToPEOMapping {
-  gaId: string; // Keep as string for compatibility with existing mappings
+  gaId: number; // Keep as string for compatibility with existing mappings
   peoId: number;
 }
 
 interface POToPEOMapping {
   poId: number;
   peoId: number;
+}
+
+interface POToGAMapping {
+  poId: number;
+  gaId: number;
 }
 interface WizardState {
   formType: string;
@@ -31,9 +36,10 @@ interface WizardState {
   peos: ProgramEducationalObjective[];
   programOutcomes: ProgramOutcome[];
   graduateAttributes: GraduateAttribute[];
-  mappings: Mapping[];
+  mappings: PEOToMissionMapping[];
   gaToPEOMappings: GAToPEOMapping[];
   poToPEOMappings: POToPEOMapping[];
+  poToGAMappings: POToGAMapping[];
 
   // Add setters for the GAs
   setGraduateAttributes: (graduateAttributes: GraduateAttribute[]) => void;
@@ -49,8 +55,9 @@ interface WizardState {
   updateProgramOutcome: (id: number, name: string, statement: string) => void;
   removeProgramOutcome: (id: number) => void;
   toggleMapping: (peoId: number, missionId: number) => void;
-  toggleGAToPEOMapping: (gaId: string, peoId: number) => void;
+  toggleGAToPEOMapping: (gaId: number, peoId: number) => void;
   togglePOToPEOMapping: (poId: number, peoId: number) => void;
+  togglePOToGAMapping: (poId: number, gaId: number) => void;
 }
 
 // Default empty array for graduate attributes (will be replaced by fetched data)
@@ -67,6 +74,7 @@ export const useWizardStore = create<WizardState>((set) => ({
   mappings: [],
   gaToPEOMappings: [],
   poToPEOMappings: [],
+  poToGAMappings: [],
 
   setGraduateAttributes: (graduateAttributes) => set({ graduateAttributes }),
 
@@ -124,6 +132,12 @@ export const useWizardStore = create<WizardState>((set) => ({
   removeProgramOutcome: (id) =>
     set((state) => ({
       programOutcomes: state.programOutcomes.filter((po) => po.id !== id),
+      poToPEOMappings: state.poToPEOMappings.filter(
+        (mapping) => mapping.poId !== id
+      ),
+      poToGAMappings: state.poToGAMappings.filter(
+        (mapping) => mapping.poId !== id
+      ),
     })),
 
   toggleMapping: (peoId, missionId) =>
@@ -178,6 +192,26 @@ export const useWizardStore = create<WizardState>((set) => ({
       } else {
         return {
           poToPEOMappings: [...state.poToPEOMappings, { poId, peoId }],
+        };
+      }
+    }),
+  togglePOToGAMapping: (poId, gaId) =>
+    set((state) => {
+      const existingMapping = state.poToGAMappings.find(
+        (m) => m.poId === poId && m.gaId === gaId
+      );
+
+      if (existingMapping) {
+        // Remove mapping if it exists
+        return {
+          poToGAMappings: state.poToGAMappings.filter(
+            (m) => !(m.poId === poId && m.gaId === gaId)
+          ),
+        };
+      } else {
+        // Add mapping if it doesn't exist
+        return {
+          poToGAMappings: [...state.poToGAMappings, { poId, gaId }],
         };
       }
     }),
