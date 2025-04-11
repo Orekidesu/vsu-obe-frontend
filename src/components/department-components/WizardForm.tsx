@@ -183,7 +183,7 @@ export default function WizardForm() {
       </h1>
 
       {/* Step 1: Select form type */}
-      {step === 10 && (
+      {step === 1 && (
         <FormTypeStep formType={formType} setFormType={setFormType} />
       )}
 
@@ -277,7 +277,7 @@ export default function WizardForm() {
         />
       )}
       {/* Step 10: Year and Semester Selection */}
-      {step === 1 && (
+      {step === 10 && (
         <YearSemesterStep
           yearSemesters={yearSemesters}
           predefinedYearSemesters={
