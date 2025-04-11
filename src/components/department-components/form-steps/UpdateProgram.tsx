@@ -1,3 +1,4 @@
+import { useWizardStore } from "@/store/wizard-store";
 import {
   Select,
   SelectContent,
@@ -20,6 +21,18 @@ export function UpdateProgramStep({
   activePrograms,
   programsLoading,
 }: UpdateProgramStepProps) {
+  const { setProgramAbbreviation } = useWizardStore();
+
+  const handleProgramSelect = (programId: string) => {
+    setSelectedProgram(programId);
+
+    // Find the selected program and update its abbreviation
+    const program = activePrograms.find((p) => p.id.toString() === programId);
+    if (program) {
+      setProgramAbbreviation(program.abbreviation);
+    }
+  };
+
   return (
     <>
       <h2 className="text-2xl font-semibold text-center mb-8">
@@ -30,7 +43,7 @@ export function UpdateProgramStep({
         {programsLoading ? (
           <div className="text-center">Loading programs...</div>
         ) : (
-          <Select value={selectedProgram} onValueChange={setSelectedProgram}>
+          <Select value={selectedProgram} onValueChange={handleProgramSelect}>
             <SelectTrigger>
               <SelectValue placeholder="Select a program" />
             </SelectTrigger>
