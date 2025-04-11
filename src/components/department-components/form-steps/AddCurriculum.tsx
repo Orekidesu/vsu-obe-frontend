@@ -17,16 +17,23 @@ export function CurriculumStep({
   setCurriculumName,
   setAcademicYear,
 }: CurriculumStepProps) {
-  // Use a ref to track initial render
-  const initialRender = useRef(true);
+  // Use a ref to track whether we've set the curriculum name
+  const hasSetCurriculumName = useRef(false);
 
-  // Set default curriculum name ONLY on initial render or when abbreviation changes
   useEffect(() => {
-    if (programAbbreviation && initialRender.current) {
+    // Only set the curriculum name if:
+    // 1. We have a program abbreviation
+    // 2. We haven't already set the curriculum name for this component instance
+    // 3. The current curriculum name is empty
+    if (
+      programAbbreviation &&
+      !hasSetCurriculumName.current &&
+      (!curriculumName || curriculumName === "")
+    ) {
       setCurriculumName(programAbbreviation);
-      initialRender.current = false;
+      hasSetCurriculumName.current = true;
     }
-  }, [programAbbreviation, setCurriculumName]);
+  }, [programAbbreviation, curriculumName, setCurriculumName]);
 
   // Helper function to validate and format academic year
   const handleAcademicYearChange = (value: string) => {
