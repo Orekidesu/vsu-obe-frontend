@@ -112,27 +112,6 @@ export default function WizardForm() {
     setCurriculumName("");
   };
   // Modify your useEffect to prevent infinite loops
-  useEffect(() => {
-    if (formType === "update" && selectedProgram && activePrograms.length > 0) {
-      const selectedProgramObj = activePrograms.find(
-        (p) => p.id.toString() === selectedProgram
-      );
-
-      if (
-        selectedProgramObj &&
-        programAbbreviation !== selectedProgramObj.abbreviation
-      ) {
-        // Only update if the abbreviation is different from the current one
-        setProgramAbbreviation(selectedProgramObj.abbreviation);
-      }
-    }
-  }, [
-    formType,
-    selectedProgram,
-    activePrograms,
-    setProgramAbbreviation,
-    programAbbreviation,
-  ]);
 
   // Calculate progress percentage
   const progressValue = (step / 9) * 100;
