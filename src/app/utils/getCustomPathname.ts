@@ -43,7 +43,7 @@ const getCustomPathname = (path: string) => {
         if (path.startsWith("/department/programs")) {
           return "Programs";
         }
-        return "Unknown Path";
+        return "Dashboard";
     }
   }
 
