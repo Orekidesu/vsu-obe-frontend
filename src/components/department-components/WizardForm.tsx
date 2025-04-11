@@ -23,7 +23,7 @@ import { ProgramOutcomeStep } from "./form-steps/PO";
 import { POToPEOMappingStep } from "./form-steps/POToPEOMapping";
 import { POToGAMappingStep } from "./form-steps/POToGAMapping";
 import { CurriculumStep } from "./form-steps/AddCurriculum";
-
+import { YearSemesterStep } from "./form-steps/YearSemester";
 export default function WizardForm() {
   const [step, setStep] = useState(1);
   const {
@@ -33,11 +33,14 @@ export default function WizardForm() {
     selectedProgram,
     curriculumName,
     academicYear,
+    yearSemesters,
     setFormType,
     setProgramName,
     setProgramAbbreviation,
     setSelectedProgram,
     setAcademicYear,
+    addYearSemester,
+    removeYearSemester,
     setCurriculumName,
     peos,
     programOutcomes,
@@ -94,6 +97,7 @@ export default function WizardForm() {
       selectedProgram,
       curriculumName,
       academicYear,
+      yearSemesters,
       peos,
       programOutcomes,
       peoToMissionMappings,
@@ -114,7 +118,7 @@ export default function WizardForm() {
   // Modify your useEffect to prevent infinite loops
 
   // Calculate progress percentage
-  const progressValue = (step / 9) * 100;
+  const progressValue = (step / 10) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -165,6 +169,10 @@ export default function WizardForm() {
       // Curriculum name and academic year are required
       return !!curriculumName && /^\d{4}-\d{4}$/.test(academicYear);
     }
+    if (step === 10) {
+      // At least one year-semester combination is required
+      return yearSemesters.length > 0;
+    }
     return false;
   };
 
@@ -175,7 +183,7 @@ export default function WizardForm() {
       </h1>
 
       {/* Step 1: Select form type */}
-      {step === 1 && (
+      {step === 10 && (
         <FormTypeStep formType={formType} setFormType={setFormType} />
       )}
 
@@ -268,6 +276,17 @@ export default function WizardForm() {
           setAcademicYear={setAcademicYear}
         />
       )}
+      {/* Step 10: Year and Semester Selection */}
+      {step === 1 && (
+        <YearSemesterStep
+          yearSemesters={yearSemesters}
+          predefinedYearSemesters={
+            useWizardStore.getState().predefinedYearSemesters
+          }
+          addYearSemester={addYearSemester}
+          removeYearSemester={removeYearSemester}
+        />
+      )}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
@@ -283,7 +302,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 9 && (
+          {step < 10 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -293,7 +312,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 9 && (
+          {step === 10 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
