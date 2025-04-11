@@ -22,6 +22,7 @@ import { GAToPEOMappingStep } from "@/components/department-components/form-step
 import { ProgramOutcomeStep } from "./form-steps/PO";
 import { POToPEOMappingStep } from "./form-steps/POToPEOMapping";
 import { POToGAMappingStep } from "./form-steps/POToGAMapping";
+import { CurriculumStep } from "./form-steps/AddCurriculum";
 
 export default function WizardForm() {
   const [step, setStep] = useState(1);
@@ -30,10 +31,14 @@ export default function WizardForm() {
     programName,
     programAbbreviation,
     selectedProgram,
+    curriculumName,
+    academicYear,
     setFormType,
     setProgramName,
     setProgramAbbreviation,
     setSelectedProgram,
+    setAcademicYear,
+    setCurriculumName,
     peos,
     programOutcomes,
     graduateAttributes,
@@ -87,6 +92,8 @@ export default function WizardForm() {
       programName,
       programAbbreviation,
       selectedProgram,
+      curriculumName,
+      academicYear,
       peos,
       programOutcomes,
       peoToMissionMappings,
@@ -101,10 +108,12 @@ export default function WizardForm() {
     setProgramName("");
     setProgramAbbreviation("");
     setSelectedProgram("");
+    setAcademicYear("");
+    setCurriculumName("");
   };
 
   // Calculate progress percentage
-  const progressValue = (step / 8) * 100;
+  const progressValue = (step / 9) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -150,6 +159,10 @@ export default function WizardForm() {
       return programOutcomes.every((po) =>
         poToGAMappings.some((mapping) => mapping.poId === po.id)
       );
+    }
+    if (step === 9) {
+      // Curriculum name and academic year are required
+      return !!curriculumName && /^\d{4}-\d{4}$/.test(academicYear);
     }
     return false;
   };
@@ -244,6 +257,16 @@ export default function WizardForm() {
           togglePOToGAMapping={togglePOToGAMapping}
         />
       )}
+      {/* Step 9: Curriculum Details */}
+      {step === 9 && (
+        <CurriculumStep
+          programAbbreviation={programAbbreviation}
+          curriculumName={curriculumName}
+          academicYear={academicYear}
+          setCurriculumName={setCurriculumName}
+          setAcademicYear={setAcademicYear}
+        />
+      )}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
@@ -259,7 +282,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 8 && (
+          {step < 9 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -269,7 +292,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 8 && (
+          {step === 9 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
