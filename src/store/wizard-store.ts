@@ -33,6 +33,8 @@ interface WizardState {
   programName: string;
   programAbbreviation: string;
   selectedProgram: string;
+  curriculumName: string;
+  academicYear: string;
   peos: ProgramEducationalObjective[];
   programOutcomes: ProgramOutcome[];
   graduateAttributes: GraduateAttribute[];
@@ -48,6 +50,8 @@ interface WizardState {
   setProgramName: (name: string) => void;
   setProgramAbbreviation: (abbreviation: string) => void;
   setSelectedProgram: (program: string) => void;
+  setCurriculumName: (name: string) => void;
+  setAcademicYear: (year: string) => void;
   addPEO: () => void;
   updatePEO: (id: number, statement: string) => void;
   removePEO: (id: number) => void;
@@ -68,6 +72,8 @@ export const useWizardStore = create<WizardState>((set) => ({
   programName: "",
   programAbbreviation: "",
   selectedProgram: "",
+  curriculumName: "",
+  academicYear: "",
   peos: [{ id: 1, statement: "" }], // Start with one empty PEO
   programOutcomes: [{ id: 1, name: "", statement: "" }], // Start with one empty Program Outcome
   graduateAttributes: defaultGraduateAttributes, // Start with empty array
@@ -84,6 +90,8 @@ export const useWizardStore = create<WizardState>((set) => ({
   setProgramAbbreviation: (abbreviation) =>
     set({ programAbbreviation: abbreviation }),
   setSelectedProgram: (program) => set({ selectedProgram: program }),
+  setCurriculumName: (name) => set({ curriculumName: name }),
+  setAcademicYear: (year) => set({ academicYear: year }),
 
   addPEO: () =>
     set((state) => {
