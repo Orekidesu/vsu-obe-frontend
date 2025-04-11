@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -17,12 +17,16 @@ export function CurriculumStep({
   setCurriculumName,
   setAcademicYear,
 }: CurriculumStepProps) {
-  // Set default curriculum name when program abbreviation changes
+  // Use a ref to track initial render
+  const initialRender = useRef(true);
+
+  // Set default curriculum name ONLY on initial render or when abbreviation changes
   useEffect(() => {
-    if (programAbbreviation && !curriculumName) {
+    if (programAbbreviation && initialRender.current) {
       setCurriculumName(programAbbreviation);
+      initialRender.current = false;
     }
-  }, [programAbbreviation, curriculumName, setCurriculumName]);
+  }, [programAbbreviation, setCurriculumName]);
 
   // Helper function to validate and format academic year
   const handleAcademicYearChange = (value: string) => {
