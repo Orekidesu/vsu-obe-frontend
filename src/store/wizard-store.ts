@@ -47,6 +47,12 @@ export interface ProgramTemplate {
   yearSemesters: YearSemester[];
 }
 
+export interface CourseCategory {
+  id: string;
+  name: string;
+  code: string;
+}
+
 interface WizardState {
   formType: string;
   programName: string;
@@ -55,6 +61,7 @@ interface WizardState {
   curriculumName: string;
   academicYear: string;
   yearSemesters: YearSemester[];
+  courseCategories: CourseCategory[];
   peos: ProgramEducationalObjective[];
   programOutcomes: ProgramOutcome[];
   graduateAttributes: GraduateAttribute[];
@@ -76,9 +83,12 @@ interface WizardState {
   setCurriculumName: (name: string) => void;
   setAcademicYear: (year: string) => void;
   setYearSemesters: (yearSemesters: YearSemester[]) => void;
-
   addYearSemester: (year: number, semester: string) => void;
   removeYearSemester: (id: string) => void;
+  addCourseCategory: (name: string, code: string) => void;
+  updateCourseCategory: (id: string, name: string, code: string) => void;
+  removeCourseCategory: (id: string) => void;
+
   addPEO: () => void;
   updatePEO: (id: number, statement: string) => void;
   removePEO: (id: number) => void;
@@ -94,6 +104,9 @@ interface WizardState {
 // Default empty array for graduate attributes (will be replaced by fetched data)
 const defaultGraduateAttributes: GraduateAttribute[] = [];
 const initialYearSemesters: YearSemester[] = [];
+const initialCourseCategories: CourseCategory[] = [
+  { id: "cc", name: "Common Courses", code: "CC" },
+];
 
 // Program Templates
 const createProgramTemplates = (): ProgramTemplate[] => {
@@ -209,6 +222,7 @@ export const useWizardStore = create<WizardState>((set) => ({
   curriculumName: "",
   academicYear: "",
   yearSemesters: initialYearSemesters,
+  courseCategories: initialCourseCategories,
   peos: [{ id: 1, statement: "" }], // Start with one empty PEO
   programOutcomes: [{ id: 1, name: "", statement: "" }], // Start with one empty Program Outcome
   graduateAttributes: defaultGraduateAttributes, // Start with empty array
@@ -281,6 +295,49 @@ export const useWizardStore = create<WizardState>((set) => ({
   removeYearSemester: (id) =>
     set((state) => ({
       yearSemesters: state.yearSemesters.filter((ys) => ys.id !== id),
+    })),
+
+  addCourseCategory: (name, code) =>
+    set((state) => {
+      // Create a unique ID based on the code (lowercase for consistency)
+      const id = code.toLowerCase();
+
+      // Check if this code already exists
+      const exists = state.courseCategories.some((cc) => cc.id === id);
+      if (exists) {
+        return state; // Don't add duplicates
+      }
+
+      // Add the new course category
+      return {
+        courseCategories: [...state.courseCategories, { id, name, code }].sort(
+          (a, b) => a.name.localeCompare(b.name)
+        ),
+      };
+    }),
+
+  updateCourseCategory: (id, name, code) =>
+    set((state) => {
+      // Check if the new code already exists (except for the current category)
+      const newId = code.toLowerCase();
+      const codeExists = state.courseCategories.some(
+        (cc) => cc.id !== id && cc.code.toLowerCase() === newId
+      );
+      if (codeExists) {
+        return state; // Don't update if code already exists
+      }
+
+      // Update the course category
+      return {
+        courseCategories: state.courseCategories
+          .map((cc) => (cc.id === id ? { id: newId, name, code } : cc))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      };
+    }),
+
+  removeCourseCategory: (id) =>
+    set((state) => ({
+      courseCategories: state.courseCategories.filter((cc) => cc.id !== id),
     })),
 
   addPEO: () =>
