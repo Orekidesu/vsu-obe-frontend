@@ -53,6 +53,19 @@ export interface CourseCategory {
   code: string;
 }
 
+export interface Course {
+  id: string;
+  code: string;
+  title: string;
+}
+
+// Define the Curriculum Course interface (extends Course with additional properties)
+export interface CurriculumCourse extends Course {
+  categoryId: string;
+  yearSemesterId: string;
+  units: number;
+}
+
 interface WizardState {
   formType: string;
   programName: string;
@@ -62,6 +75,8 @@ interface WizardState {
   academicYear: string;
   yearSemesters: YearSemester[];
   courseCategories: CourseCategory[];
+  premadeCourses: Course[];
+  curriculumCourses: CurriculumCourse[];
   peos: ProgramEducationalObjective[];
   programOutcomes: ProgramOutcome[];
   graduateAttributes: GraduateAttribute[];
@@ -88,6 +103,20 @@ interface WizardState {
   addCourseCategory: (name: string, code: string) => void;
   updateCourseCategory: (id: string, name: string, code: string) => void;
   removeCourseCategory: (id: string) => void;
+  addCourse: (code: string, title: string) => string;
+  addCurriculumCourse: (
+    courseId: string,
+    categoryId: string,
+    yearSemesterId: string,
+    units: number
+  ) => void;
+  updateCurriculumCourse: (
+    id: string,
+    categoryId: string,
+    yearSemesterId: string,
+    units: number
+  ) => void;
+  removeCurriculumCourse: (id: string) => void;
 
   addPEO: () => void;
   updatePEO: (id: number, statement: string) => void;
@@ -107,6 +136,22 @@ const initialYearSemesters: YearSemester[] = [];
 const initialCourseCategories: CourseCategory[] = [
   { id: "cc", name: "Common Courses", code: "CC" },
 ];
+
+// Initial premade courses
+const initialPremadeCourses: Course[] = [
+  { id: "csit101", code: "CSIT 101", title: "Introduction to Computing" },
+  { id: "csit102", code: "CSIT 102", title: "Computer Programming 1" },
+  { id: "csit103", code: "CSIT 103", title: "Computer Programming 2" },
+  { id: "math101", code: "MATH 101", title: "College Algebra" },
+  { id: "math102", code: "MATH 102", title: "Trigonometry" },
+  { id: "engl101", code: "ENGL 101", title: "Communication Skills 1" },
+  { id: "engl102", code: "ENGL 102", title: "Communication Skills 2" },
+  { id: "phys101", code: "PHYS 101", title: "General Physics 1" },
+  { id: "phys102", code: "PHYS 102", title: "General Physics 2" },
+  { id: "chem101", code: "CHEM 101", title: "General Chemistry" },
+];
+// Initial curriculum courses
+const initialCurriculumCourses: CurriculumCourse[] = [];
 
 // Program Templates
 const createProgramTemplates = (): ProgramTemplate[] => {
@@ -223,6 +268,8 @@ export const useWizardStore = create<WizardState>((set) => ({
   academicYear: "",
   yearSemesters: initialYearSemesters,
   courseCategories: initialCourseCategories,
+  premadeCourses: initialPremadeCourses,
+  curriculumCourses: initialCurriculumCourses,
   peos: [{ id: 1, statement: "" }], // Start with one empty PEO
   programOutcomes: [{ id: 1, name: "", statement: "" }], // Start with one empty Program Outcome
   graduateAttributes: defaultGraduateAttributes, // Start with empty array
@@ -293,9 +340,17 @@ export const useWizardStore = create<WizardState>((set) => ({
     }),
 
   removeYearSemester: (id) =>
-    set((state) => ({
-      yearSemesters: state.yearSemesters.filter((ys) => ys.id !== id),
-    })),
+    set((state) => {
+      // Remove any curriculum courses associated with this year-semester
+      const updatedCurriculumCourses = state.curriculumCourses.filter(
+        (cc) => cc.yearSemesterId !== id
+      );
+
+      return {
+        yearSemesters: state.yearSemesters.filter((ys) => ys.id !== id),
+        curriculumCourses: updatedCurriculumCourses,
+      };
+    }),
 
   addCourseCategory: (name, code) =>
     set((state) => {
@@ -327,17 +382,129 @@ export const useWizardStore = create<WizardState>((set) => ({
         return state; // Don't update if code already exists
       }
 
+      // Update curriculum courses that use this category
+      const updatedCurriculumCourses = state.curriculumCourses.map((cc) =>
+        cc.categoryId === id ? { ...cc, categoryId: newId } : cc
+      );
+
       // Update the course category
       return {
         courseCategories: state.courseCategories
           .map((cc) => (cc.id === id ? { id: newId, name, code } : cc))
           .sort((a, b) => a.name.localeCompare(b.name)),
+        curriculumCourses: updatedCurriculumCourses,
       };
     }),
 
   removeCourseCategory: (id) =>
+    set((state) => {
+      // Remove any curriculum courses associated with this category
+      const updatedCurriculumCourses = state.curriculumCourses.filter(
+        (cc) => cc.categoryId !== id
+      );
+
+      return {
+        courseCategories: state.courseCategories.filter((cc) => cc.id !== id),
+        curriculumCourses: updatedCurriculumCourses,
+      };
+    }),
+  addCourse: (code, title) => {
+    const id = code.toLowerCase().replace(/\s+/g, ""); // Create a unique ID based on the code
+
+    set((state) => {
+      // Check if this course already exists in premade courses
+      const existingPremadeCourse = state.premadeCourses.find(
+        (c) => c.id === id
+      );
+      if (existingPremadeCourse) {
+        return state; // Don't add duplicates
+      }
+
+      // Add the new course to premade courses
+      const updatedPremadeCourses = [
+        ...state.premadeCourses,
+        { id, code, title },
+      ].sort((a, b) => a.code.localeCompare(b.code));
+
+      return {
+        premadeCourses: updatedPremadeCourses,
+      };
+    });
+
+    return id; // Return the ID of the newly added course
+  },
+
+  addCurriculumCourse: (courseId, categoryId, yearSemesterId, units) =>
+    set((state) => {
+      // Find the course from premade courses
+      const course = state.premadeCourses.find((c) => c.id === courseId);
+      if (!course) {
+        return state; // Course not found
+      }
+
+      // Check if this course is already in the curriculum for this year-semester
+      const exists = state.curriculumCourses.some(
+        (cc) => cc.id === courseId && cc.yearSemesterId === yearSemesterId
+      );
+      if (exists) {
+        return state; // Don't add duplicates
+      }
+
+      // Add the new curriculum course
+      const newCurriculumCourse: CurriculumCourse = {
+        ...course,
+        categoryId,
+        yearSemesterId,
+        units,
+      };
+
+      return {
+        curriculumCourses: [
+          ...state.curriculumCourses,
+          newCurriculumCourse,
+        ].sort((a, b) => {
+          // Sort by year-semester first
+          const yearSemesterA = state.yearSemesters.find(
+            (ys) => ys.id === a.yearSemesterId
+          );
+          const yearSemesterB = state.yearSemesters.find(
+            (ys) => ys.id === b.yearSemesterId
+          );
+
+          if (yearSemesterA && yearSemesterB) {
+            if (yearSemesterA.year !== yearSemesterB.year) {
+              return yearSemesterA.year - yearSemesterB.year;
+            }
+
+            const semesterOrder = { first: 0, second: 1, midyear: 2 };
+            const semesterCompare =
+              semesterOrder[
+                yearSemesterA.semester as keyof typeof semesterOrder
+              ] -
+              semesterOrder[
+                yearSemesterB.semester as keyof typeof semesterOrder
+              ];
+
+            if (semesterCompare !== 0) {
+              return semesterCompare;
+            }
+          }
+
+          // Then sort by course code
+          return a.code.localeCompare(b.code);
+        }),
+      };
+    }),
+
+  updateCurriculumCourse: (id, categoryId, yearSemesterId, units) =>
     set((state) => ({
-      courseCategories: state.courseCategories.filter((cc) => cc.id !== id),
+      curriculumCourses: state.curriculumCourses.map((cc) =>
+        cc.id === id ? { ...cc, categoryId, yearSemesterId, units } : cc
+      ),
+    })),
+  removeCurriculumCourse: (id) =>
+    set((state) => ({
+      curriculumCourses: state.curriculumCourses.filter((cc) => cc.id !== id),
     })),
 
   addPEO: () =>
