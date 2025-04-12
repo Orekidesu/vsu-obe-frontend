@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import { ChevronUp, ChevronDown, Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -11,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { YearSemester } from "@/store/wizard-store";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
@@ -20,27 +17,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import type { YearSemester, ProgramTemplate } from "@/store/wizard-store";
 
-// Update the props interface to include predefinedYearSemesters
 interface YearSemesterStepProps {
   yearSemesters: YearSemester[];
-  predefinedYearSemesters: { year: number; semester: string; label: string }[];
-  addYearSemester: (year: number, semester: string) => void;
+  programTemplates: ProgramTemplate[];
+  setYearSemesters: (yearSemesters: YearSemester[]) => void;
   removeYearSemester: (id: string) => void;
 }
 
-// Update the component to accept and use predefinedYearSemesters
 export function YearSemesterStep({
   yearSemesters,
-  predefinedYearSemesters,
-  addYearSemester,
+  programTemplates,
+  setYearSemesters,
   removeYearSemester,
 }: YearSemesterStepProps) {
-  const [year, setYear] = useState(1);
-  const [semester, setSemester] = useState("first");
   const [error, setError] = useState("");
-  const [selectedPredefined, setSelectedPredefined] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("");
 
   // Get semester display name
   const getSemesterName = (semesterCode: string) => {
@@ -56,63 +56,83 @@ export function YearSemesterStep({
     }
   };
 
-  // Handle adding a new year-semester combination
-  const handleAddYearSemester = () => {
-    // Check if this combination already exists
-    const id = `${year}-${semester}`;
-    const exists = yearSemesters.some((ys) => ys.id === id);
+  // Handle selecting a program template
+  const handleSelectTemplate = (templateId: string) => {
+    setSelectedTemplate(templateId);
 
-    if (exists) {
-      setError("This year and semester combination already exists.");
-      return;
+    // Find the selected template
+    const template = programTemplates.find((t) => t.id === templateId);
+
+    if (template) {
+      // Set the year-semesters from the template
+      setYearSemesters([...template.yearSemesters]);
+      setError("");
     }
-
-    addYearSemester(year, semester);
-    setError("");
-  };
-
-  // Handle adding a predefined year-semester combination
-  const handleAddPredefined = () => {
-    if (!selectedPredefined) {
-      setError("Please select a year-semester combination.");
-      return;
-    }
-
-    const [selectedYear, selectedSemester] = selectedPredefined.split("-");
-    const yearNum = Number.parseInt(selectedYear);
-
-    // Check if this combination already exists
-    const id = `${yearNum}-${selectedSemester}`;
-    const exists = yearSemesters.some((ys) => ys.id === id);
-
-    if (exists) {
-      setError("This year and semester combination already exists.");
-      return;
-    }
-
-    addYearSemester(yearNum, selectedSemester);
-    setError("");
-    setSelectedPredefined("");
   };
 
   return (
     <>
       <h2 className="text-2xl font-semibold text-center mb-8">
-        Add Years and Semesters
+        Program Structure
       </h2>
 
       <div className="space-y-8">
+        {/* Program Template Selection */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Select Program Structure</CardTitle>
+            <CardDescription>
+              Choose a predefined program structure to automatically set up your
+              year and semester combinations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Select
+                value={selectedTemplate}
+                onValueChange={handleSelectTemplate}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a program structure" />
+                </SelectTrigger>
+                <SelectContent>
+                  {programTemplates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {selectedTemplate && (
+                <p className="text-sm text-muted-foreground">
+                  {
+                    programTemplates.find((t) => t.id === selectedTemplate)
+                      ?.description
+                  }
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Current year-semester combinations */}
         <div className="space-y-4">
           <h3 className="text-lg font-medium">
             Current Year-Semester Combinations
           </h3>
 
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           {yearSemesters.length === 0 ? (
             <div className="text-center p-6 border rounded-md bg-muted/20">
               <p>
-                No year-semester combinations added yet. Add your first one
-                below.
+                No year-semester combinations added yet. Select a program
+                structure above.
               </p>
             </div>
           ) : (
@@ -144,143 +164,11 @@ export function YearSemesterStep({
               </TableBody>
             </Table>
           )}
-        </div>
-
-        {/* Add new year-semester combination */}
-        <div className="space-y-6 border p-6 rounded-md">
-          <h3 className="text-lg font-medium">Add Year-Semester Combination</h3>
-
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <Tabs defaultValue="predefined" className="w-full">
-            <TabsList className="grid grid-cols-2 mb-4">
-              <TabsTrigger value="predefined">Predefined Options</TabsTrigger>
-              <TabsTrigger value="custom">Custom Combination</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="predefined" className="space-y-4">
-              <div className="space-y-4">
-                <Label htmlFor="predefinedSelect">
-                  Select a predefined year-semester
-                </Label>
-                <Select
-                  value={selectedPredefined}
-                  onValueChange={setSelectedPredefined}
-                >
-                  <SelectTrigger id="predefinedSelect">
-                    <SelectValue placeholder="Select year and semester" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {predefinedYearSemesters.map((option) => (
-                      <SelectItem
-                        key={`${option.year}-${option.semester}`}
-                        value={`${option.year}-${option.semester}`}
-                      >
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Button
-                  onClick={handleAddPredefined}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white mt-4"
-                >
-                  <Plus className="h-4 w-4" /> Add Selected Combination
-                </Button>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="custom" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Year Selection */}
-                <div className="space-y-4">
-                  <Label className="text-base">Year</Label>
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setYear(Math.max(1, year - 1))}
-                      disabled={year <= 1}
-                      className="h-10 w-10"
-                    >
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                    <div className="text-2xl font-semibold w-16 text-center">
-                      {year}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setYear(Math.min(6, year + 1))}
-                      disabled={year >= 6}
-                      className="h-10 w-10"
-                    >
-                      <ChevronUp className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Semester Selection */}
-                <div className="space-y-4">
-                  <Label className="text-base">Semester</Label>
-                  <RadioGroup
-                    value={semester}
-                    onValueChange={setSemester}
-                    className="flex flex-col space-y-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem
-                        value="first"
-                        id="first"
-                        className="text-green-600"
-                      />
-                      <Label htmlFor="first" className="cursor-pointer">
-                        First Semester
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem
-                        value="second"
-                        id="second"
-                        className="text-green-600"
-                      />
-                      <Label htmlFor="second" className="cursor-pointer">
-                        Second Semester
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem
-                        value="midyear"
-                        id="midyear"
-                        className="text-green-600"
-                      />
-                      <Label htmlFor="midyear" className="cursor-pointer">
-                        Midyear
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-              </div>
-
-              <div className="pt-4">
-                <Button
-                  onClick={handleAddYearSemester}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <Plus className="h-4 w-4" /> Add Custom Combination
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
 
           <p className="text-sm text-muted-foreground mt-2">
-            Note: Midyear semester occurs between years (after second semester
-            and before the next year)
+            Note: You can remove specific year-semester combinations if needed.
+            Midyear semester occurs between years (after second semester and
+            before the next year).
           </p>
         </div>
       </div>

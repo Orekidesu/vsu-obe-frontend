@@ -39,7 +39,7 @@ export default function WizardForm() {
     setProgramAbbreviation,
     setSelectedProgram,
     setAcademicYear,
-    addYearSemester,
+    setYearSemesters,
     removeYearSemester,
     setCurriculumName,
     peos,
@@ -48,6 +48,7 @@ export default function WizardForm() {
     peoToMissionMappings,
     gaToPEOMappings,
     poToGAMappings,
+    programTemplates,
     addPEO,
     updatePEO,
     removePEO,
@@ -114,6 +115,7 @@ export default function WizardForm() {
     setSelectedProgram("");
     setAcademicYear("");
     setCurriculumName("");
+    setYearSemesters([]);
   };
   // Modify your useEffect to prevent infinite loops
 
@@ -280,10 +282,8 @@ export default function WizardForm() {
       {step === 10 && (
         <YearSemesterStep
           yearSemesters={yearSemesters}
-          predefinedYearSemesters={
-            useWizardStore.getState().predefinedYearSemesters
-          }
-          addYearSemester={addYearSemester}
+          programTemplates={programTemplates}
+          setYearSemesters={setYearSemesters}
           removeYearSemester={removeYearSemester}
         />
       )}
