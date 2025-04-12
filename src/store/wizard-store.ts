@@ -40,6 +40,13 @@ interface PredefinedYearSemester {
   label: string;
 }
 
+export interface ProgramTemplate {
+  id: string;
+  name: string;
+  description: string;
+  yearSemesters: YearSemester[];
+}
+
 interface WizardState {
   formType: string;
   programName: string;
@@ -55,6 +62,7 @@ interface WizardState {
   gaToPEOMappings: GAToPEOMapping[];
   poToPEOMappings: POToPEOMapping[];
   poToGAMappings: POToGAMapping[];
+  programTemplates: ProgramTemplate[];
 
   predefinedYearSemesters: PredefinedYearSemester[];
 
@@ -67,6 +75,8 @@ interface WizardState {
   setSelectedProgram: (program: string) => void;
   setCurriculumName: (name: string) => void;
   setAcademicYear: (year: string) => void;
+  setYearSemesters: (yearSemesters: YearSemester[]) => void;
+
   addYearSemester: (year: number, semester: string) => void;
   removeYearSemester: (id: string) => void;
   addPEO: () => void;
@@ -83,9 +93,113 @@ interface WizardState {
 
 // Default empty array for graduate attributes (will be replaced by fetched data)
 const defaultGraduateAttributes: GraduateAttribute[] = [];
-const initialYearSemesters: YearSemester[] = [
-  { id: "1-first", year: 1, semester: "first" },
-];
+const initialYearSemesters: YearSemester[] = [];
+
+// Program Templates
+const createProgramTemplates = (): ProgramTemplate[] => {
+  // Helper function to create year-semester combinations
+  const createYearSemesters = (
+    years: number,
+    includeMidyear: boolean
+  ): YearSemester[] => {
+    const result: YearSemester[] = [];
+
+    for (let year = 1; year <= years; year++) {
+      // Add first semester
+      result.push({
+        id: `${year}-first`,
+        year,
+        semester: "first",
+      });
+
+      // Add second semester
+      result.push({
+        id: `${year}-second`,
+        year,
+        semester: "second",
+      });
+
+      // Add midyear if needed
+      if (includeMidyear) {
+        result.push({
+          id: `${year}-midyear`,
+          year,
+          semester: "midyear",
+        });
+      }
+    }
+
+    return result;
+  };
+
+  return [
+    {
+      id: "2yr-standard",
+      name: "2-Year Program (Standard)",
+      description:
+        "A standard 2-year program with first and second semesters only",
+      yearSemesters: createYearSemesters(2, false),
+    },
+    {
+      id: "2yr-midyear",
+      name: "2-Year Program with Midyear",
+      description: "A 2-year program that includes midyear semesters",
+      yearSemesters: createYearSemesters(2, true),
+    },
+    {
+      id: "3yr-standard",
+      name: "3-Year Program (Standard)",
+      description:
+        "A standard 3-year program with first and second semesters only",
+      yearSemesters: createYearSemesters(3, false),
+    },
+    {
+      id: "3yr-midyear",
+      name: "3-Year Program with Midyear",
+      description: "A 3-year program that includes midyear semesters",
+      yearSemesters: createYearSemesters(3, true),
+    },
+    {
+      id: "4yr-standard",
+      name: "4-Year Program (Standard)",
+      description:
+        "A standard 4-year program with first and second semesters only",
+      yearSemesters: createYearSemesters(4, false),
+    },
+    {
+      id: "4yr-midyear",
+      name: "4-Year Program with Midyear",
+      description: "A 4-year program that includes midyear semesters",
+      yearSemesters: createYearSemesters(4, true),
+    },
+    {
+      id: "5yr-standard",
+      name: "5-Year Program (Standard)",
+      description:
+        "A standard 5-year program with first and second semesters only",
+      yearSemesters: createYearSemesters(5, false),
+    },
+    {
+      id: "5yr-midyear",
+      name: "5-Year Program with Midyear",
+      description: "A 5-year program that includes midyear semesters",
+      yearSemesters: createYearSemesters(5, true),
+    },
+    {
+      id: "6yr-standard",
+      name: "6-Year Program (Standard)",
+      description:
+        "A standard 6-year program with first and second semesters only",
+      yearSemesters: createYearSemesters(6, false),
+    },
+    {
+      id: "6yr-midyear",
+      name: "6-Year Program with Midyear",
+      description: "A 6-year program that includes midyear semesters",
+      yearSemesters: createYearSemesters(6, true),
+    },
+  ];
+};
 
 export const useWizardStore = create<WizardState>((set) => ({
   formType: "",
@@ -119,6 +233,8 @@ export const useWizardStore = create<WizardState>((set) => ({
     { year: 4, semester: "midyear", label: "Year 4 - Midyear" },
   ],
 
+  programTemplates: createProgramTemplates(),
+
   setGraduateAttributes: (graduateAttributes) => set({ graduateAttributes }),
 
   setFormType: (type) => set({ formType: type }),
@@ -128,6 +244,9 @@ export const useWizardStore = create<WizardState>((set) => ({
   setSelectedProgram: (program) => set({ selectedProgram: program }),
   setCurriculumName: (name) => set({ curriculumName: name }),
   setAcademicYear: (year) => set({ academicYear: year }),
+
+  setYearSemesters: (yearSemesters) => set({ yearSemesters }),
+
   addYearSemester: (year, semester) =>
     set((state) => {
       // Create a unique ID for this year-semester combination
