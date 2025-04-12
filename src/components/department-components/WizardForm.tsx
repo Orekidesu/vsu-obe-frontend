@@ -25,6 +25,7 @@ import { POToGAMappingStep } from "./form-steps/POToGAMapping";
 import { CurriculumStep } from "./form-steps/AddCurriculum";
 import { YearSemesterStep } from "./form-steps/YearSemester";
 import { CourseCategoriesStep } from "./form-steps/CC";
+import { CurriculumCoursesStep } from "./form-steps/CurriculumCourse";
 export default function WizardForm() {
   const [step, setStep] = useState(1);
   const {
@@ -36,6 +37,8 @@ export default function WizardForm() {
     academicYear,
     yearSemesters,
     courseCategories,
+    premadeCourses,
+    curriculumCourses,
     setFormType,
     setProgramName,
     setProgramAbbreviation,
@@ -45,6 +48,10 @@ export default function WizardForm() {
     removeYearSemester,
     addCourseCategory,
     removeCourseCategory,
+    addCourse,
+    addCurriculumCourse,
+    updateCurriculumCourse,
+    removeCurriculumCourse,
     updateCourseCategory,
     setCurriculumName,
     peos,
@@ -105,6 +112,7 @@ export default function WizardForm() {
       academicYear,
       yearSemesters,
       courseCategories,
+      curriculumCourses,
       peos,
       programOutcomes,
       peoToMissionMappings,
@@ -126,7 +134,7 @@ export default function WizardForm() {
   // Modify your useEffect to prevent infinite loops
 
   // Calculate progress percentage
-  const progressValue = (step / 11) * 100;
+  const progressValue = (step / 12) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -184,6 +192,10 @@ export default function WizardForm() {
     if (step === 11) {
       // At least one course category is required
       return courseCategories.length > 0;
+    }
+    if (step === 12) {
+      // At least one curriculum course is required
+      return curriculumCourses.length > 0;
     }
     return false;
   };
@@ -306,6 +318,19 @@ export default function WizardForm() {
           removeCourseCategory={removeCourseCategory}
         />
       )}
+      {/* Step 12: Curriculum Courses */}
+      {step === 12 && (
+        <CurriculumCoursesStep
+          premadeCourses={premadeCourses}
+          courseCategories={courseCategories}
+          yearSemesters={yearSemesters}
+          curriculumCourses={curriculumCourses}
+          addCourse={addCourse}
+          addCurriculumCourse={addCurriculumCourse}
+          updateCurriculumCourse={updateCurriculumCourse}
+          removeCurriculumCourse={removeCurriculumCourse}
+        />
+      )}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
@@ -321,7 +346,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 11 && (
+          {step < 12 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -331,7 +356,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 11 && (
+          {step === 12 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
