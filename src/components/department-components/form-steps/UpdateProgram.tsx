@@ -21,7 +21,7 @@ export function UpdateProgramStep({
   activePrograms,
   programsLoading,
 }: UpdateProgramStepProps) {
-  const { setProgramAbbreviation } = useWizardStore();
+  const { setProgramAbbreviation, setProgramName } = useWizardStore();
 
   const handleProgramSelect = (programId: string) => {
     setSelectedProgram(programId);
@@ -29,6 +29,7 @@ export function UpdateProgramStep({
     // Find the selected program and update its abbreviation
     const program = activePrograms.find((p) => p.id.toString() === programId);
     if (program) {
+      setProgramName(program.name);
       setProgramAbbreviation(program.abbreviation);
     }
   };
