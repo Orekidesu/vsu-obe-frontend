@@ -58,6 +58,15 @@ export interface Course {
   code: string;
   title: string;
 }
+// Define the Contribution Level type
+export type ContributionLevel = "I" | "R" | "D";
+
+// Define the Course to PO Mapping interface
+export interface CourseToPOMapping {
+  courseId: string;
+  poId: number;
+  contributionLevels: ContributionLevel[];
+}
 
 // Define the Curriculum Course interface (extends Course with additional properties)
 export interface CurriculumCourse extends Course {
@@ -77,6 +86,8 @@ interface WizardState {
   courseCategories: CourseCategory[];
   premadeCourses: Course[];
   curriculumCourses: CurriculumCourse[];
+  courseToPOMappings: CourseToPOMapping[];
+
   peos: ProgramEducationalObjective[];
   programOutcomes: ProgramOutcome[];
   graduateAttributes: GraduateAttribute[];
@@ -117,6 +128,12 @@ interface WizardState {
     units: number
   ) => void;
   removeCurriculumCourse: (id: string) => void;
+  updateCourseToPOMapping: (
+    courseId: string,
+    poId: number,
+    contributionLevels: ContributionLevel[]
+  ) => void;
+  removeCourseToPOMapping: (courseId: string, poId: number) => void;
 
   addPEO: () => void;
   updatePEO: (id: number, statement: string) => void;
@@ -152,6 +169,8 @@ const initialPremadeCourses: Course[] = [
 ];
 // Initial curriculum courses
 const initialCurriculumCourses: CurriculumCourse[] = [];
+// Initial course to PO mappings
+const initialCourseToPOMappings: CourseToPOMapping[] = [];
 
 // Program Templates
 const createProgramTemplates = (): ProgramTemplate[] => {
@@ -270,6 +289,7 @@ export const useWizardStore = create<WizardState>((set) => ({
   courseCategories: initialCourseCategories,
   premadeCourses: initialPremadeCourses,
   curriculumCourses: initialCurriculumCourses,
+  courseToPOMappings: initialCourseToPOMappings,
   peos: [{ id: 1, statement: "" }], // Start with one empty PEO
   programOutcomes: [{ id: 1, name: "", statement: "" }], // Start with one empty Program Outcome
   graduateAttributes: defaultGraduateAttributes, // Start with empty array
@@ -346,9 +366,20 @@ export const useWizardStore = create<WizardState>((set) => ({
         (cc) => cc.yearSemesterId !== id
       );
 
+      // Get the IDs of removed curriculum courses
+      const removedCourseIds = state.curriculumCourses
+        .filter((cc) => cc.yearSemesterId === id)
+        .map((cc) => cc.id);
+
+      // Remove any course to PO mappings associated with removed courses
+      const updatedCourseToPOMappings = state.courseToPOMappings.filter(
+        (mapping) => !removedCourseIds.includes(mapping.courseId)
+      );
+
       return {
         yearSemesters: state.yearSemesters.filter((ys) => ys.id !== id),
         curriculumCourses: updatedCurriculumCourses,
+        courseToPOMappings: updatedCourseToPOMappings,
       };
     }),
 
@@ -403,11 +434,23 @@ export const useWizardStore = create<WizardState>((set) => ({
         (cc) => cc.categoryId !== id
       );
 
+      // Get the IDs of removed curriculum courses
+      const removedCourseIds = state.curriculumCourses
+        .filter((cc) => cc.categoryId === id)
+        .map((cc) => cc.id);
+
+      // Remove any course to PO mappings associated with removed courses
+      const updatedCourseToPOMappings = state.courseToPOMappings.filter(
+        (mapping) => !removedCourseIds.includes(mapping.courseId)
+      );
+
       return {
         courseCategories: state.courseCategories.filter((cc) => cc.id !== id),
         curriculumCourses: updatedCurriculumCourses,
+        courseToPOMappings: updatedCourseToPOMappings,
       };
     }),
+
   addCourse: (code, title) => {
     const id = code.toLowerCase().replace(/\s+/g, ""); // Create a unique ID based on the code
 
@@ -502,9 +545,61 @@ export const useWizardStore = create<WizardState>((set) => ({
         cc.id === id ? { ...cc, categoryId, yearSemesterId, units } : cc
       ),
     })),
+
   removeCurriculumCourse: (id) =>
     set((state) => ({
       curriculumCourses: state.curriculumCourses.filter((cc) => cc.id !== id),
+      // Also remove any course to PO mappings for this course
+      courseToPOMappings: state.courseToPOMappings.filter(
+        (mapping) => mapping.courseId !== id
+      ),
+    })),
+  updateCourseToPOMapping: (courseId, poId, contributionLevels) =>
+    set((state) => {
+      // Check if this mapping already exists
+      const existingMapping = state.courseToPOMappings.find(
+        (mapping) => mapping.courseId === courseId && mapping.poId === poId
+      );
+
+      if (existingMapping) {
+        // If the contribution levels array is empty, remove the mapping
+        if (contributionLevels.length === 0) {
+          return {
+            courseToPOMappings: state.courseToPOMappings.filter(
+              (mapping) =>
+                !(mapping.courseId === courseId && mapping.poId === poId)
+            ),
+          };
+        }
+
+        // Update the existing mapping
+        return {
+          courseToPOMappings: state.courseToPOMappings.map((mapping) =>
+            mapping.courseId === courseId && mapping.poId === poId
+              ? { ...mapping, contributionLevels }
+              : mapping
+          ),
+        };
+      } else {
+        // Only add the mapping if there are contribution levels
+        if (contributionLevels.length === 0) {
+          return state;
+        }
+
+        // Add a new mapping
+        return {
+          courseToPOMappings: [
+            ...state.courseToPOMappings,
+            { courseId, poId, contributionLevels },
+          ],
+        };
+      }
+    }),
+  removeCourseToPOMapping: (courseId, poId) =>
+    set((state) => ({
+      courseToPOMappings: state.courseToPOMappings.filter(
+        (mapping) => !(mapping.courseId === courseId && mapping.poId === poId)
+      ),
     })),
 
   addPEO: () =>
@@ -563,8 +658,11 @@ export const useWizardStore = create<WizardState>((set) => ({
       poToGAMappings: state.poToGAMappings.filter(
         (mapping) => mapping.poId !== id
       ),
+      // Also remove any course to PO mappings for this PO
+      courseToPOMappings: state.courseToPOMappings.filter(
+        (mapping) => mapping.poId !== id
+      ),
     })),
-
   toggleMapping: (peoId, missionId) =>
     set((state) => {
       const existingMapping = state.peoToMissionMappings.find(
@@ -644,3 +742,5 @@ export const useWizardStore = create<WizardState>((set) => ({
       }
     }),
 }));
+
+export type { ProgramOutcome };
