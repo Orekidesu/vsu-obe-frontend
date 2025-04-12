@@ -26,6 +26,7 @@ import { CurriculumStep } from "./form-steps/AddCurriculum";
 import { YearSemesterStep } from "./form-steps/YearSemester";
 import { CourseCategoriesStep } from "./form-steps/CC";
 import { CurriculumCoursesStep } from "./form-steps/CurriculumCourse";
+import { CourseToPOMappingStep } from "./form-steps/CourseToPOMapping";
 export default function WizardForm() {
   const [step, setStep] = useState(1);
   const {
@@ -39,6 +40,7 @@ export default function WizardForm() {
     courseCategories,
     premadeCourses,
     curriculumCourses,
+    courseToPOMappings,
     setFormType,
     setProgramName,
     setProgramAbbreviation,
@@ -52,6 +54,7 @@ export default function WizardForm() {
     addCurriculumCourse,
     updateCurriculumCourse,
     removeCurriculumCourse,
+    updateCourseToPOMapping,
     updateCourseCategory,
     setCurriculumName,
     peos,
@@ -113,6 +116,7 @@ export default function WizardForm() {
       yearSemesters,
       courseCategories,
       curriculumCourses,
+      courseToPOMappings,
       peos,
       programOutcomes,
       peoToMissionMappings,
@@ -134,7 +138,7 @@ export default function WizardForm() {
   // Modify your useEffect to prevent infinite loops
 
   // Calculate progress percentage
-  const progressValue = (step / 12) * 100;
+  const progressValue = (step / 13) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -196,6 +200,10 @@ export default function WizardForm() {
     if (step === 12) {
       // At least one curriculum course is required
       return curriculumCourses.length > 0;
+    }
+    if (step === 13) {
+      // At least one course to PO mapping is required
+      return courseToPOMappings.length > 0;
     }
     return false;
   };
@@ -331,6 +339,15 @@ export default function WizardForm() {
           removeCurriculumCourse={removeCurriculumCourse}
         />
       )}
+      {/* Step 13: Course to PO Mapping */}
+      {step === 13 && (
+        <CourseToPOMappingStep
+          curriculumCourses={curriculumCourses}
+          programOutcomes={programOutcomes}
+          courseToPOMappings={courseToPOMappings}
+          updateCourseToPOMapping={updateCourseToPOMapping}
+        />
+      )}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
@@ -346,7 +363,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 12 && (
+          {step < 13 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -356,7 +373,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 12 && (
+          {step === 13 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
