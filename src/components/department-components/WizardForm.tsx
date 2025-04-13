@@ -27,6 +27,7 @@ import { YearSemesterStep } from "./form-steps/YearSemester";
 import { CourseCategoriesStep } from "./form-steps/CC";
 import { CurriculumCoursesStep } from "./form-steps/CurriculumCourse";
 import { CourseToPOMappingStep } from "./form-steps/CourseToPOMapping";
+import { ReviewStep } from "./form-steps/ReviewSteps";
 export default function WizardForm() {
   const [step, setStep] = useState(1);
   const {
@@ -103,6 +104,9 @@ export default function WizardForm() {
   const handleBack = () => {
     setStep(step - 1);
   };
+  const goToStep = (stepNumber: number) => {
+    setStep(stepNumber);
+  };
 
   const handleSubmit = () => {
     // Handle form submission
@@ -138,7 +142,7 @@ export default function WizardForm() {
   // Modify your useEffect to prevent infinite loops
 
   // Calculate progress percentage
-  const progressValue = (step / 13) * 100;
+  const progressValue = (step / 14) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -204,6 +208,10 @@ export default function WizardForm() {
     if (step === 13) {
       // At least one course to PO mapping is required
       return courseToPOMappings.length > 0;
+    }
+    if (step === 14) {
+      // Review step is always valid
+      return true;
     }
     return false;
   };
@@ -348,6 +356,30 @@ export default function WizardForm() {
           updateCourseToPOMapping={updateCourseToPOMapping}
         />
       )}
+      {/* Step 14: Review */}
+      {step === 14 && (
+        <ReviewStep
+          formType={formType}
+          programName={programName}
+          programAbbreviation={programAbbreviation}
+          selectedProgram={selectedProgram}
+          curriculumName={curriculumName}
+          academicYear={academicYear}
+          yearSemesters={yearSemesters}
+          courseCategories={courseCategories}
+          curriculumCourses={curriculumCourses}
+          courseToPOMappings={courseToPOMappings}
+          peos={peos}
+          programOutcomes={programOutcomes}
+          missions={missions || []}
+          graduateAttributes={graduateAttributes}
+          peoToMissionMappings={peoToMissionMappings}
+          gaToPEOMappings={gaToPEOMappings}
+          poToPEOMappings={poToPEOMappings}
+          poToGAMappings={poToGAMappings}
+          goToStep={goToStep}
+        />
+      )}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
@@ -363,7 +395,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 13 && (
+          {step < 14 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -373,7 +405,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 13 && (
+          {step === 14 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
