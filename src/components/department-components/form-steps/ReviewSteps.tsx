@@ -164,7 +164,6 @@ export function ReviewStep({
             goToStep={goToStep}
           />
         </Accordion>
-
         <FinalConfirmation />
       </div>
     </>
