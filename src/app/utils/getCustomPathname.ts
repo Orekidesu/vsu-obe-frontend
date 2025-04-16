@@ -20,14 +20,6 @@ const getCustomPathname = (path: string) => {
         return "All Programs";
       case "/department/programs/archive":
         return "Archived Programs";
-      // case "/department/programs/active":
-      //   return "Active Programs";
-      // case "/department/programs/pending":
-      //   return "Pending Programs";
-      // case "/department/programs/add":
-      //   return "Add Program";
-      // case "/department/programs/archive":
-      //   return "Archived";
       case "/department/courses":
         return "Courses";
       case "/department/committees":
