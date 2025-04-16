@@ -8,6 +8,13 @@ import { Progress } from "@/components/ui/progress";
 import usePrograms from "@/hooks/department/useProgram";
 import useMissions from "@/hooks/shared/useMission";
 import useGraduateAttributes from "@/hooks/shared/useGraduateAttribute";
+import useProgramProposals from "@/hooks/department/useProgramProposal";
+import {
+  createFullProgramProposalPayload,
+  submitFullProgramProposalHandler,
+} from "@/app/utils/department/handleProgramPrposal";
+import { useState as useFormErrorState } from "react";
+
 import { filterActivePrograms } from "@/app/utils/department/programFilter";
 import { useAuth } from "@/hooks/useAuth";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
@@ -28,8 +35,13 @@ import { CourseCategoriesStep } from "./form-steps/CC";
 import { CurriculumCoursesStep } from "./form-steps/CurriculumCourse";
 import { CourseToPOMappingStep } from "./form-steps/CourseToPOMapping";
 import { ReviewStep } from "./form-steps/ReviewSteps";
+
 export default function WizardForm() {
   const [step, setStep] = useState(1);
+  const [, setFormError] = useFormErrorState<
+    Record<string, string[]> | string | null
+  >(null);
+
   const {
     formType,
     programName,
@@ -83,7 +95,7 @@ export default function WizardForm() {
   const { missions, isFetching: missionsLoading } = useMissions();
   const { graduateAttributes: fetchedGAs, isFetching: gasLoading } =
     useGraduateAttributes({ role: "department" });
-
+  const { submitFullProgramProposal } = useProgramProposals();
   const { session } = useAuth() as { session: Session | null };
 
   const departmentId = session?.Department?.id;
@@ -107,29 +119,84 @@ export default function WizardForm() {
   const goToStep = (stepNumber: number) => {
     setStep(stepNumber);
   };
-
-  const handleSubmit = () => {
-    // Handle form submission
-    console.log({
-      formType,
+  const handleSubmit = async () => {
+    // Create form data object from wizard store state
+    const formData = {
       programName,
       programAbbreviation,
-      selectedProgram,
+      peos: peos.map((peo) => ({
+        id: String(peo.id), // Convert id to string
+        statement: peo.statement,
+      })),
+      programOutcomes: programOutcomes.map((po) => ({
+        id: String(po.id), // Convert id to string
+        name: po.name,
+        statement: po.statement,
+      })),
+      peoToMissionMappings: peoToMissionMappings.map((mapping) => ({
+        peoId: String(mapping.peoId), // Convert id to string
+        missionId: mapping.missionId,
+      })),
+      gaToPEOMappings: gaToPEOMappings.map((mapping) => ({
+        peoId: String(mapping.peoId), // Convert id to string
+        gaId: mapping.gaId,
+      })),
+      poToPEOMappings: poToPEOMappings.map((mapping) => ({
+        poId: String(mapping.poId), // Convert id to string
+        peoId: String(mapping.peoId), // Convert id to string
+      })),
+      poToGAMappings: poToGAMappings.map((mapping) => ({
+        poId: String(mapping.poId), // Convert id to string
+        gaId: mapping.gaId,
+      })),
       curriculumName,
-      academicYear,
-      yearSemesters,
-      courseCategories,
-      curriculumCourses,
-      courseToPOMappings,
-      peos,
-      programOutcomes,
-      peoToMissionMappings,
-      gaToPEOMappings,
-      poToPEOMappings,
-      poToGAMappings,
-    });
-    alert("Form submitted successfully!");
-    // Reset form
+      yearSemesters: yearSemesters.map((ys) => ({
+        id: String(ys.id), // Convert id to string
+        year: ys.year,
+        semester: ys.semester,
+      })),
+      courseCategories: courseCategories.map((cat) => ({
+        id: String(cat.id), // Convert id to string
+        name: cat.name,
+        code: cat.code,
+      })),
+      curriculumCourses: curriculumCourses.map((course) => ({
+        id: String(course.id), // Convert id to string
+        code: course.code,
+        title: course.title,
+        yearSemesterId: String(course.yearSemesterId), // Convert id to string
+        categoryId: String(course.categoryId), // Convert id to string
+        units: course.units,
+      })),
+      courseToPOMappings: courseToPOMappings.map((mapping) => ({
+        courseId: String(mapping.courseId), // Convert id to string
+        poId: String(mapping.poId), // Convert id to string
+        contributionLevels: mapping.contributionLevels,
+      })),
+    };
+
+    // Transform data into the required payload format using the utility function
+    const payload = createFullProgramProposalPayload(formData);
+
+    // Log payload for debugging
+    console.log("Submitting payload:", payload);
+
+    try {
+      // Use the handler to submit the proposal
+      await submitFullProgramProposalHandler(
+        submitFullProgramProposal,
+        payload,
+        setFormError
+      );
+
+      // Reset form on successful submission
+      resetForm();
+    } catch (error) {
+      console.error("Error submitting program proposal:", error);
+    }
+  };
+
+  const resetForm = () => {
     setStep(1);
     setFormType("");
     setProgramName("");
@@ -138,18 +205,12 @@ export default function WizardForm() {
     setAcademicYear("");
     setCurriculumName("");
     setYearSemesters([]);
+    // Additional resets could be added if needed
   };
-  // Modify your useEffect to prevent infinite loops
-
   // Calculate progress percentage
   const progressValue = (step / 14) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
-    // if (step === 2) {
-    //   return formType === "new"
-    //     ? !!programName && !!programAbbreviation
-    //     : !!selectedProgram;
-    // }
     if (step === 2) {
       if (formType === "new") {
         // Check if program already exists
