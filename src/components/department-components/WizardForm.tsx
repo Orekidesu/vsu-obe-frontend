@@ -145,10 +145,21 @@ export default function WizardForm() {
   const progressValue = (step / 14) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
+    // if (step === 2) {
+    //   return formType === "new"
+    //     ? !!programName && !!programAbbreviation
+    //     : !!selectedProgram;
+    // }
     if (step === 2) {
-      return formType === "new"
-        ? !!programName && !!programAbbreviation
-        : !!selectedProgram;
+      if (formType === "new") {
+        // Check if program already exists
+        const programExists = activePrograms.some(
+          (program) => program.name.toLowerCase() === programName.toLowerCase()
+        );
+        return !!programName && !!programAbbreviation && !programExists;
+      } else {
+        return !!selectedProgram;
+      }
     }
     if (step === 3) {
       return (
@@ -234,6 +245,7 @@ export default function WizardForm() {
           programAbbreviation={programAbbreviation}
           setProgramName={setProgramName}
           setProgramAbbreviation={setProgramAbbreviation}
+          activePrograms={activePrograms}
         />
       )}
 

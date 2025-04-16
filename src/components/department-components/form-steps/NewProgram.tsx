@@ -1,11 +1,13 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Program } from "@/types/model/Program";
 
 interface NewProgramStepProps {
   programName: string;
   programAbbreviation: string;
   setProgramName: (name: string) => void;
   setProgramAbbreviation: (abbreviation: string) => void;
+  activePrograms: Program[];
 }
 
 export function NewProgramStep({
@@ -13,7 +15,15 @@ export function NewProgramStep({
   programAbbreviation,
   setProgramName,
   setProgramAbbreviation,
+  activePrograms,
 }: NewProgramStepProps) {
+  const programNameExists = activePrograms.some(
+    (program) => program.name.toLowerCase() === programName.toLowerCase()
+  );
+  const programAbbreviationExists = activePrograms.some(
+    (program) =>
+      program.abbreviation.toLowerCase() === programAbbreviation.toLowerCase()
+  );
   return (
     <>
       <h2 className="text-2xl font-semibold text-center mb-8">
@@ -28,7 +38,13 @@ export function NewProgramStep({
             placeholder="Enter program name"
             value={programName}
             onChange={(e) => setProgramName(e.target.value)}
+            className={programNameExists ? "border-red-500 mb-0" : ""}
           />
+          {programNameExists && (
+            <p className="text-sm text-red-500 ">
+              A program with this name already exists.
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -38,7 +54,13 @@ export function NewProgramStep({
             placeholder="Enter abbreviation"
             value={programAbbreviation}
             onChange={(e) => setProgramAbbreviation(e.target.value)}
+            className={programAbbreviationExists ? "border-red-500" : ""}
           />
+          {programAbbreviationExists && (
+            <p className="text-sm text-red-500 ">
+              A program with this abbreviation already exists.
+            </p>
+          )}
         </div>
       </div>
     </>
