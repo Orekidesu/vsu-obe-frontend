@@ -61,7 +61,7 @@ const usePrograms = () => {
       queryClient.invalidateQueries({ queryKey: ["programs"] });
     },
     onError: (error) => {
-      throw new Error(getErrorMessage(error, "Failed to updated Program"));
+      throw new Error(getErrorMessage(error, "Failed to update Program"));
     },
   });
 
@@ -83,7 +83,7 @@ const usePrograms = () => {
       ]);
 
       queryClient.setQueryData<Program[]>(["programs"], (old) =>
-        old ? old.filter((faculty) => faculty.id !== id) : []
+        old ? old.filter((program) => program.id !== id) : []
       );
 
       return { previousPrograms };
@@ -92,7 +92,7 @@ const usePrograms = () => {
       if (context?.previousPrograms) {
         queryClient.setQueryData(["programs"], context.previousPrograms);
       }
-      throw new Error(getErrorMessage(error, "Failed to delete faculty"));
+      throw new Error(getErrorMessage(error, "Failed to delete course"));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["programs"] });
