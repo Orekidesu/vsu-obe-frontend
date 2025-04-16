@@ -40,6 +40,8 @@ export default function LoginForm() {
       console.log("ang role ani kay: ", role);
       if (role === "Admin") {
         router.push("/admin");
+      } else if (role === "Department") {
+        router.push("/department");
       } else {
         router.push("/dean");
       }
