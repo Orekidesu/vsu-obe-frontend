@@ -205,7 +205,7 @@ export default function WizardForm() {
     setAcademicYear("");
     setCurriculumName("");
     setYearSemesters([]);
-    // Additional resets could be added if needed
+    // pwede mag add later
   };
   // Calculate progress percentage
   const progressValue = (step / 14) * 100;
