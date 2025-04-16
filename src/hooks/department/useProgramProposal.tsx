@@ -6,6 +6,34 @@ import useApi from "../useApi";
 interface DeleteProgramProposalContext {
   previousProgramProposals?: ProgramProposal[];
 }
+interface FullProgramProposalPayload {
+  program: {
+    name: string;
+    abbreviation: string;
+  };
+  peos: Array<{ statement: string }>;
+  peo_mission_mappings: Array<{ peo_index: number; mission_id: number }>;
+  ga_peo_mappings: Array<{ peo_index: number; ga_id: number }>;
+  pos: Array<{ name: string; statement: string }>;
+  po_peo_mappings: Array<{ po_index: number; peo_index: number }>;
+  po_ga_mappings: Array<{ po_index: number; ga_id: number }>;
+  curriculum: { name: string };
+  semesters: Array<{ year: number; sem: string }>;
+  course_categories: Array<{ name: string; code: string }>;
+  courses: Array<{ code: string; descriptive_title: string }>;
+  curriculum_courses: Array<{
+    course_code: string;
+    category_code: string;
+    semester_year: number;
+    semester_name: string;
+    units: number;
+  }>;
+  course_po_mappings: Array<{
+    course_code: string;
+    po_code: string;
+    ird: string[];
+  }>;
+}
 
 const useProgramProposals = () => {
   const api = useApi();
@@ -110,9 +138,33 @@ const useProgramProposals = () => {
       queryClient.invalidateQueries({ queryKey: ["programs"] });
     },
   });
+
+  const submitFullProgramProposal = useMutation<
+    void,
+    APIError,
+    FullProgramProposalPayload
+  >({
+    mutationFn: async (proposalData: FullProgramProposalPayload) => {
+      const response = await api.post(
+        "department/program-proposals/full-submit",
+        proposalData
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["program-proposals"] });
+      queryClient.invalidateQueries({ queryKey: ["programs"] });
+    },
+    onError: (error) => {
+      throw new Error(
+        getErrorMessage(error, "Failed to submit full program proposal")
+      );
+    },
+  });
   return {
     programProposals,
     isLoading,
+    submitFullProgramProposal,
     error,
     createProgramProposal,
     updateProgramProposal,
