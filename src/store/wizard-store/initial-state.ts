@@ -13,24 +13,24 @@ import { GraduateAttribute } from "@/types/model/GraduateAttributes";
 export const defaultGraduateAttributes: GraduateAttribute[] = [];
 export const initialYearSemesters: YearSemester[] = [];
 export const initialCourseCategories: CourseCategory[] = [
-  { id: "cc", name: "Common Courses", code: "CC" },
+  { id: 15, name: "Common Courses", code: "CC" },
 ];
 
 export const initialPremadeCourseCategories: CourseCategory[] = [
-  { id: "core", name: "Core Courses", code: "CORE" },
-  { id: "ge", name: "General Education", code: "GE" },
-  { id: "pe", name: "Physical Education", code: "PE" },
-  { id: "nstp", name: "National Service Training Program", code: "NSTP" },
-  { id: "major", name: "Major Courses", code: "MAJOR" },
-  { id: "elective", name: "Elective Courses", code: "ELECT" },
-  { id: "thesis", name: "Thesis/Capstone", code: "THESIS" },
-  { id: "ojt", name: "On-the-Job Training", code: "OJT" },
-  { id: "lab", name: "Laboratory Courses", code: "LAB" },
-  { id: "math", name: "Mathematics Courses", code: "MATH" },
-  { id: "science", name: "Science Courses", code: "SCI" },
-  { id: "language", name: "Language Courses", code: "LANG" },
-  { id: "humanities", name: "Humanities", code: "HUM" },
-  { id: "social", name: "Social Sciences", code: "SOC" },
+  { id: 1, name: "Core Courses", code: "CORE" },
+  { id: 2, name: "General Education", code: "GE" },
+  { id: 3, name: "Physical Education", code: "PE" },
+  { id: 4, name: "National Service Training Program", code: "NSTP" },
+  { id: 5, name: "Major Courses", code: "MAJOR" },
+  { id: 6, name: "Elective Courses", code: "ELECT" },
+  { id: 7, name: "Thesis/Capstone", code: "THESIS" },
+  { id: 8, name: "On-the-Job Training", code: "OJT" },
+  { id: 9, name: "Laboratory Courses", code: "LAB" },
+  { id: 10, name: "Mathematics Courses", code: "MATH" },
+  { id: 11, name: "Science Courses", code: "SCI" },
+  { id: 12, name: "Language Courses", code: "LANG" },
+  { id: 13, name: "Humanities", code: "HUM" },
+  { id: 14, name: "Social Sciences", code: "SOC" },
 ];
 
 // Initial premade courses
