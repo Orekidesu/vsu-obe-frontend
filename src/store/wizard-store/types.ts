@@ -48,7 +48,7 @@ export interface ProgramTemplate {
 }
 
 export interface CourseCategory {
-  id: string;
+  id: number;
   name: string;
   code: string;
 }
@@ -122,8 +122,8 @@ export interface WizardState {
 
   // Actions - Course related
   addCourseCategory: (name: string, code: string) => void;
-  updateCourseCategory: (id: string, name: string, code: string) => void;
-  removeCourseCategory: (id: string) => void;
+  updateCourseCategory: (id: number, name: string, code: string) => void;
+  removeCourseCategory: (id: number) => void;
   addCourse: (code: string, title: string) => string;
   addCurriculumCourse: (
     courseId: string,
