@@ -9,6 +9,7 @@ import { createMappingSlice } from "./mapping-slice";
 import {
   predefinedYearSemesters,
   createProgramTemplates,
+  initialPremadeCourseCategories,
 } from "./initial-state";
 
 // Export combined store
@@ -27,6 +28,7 @@ export const useWizardStore = create<WizardState>((set, get, api) => ({
   // Initialize template-related state directly
   programTemplates: createProgramTemplates(),
   predefinedYearSemesters: predefinedYearSemesters,
+  premadeCourseCategories: initialPremadeCourseCategories, // Add this line
 }));
 
 // Re-export types
