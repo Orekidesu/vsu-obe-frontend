@@ -80,6 +80,7 @@ export default function WizardForm() {
     gaToPEOMappings,
     poToGAMappings,
     programTemplates,
+    premadeCourseCategories,
     addPEO,
     updatePEO,
     removePEO,
@@ -416,6 +417,7 @@ export default function WizardForm() {
           addCourseCategory={addCourseCategory}
           updateCourseCategory={updateCourseCategory}
           removeCourseCategory={removeCourseCategory}
+          premadeCourseCategories={premadeCourseCategories}
         />
       )}
       {/* Step 12: Curriculum Courses */}
