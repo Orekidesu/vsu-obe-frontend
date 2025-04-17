@@ -24,11 +24,13 @@ export const useWizardStore = create<WizardState>((set, get, api) => ({
   // Graduate attributes are not in a slice
   graduateAttributes: [],
   setGraduateAttributes: (graduateAttributes) => set({ graduateAttributes }),
+  setPremadeCourseCategories: (categories) =>
+    set({ premadeCourseCategories: categories }),
 
   // Initialize template-related state directly
   programTemplates: createProgramTemplates(),
   predefinedYearSemesters: predefinedYearSemesters,
-  premadeCourseCategories: initialPremadeCourseCategories, // Add this line
+  premadeCourseCategories: initialPremadeCourseCategories,
 }));
 
 // Re-export types

@@ -163,4 +163,5 @@ export interface WizardState {
 
   // Actions - Other
   setGraduateAttributes: (graduateAttributes: GraduateAttribute[]) => void;
+  setPremadeCourseCategories: (categories: CourseCategory[]) => void;
 }
