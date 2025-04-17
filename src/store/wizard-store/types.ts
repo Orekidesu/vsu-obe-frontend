@@ -105,6 +105,7 @@ export interface WizardState {
   // Templates
   programTemplates: ProgramTemplate[];
   predefinedYearSemesters: PredefinedYearSemester[];
+  premadeCourseCategories: CourseCategory[];
 
   // Actions - Program related
   setFormType: (type: string) => void;
