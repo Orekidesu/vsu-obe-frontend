@@ -27,8 +27,8 @@ interface CourseCategoriesStepProps {
   courseCategories: CourseCategory[];
   premadeCourseCategories: CourseCategory[];
   addCourseCategory: (name: string, code: string) => void;
-  updateCourseCategory: (id: string, name: string, code: string) => void;
-  removeCourseCategory: (id: string) => void;
+  updateCourseCategory: (id: number, name: string, code: string) => void;
+  removeCourseCategory: (id: number) => void;
 }
 
 export function CourseCategoriesStep({
@@ -43,9 +43,10 @@ export function CourseCategoriesStep({
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  // const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [error, setError] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editCode, setEditCode] = useState("");
 
@@ -81,7 +82,7 @@ export function CourseCategoriesStep({
 
     // Find the selected category
     const category = premadeCourseCategories.find(
-      (c) => c.id === selectedCategory
+      (c) => c.id === parseInt(selectedCategory, 10)
     );
     if (!category) {
       setError("Selected category not found.");
@@ -118,7 +119,7 @@ export function CourseCategoriesStep({
   };
 
   // Save edited category
-  const handleSaveEdit = (id: string) => {
+  const handleSaveEdit = (id: number) => {
     // Validate inputs
     if (!editName.trim() || !editCode.trim()) {
       setError("Both name and code are required.");
@@ -289,7 +290,10 @@ export function CourseCategoriesStep({
                           />
                         </div>
                         {filteredCategories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
                             {category.name} ({category.code})
                           </SelectItem>
                         ))}

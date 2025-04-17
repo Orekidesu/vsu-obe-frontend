@@ -76,7 +76,7 @@ export function NewCourseForm({
             </SelectTrigger>
             <SelectContent>
               {courseCategories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
+                <SelectItem key={category.id} value={category.id.toString()}>
                   {category.name} ({category.code})
                 </SelectItem>
               ))}

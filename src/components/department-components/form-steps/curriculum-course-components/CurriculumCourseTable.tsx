@@ -70,7 +70,10 @@ export function CurriculumCourseTable({
                     </SelectTrigger>
                     <SelectContent>
                       {courseCategories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
+                        <SelectItem
+                          key={category.id}
+                          value={category.id.toString()}
+                        >
                           {category.name} ({category.code})
                         </SelectItem>
                       ))}
@@ -114,11 +117,11 @@ export function CurriculumCourseTable({
                 <TableCell>{course.title}</TableCell>
                 <TableCell>
                   {courseCategories.find(
-                    (category) => category.id === course.categoryId
+                    (category) => category.id.toString() === course.categoryId
                   )?.name || "Unknown"}{" "}
                   (
                   {courseCategories.find(
-                    (category) => category.id === course.categoryId
+                    (category) => category.id.toString() === course.categoryId
                   )?.code || "?"}
                   )
                 </TableCell>

@@ -81,11 +81,13 @@ export function CurriculumCoursesSection({
                       <TableCell>{course.title}</TableCell>
                       <TableCell>
                         {courseCategories.find(
-                          (category) => category.id === course.categoryId
+                          (category) =>
+                            category.id.toString() === course.categoryId
                         )?.name || "Unknown"}{" "}
                         (
                         {courseCategories.find(
-                          (category) => category.id === course.categoryId
+                          (category) =>
+                            category.id.toString() === course.categoryId
                         )?.code || "?"}
                         )
                       </TableCell>

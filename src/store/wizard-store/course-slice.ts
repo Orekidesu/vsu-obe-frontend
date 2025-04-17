@@ -22,7 +22,7 @@ export const createCourseSlice: StateCreator<
     | "removeCourseToPOMapping"
   >
 > = (set) => ({
-  courseCategories: [{ id: "cc", name: "Common Courses", code: "CC" }],
+  courseCategories: [{ id: 15, name: "Common Courses", code: "CC" }],
   premadeCourses: [
     { id: "csit101", code: "CSIT 101", title: "Introduction to Computing" },
     { id: "csit102", code: "CSIT 102", title: "Computer Programming 1" },
@@ -41,10 +41,15 @@ export const createCourseSlice: StateCreator<
   addCourseCategory: (name, code) =>
     set((state) => {
       // Create a unique ID based on the code (lowercase for consistency)
-      const id = code.toLowerCase();
+      const id =
+        state.courseCategories.length > 0
+          ? Math.max(...state.courseCategories.map((cc) => cc.id)) + 1
+          : 1;
 
       // Check if this code already exists
-      const exists = state.courseCategories.some((cc) => cc.id === id);
+      const exists = state.courseCategories.some(
+        (cc) => cc.code.toLowerCase() === code.toLowerCase()
+      );
       if (exists) {
         return state; // Don't add duplicates
       }
@@ -57,12 +62,12 @@ export const createCourseSlice: StateCreator<
       };
     }),
 
-  updateCourseCategory: (id, name, code) =>
+  updateCourseCategory: (id: number, name: string, code: string) =>
     set((state) => {
       // Check if the new code already exists (except for the current category)
-      const newId = code.toLowerCase();
+
       const codeExists = state.courseCategories.some(
-        (cc) => cc.id !== id && cc.code.toLowerCase() === newId
+        (cc) => cc.id !== id && cc.code.toLowerCase() === code.toLowerCase()
       );
       if (codeExists) {
         return state; // Don't update if code already exists
@@ -70,28 +75,30 @@ export const createCourseSlice: StateCreator<
 
       // Update curriculum courses that use this category
       const updatedCurriculumCourses = state.curriculumCourses.map((cc) =>
-        cc.categoryId === id ? { ...cc, categoryId: newId } : cc
+        cc.categoryId === id.toString()
+          ? { ...cc, categoryId: id.toString() }
+          : cc
       );
 
       // Update the course category
       return {
         courseCategories: state.courseCategories
-          .map((cc) => (cc.id === id ? { id: newId, name, code } : cc))
+          .map((cc) => (cc.id === id ? { id, name, code } : cc))
           .sort((a, b) => a.name.localeCompare(b.name)),
         curriculumCourses: updatedCurriculumCourses,
       };
     }),
 
-  removeCourseCategory: (id) =>
+  removeCourseCategory: (id: number) =>
     set((state) => {
       // Remove any curriculum courses associated with this category
       const updatedCurriculumCourses = state.curriculumCourses.filter(
-        (cc) => cc.categoryId !== id
+        (cc) => cc.categoryId !== id.toString()
       );
 
       // Get the IDs of removed curriculum courses
       const removedCourseIds = state.curriculumCourses
-        .filter((cc) => cc.categoryId === id)
+        .filter((cc) => cc.categoryId === id.toString())
         .map((cc) => cc.id);
 
       // Remove any course to PO mappings associated with removed courses
