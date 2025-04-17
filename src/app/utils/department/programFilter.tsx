@@ -44,3 +44,17 @@ export const getDepartmentProgramIds = (
   const departmentPrograms = filterProgramsByDepartment(programs, departmentId);
   return departmentPrograms.map((program) => program.id);
 };
+
+/**
+ * Gets all programs for a department
+ * @param programs Array of all programs
+ * @param departmentId The ID of the department
+ * @returns Array of programs belonging to the department
+ */
+export const getDepartmentPrograms = (
+  programs: Program[] = [],
+  departmentId?: number | null
+): Program[] => {
+  if (!departmentId) return [];
+  return filterProgramsByDepartment(programs, departmentId);
+};
