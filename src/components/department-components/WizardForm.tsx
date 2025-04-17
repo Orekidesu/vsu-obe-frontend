@@ -15,7 +15,10 @@ import {
 } from "@/app/utils/department/handleProgramPrposal";
 import { useState as useFormErrorState } from "react";
 
-import { filterActivePrograms } from "@/app/utils/department/programFilter";
+import {
+  filterActivePrograms,
+  getDepartmentPrograms,
+} from "@/app/utils/department/programFilter";
 import { useAuth } from "@/hooks/useAuth";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 
@@ -101,6 +104,7 @@ export default function WizardForm() {
   const departmentId = session?.Department?.id;
 
   const activePrograms = filterActivePrograms(programs, departmentId);
+  const departmentPrograms = getDepartmentPrograms(programs, departmentId);
 
   // Load graduate attributes when they are fetched
   useEffect(() => {
@@ -214,8 +218,14 @@ export default function WizardForm() {
     if (step === 2) {
       if (formType === "new") {
         // Check if program already exists
-        const programExists = activePrograms.some(
-          (program) => program.name.toLowerCase() === programName.toLowerCase()
+        // const programExists = activePrograms.some(
+        //   (program) => program.name.toLowerCase() === programName.toLowerCase()
+        // );
+        const programExists = programs?.some(
+          (program) =>
+            program.name.toLowerCase() === programName.toLowerCase() ||
+            program.abbreviation.toLowerCase() ===
+              programAbbreviation.toLowerCase()
         );
         return !!programName && !!programAbbreviation && !programExists;
       } else {
@@ -287,7 +297,7 @@ export default function WizardForm() {
     }
     return false;
   };
-
+  console.log(programs);
   return (
     <div className="w-full max-w-3xl mx-auto">
       <h1 className="text-4xl font-bold text-center text-green-600 mb-8">
@@ -306,7 +316,8 @@ export default function WizardForm() {
           programAbbreviation={programAbbreviation}
           setProgramName={setProgramName}
           setProgramAbbreviation={setProgramAbbreviation}
-          activePrograms={activePrograms}
+          // activePrograms={activePrograms}
+          departmentPrograms={departmentPrograms}
         />
       )}
 
