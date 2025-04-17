@@ -12,10 +12,20 @@ import {
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { CourseCategory } from "@/store/wizard-store";
 
 interface CourseCategoriesStepProps {
   courseCategories: CourseCategory[];
+  premadeCourseCategories: CourseCategory[];
   addCourseCategory: (name: string, code: string) => void;
   updateCourseCategory: (id: string, name: string, code: string) => void;
   removeCourseCategory: (id: string) => void;
@@ -26,9 +36,14 @@ export function CourseCategoriesStep({
   addCourseCategory,
   updateCourseCategory,
   removeCourseCategory,
+  premadeCourseCategories,
 }: CourseCategoriesStepProps) {
+  const [activeTab, setActiveTab] = useState("existing");
+
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [error, setError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -55,6 +70,36 @@ export function CourseCategoriesStep({
     addCourseCategory(name, code);
     setName("");
     setCode("");
+    setError("");
+  };
+  // Handle adding an existing category
+  const handleAddExistingCategory = () => {
+    if (!selectedCategory) {
+      setError("Please select a category.");
+      return;
+    }
+
+    // Find the selected category
+    const category = premadeCourseCategories.find(
+      (c) => c.id === selectedCategory
+    );
+    if (!category) {
+      setError("Selected category not found.");
+      return;
+    }
+
+    // Check if this category already exists
+    const categoryExists = courseCategories.some(
+      (cc) => cc.code.toLowerCase() === category.code.toLowerCase()
+    );
+    if (categoryExists) {
+      setError(`A category with code "${category.code}" already exists.`);
+      return;
+    }
+
+    // Add the category
+    addCourseCategory(category.name, category.code);
+    setSelectedCategory("");
     setError("");
   };
 
@@ -96,6 +141,16 @@ export function CourseCategoriesStep({
     setEditCode("");
     setError("");
   };
+
+  // Filter premade categories based on search term
+  const filteredCategories =
+    searchTerm.trim() === ""
+      ? premadeCourseCategories
+      : premadeCourseCategories.filter(
+          (category) =>
+            category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            category.code.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
   return (
     <>
@@ -199,43 +254,99 @@ export function CourseCategoriesStep({
         </div>
 
         {/* Add new course category */}
-        <div className="space-y-6 border p-6 rounded-md">
-          <h3 className="text-lg font-medium">Add New Course Category</h3>
+        <Card>
+          <CardHeader>
+            <CardTitle>Add Course Categories</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="mb-4">
+                <TabsTrigger value="existing">
+                  Select Existing Category
+                </TabsTrigger>
+                <TabsTrigger value="new">Add New Category</TabsTrigger>
+              </TabsList>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="categoryName">Category Name</Label>
-              <Input
-                id="categoryName"
-                placeholder="e.g., Common Courses"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
+              <TabsContent value="existing">
+                <div className="space-y-6">
+                  {/* Category Selection */}
+                  <div className="space-y-2">
+                    <Label htmlFor="selectedCategory">Select Category</Label>
+                    <Select
+                      value={selectedCategory}
+                      onValueChange={setSelectedCategory}
+                    >
+                      <SelectTrigger id="selectedCategory">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <div className="py-2 px-3 border-b">
+                          <Input
+                            placeholder="Filter categories..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="h-8"
+                          />
+                        </div>
+                        {filteredCategories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name} ({category.code})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="categoryCode">Category Code</Label>
-              <Input
-                id="categoryCode"
-                placeholder="e.g., CC"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="uppercase"
-              />
-              <p className="text-sm text-muted-foreground">
-                Short code used to identify courses in this category (e.g., CC
-                for Common Courses)
-              </p>
-            </div>
-          </div>
+                  <Button
+                    onClick={handleAddExistingCategory}
+                    disabled={!selectedCategory}
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white mt-4"
+                  >
+                    <Plus className="h-4 w-4" /> Add Selected Category
+                  </Button>
+                </div>
+              </TabsContent>
 
-          <Button
-            onClick={handleAddCategory}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white mt-4"
-          >
-            <Plus className="h-4 w-4" /> Add Category
-          </Button>
-        </div>
+              <TabsContent value="new">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="categoryName">Category Name</Label>
+                      <Input
+                        id="categoryName"
+                        placeholder="e.g., Common Courses"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="categoryCode">Category Code</Label>
+                      <Input
+                        id="categoryCode"
+                        placeholder="e.g., CC"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        className="uppercase"
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Short code used to identify courses in this category
+                        (e.g., CC for Common Courses)
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleAddCategory}
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white mt-4"
+                  >
+                    <Plus className="h-4 w-4" /> Add New Category
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </>
   );
