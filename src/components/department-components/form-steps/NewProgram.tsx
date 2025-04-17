@@ -7,7 +7,8 @@ interface NewProgramStepProps {
   programAbbreviation: string;
   setProgramName: (name: string) => void;
   setProgramAbbreviation: (abbreviation: string) => void;
-  activePrograms: Program[];
+  // activePrograms: Program[];
+  departmentPrograms: Program[];
 }
 
 export function NewProgramStep({
@@ -15,12 +16,21 @@ export function NewProgramStep({
   programAbbreviation,
   setProgramName,
   setProgramAbbreviation,
-  activePrograms,
+  // activePrograms,
+  departmentPrograms,
 }: NewProgramStepProps) {
-  const programNameExists = activePrograms.some(
+  /* Active Programs */
+  // const programNameExists = activePrograms.some(
+  //   (program) => program.name.toLowerCase() === programName.toLowerCase()
+  // );
+  // const programAbbreviationExists = activePrograms.some(
+  //   (program) =>
+  //     program.abbreviation.toLowerCase() === programAbbreviation.toLowerCase()
+  // );
+  const programNameExists = departmentPrograms.some(
     (program) => program.name.toLowerCase() === programName.toLowerCase()
   );
-  const programAbbreviationExists = activePrograms.some(
+  const programAbbreviationExists = departmentPrograms.some(
     (program) =>
       program.abbreviation.toLowerCase() === programAbbreviation.toLowerCase()
   );
