@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import usePrograms from "@/hooks/department/useProgram";
 import useMissions from "@/hooks/shared/useMission";
 import useGraduateAttributes from "@/hooks/shared/useGraduateAttribute";
+import useCourseCategories from "@/hooks/department/useCourseCategory";
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import {
   createFullProgramProposalPayload,
@@ -90,6 +91,7 @@ export default function WizardForm() {
     toggleMapping,
     toggleGAToPEOMapping,
     setGraduateAttributes,
+    setPremadeCourseCategories,
     poToPEOMappings,
     togglePOToPEOMapping,
     togglePOToGAMapping,
@@ -99,6 +101,9 @@ export default function WizardForm() {
   const { missions, isFetching: missionsLoading } = useMissions();
   const { graduateAttributes: fetchedGAs, isFetching: gasLoading } =
     useGraduateAttributes({ role: "department" });
+  const { courseCategories: fetchedCategories, isLoading: categoriesLoading } =
+    useCourseCategories();
+
   const { submitFullProgramProposal } = useProgramProposals();
   const { session } = useAuth() as { session: Session | null };
 
@@ -112,7 +117,17 @@ export default function WizardForm() {
     if (fetchedGAs && fetchedGAs.length > 0) {
       setGraduateAttributes(fetchedGAs);
     }
-  }, [fetchedGAs, setGraduateAttributes]);
+    if (fetchedCategories && fetchedCategories.length > 0) {
+      setPremadeCourseCategories(fetchedCategories);
+    } else if (fetchedCategories) {
+      setPremadeCourseCategories([]);
+    }
+  }, [
+    fetchedGAs,
+    setGraduateAttributes,
+    fetchedCategories,
+    setPremadeCourseCategories,
+  ]);
 
   const handleNext = () => {
     setStep(step + 1);
@@ -298,7 +313,7 @@ export default function WizardForm() {
     }
     return false;
   };
-  console.log(programs);
+  // console.log(programs);
   return (
     <div className="w-full max-w-3xl mx-auto">
       <h1 className="text-4xl font-bold text-center text-green-600 mb-8">
@@ -418,6 +433,7 @@ export default function WizardForm() {
           updateCourseCategory={updateCourseCategory}
           removeCourseCategory={removeCourseCategory}
           premadeCourseCategories={premadeCourseCategories}
+          isLoading={categoriesLoading}
         />
       )}
       {/* Step 12: Curriculum Courses */}

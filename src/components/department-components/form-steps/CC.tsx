@@ -29,6 +29,7 @@ interface CourseCategoriesStepProps {
   addCourseCategory: (name: string, code: string) => void;
   updateCourseCategory: (id: number, name: string, code: string) => void;
   removeCourseCategory: (id: number) => void;
+  isLoading?: boolean;
 }
 
 export function CourseCategoriesStep({
@@ -37,6 +38,7 @@ export function CourseCategoriesStep({
   updateCourseCategory,
   removeCourseCategory,
   premadeCourseCategories,
+  isLoading = false,
 }: CourseCategoriesStepProps) {
   const [activeTab, setActiveTab] = useState("existing");
 
@@ -144,14 +146,15 @@ export function CourseCategoriesStep({
   };
 
   // Filter premade categories based on search term
-  const filteredCategories =
-    searchTerm.trim() === ""
+  const filteredCategories = premadeCourseCategories
+    ? searchTerm.trim() === ""
       ? premadeCourseCategories
       : premadeCourseCategories.filter(
           (category) =>
             category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             category.code.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        )
+    : [];
 
   return (
     <>
@@ -273,37 +276,59 @@ export function CourseCategoriesStep({
                   {/* Category Selection */}
                   <div className="space-y-2">
                     <Label htmlFor="selectedCategory">Select Category</Label>
-                    <Select
-                      value={selectedCategory}
-                      onValueChange={setSelectedCategory}
-                    >
-                      <SelectTrigger id="selectedCategory">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <div className="py-2 px-3 border-b">
-                          <Input
-                            placeholder="Filter categories..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="h-8"
-                          />
-                        </div>
-                        {filteredCategories.map((category) => (
-                          <SelectItem
-                            key={category.id}
-                            value={category.id.toString()}
-                          >
-                            {category.name} ({category.code})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    {isLoading ? (
+                      <div className="text-center p-4 border rounded-md bg-muted/20">
+                        <p>Loading categories...</p>
+                      </div>
+                    ) : (
+                      <Select
+                        value={selectedCategory}
+                        onValueChange={setSelectedCategory}
+                      >
+                        <SelectTrigger id="selectedCategory">
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <div className="py-2 px-3 border-b">
+                            <Input
+                              placeholder="Filter categories..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              className="h-8"
+                            />
+                          </div>
+                          {isLoading ? (
+                            <div className="flex items-center justify-center p-4">
+                              <p className="text-sm text-muted-foreground">
+                                Loading categories...
+                              </p>
+                            </div>
+                          ) : filteredCategories.length === 0 ? (
+                            <div className="flex items-center justify-center p-4">
+                              <p className="text-sm text-muted-foreground">
+                                {searchTerm.trim() !== ""
+                                  ? "No matching categories found"
+                                  : "No categories available"}
+                              </p>
+                            </div>
+                          ) : (
+                            filteredCategories.map((category) => (
+                              <SelectItem
+                                key={category.id}
+                                value={category.id.toString()}
+                              >
+                                {category.name} ({category.code})
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
 
                   <Button
                     onClick={handleAddExistingCategory}
-                    disabled={!selectedCategory}
+                    disabled={!selectedCategory || isLoading}
                     className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white mt-4"
                   >
                     <Plus className="h-4 w-4" /> Add Selected Category
