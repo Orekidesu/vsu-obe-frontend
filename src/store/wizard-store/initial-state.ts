@@ -16,6 +16,23 @@ export const initialCourseCategories: CourseCategory[] = [
   { id: "cc", name: "Common Courses", code: "CC" },
 ];
 
+export const initialPremadeCourseCategories: CourseCategory[] = [
+  { id: "core", name: "Core Courses", code: "CORE" },
+  { id: "ge", name: "General Education", code: "GE" },
+  { id: "pe", name: "Physical Education", code: "PE" },
+  { id: "nstp", name: "National Service Training Program", code: "NSTP" },
+  { id: "major", name: "Major Courses", code: "MAJOR" },
+  { id: "elective", name: "Elective Courses", code: "ELECT" },
+  { id: "thesis", name: "Thesis/Capstone", code: "THESIS" },
+  { id: "ojt", name: "On-the-Job Training", code: "OJT" },
+  { id: "lab", name: "Laboratory Courses", code: "LAB" },
+  { id: "math", name: "Mathematics Courses", code: "MATH" },
+  { id: "science", name: "Science Courses", code: "SCI" },
+  { id: "language", name: "Language Courses", code: "LANG" },
+  { id: "humanities", name: "Humanities", code: "HUM" },
+  { id: "social", name: "Social Sciences", code: "SOC" },
+];
+
 // Initial premade courses
 export const initialPremadeCourses: Course[] = [
   { id: "csit101", code: "CSIT 101", title: "Introduction to Computing" },
