@@ -49,12 +49,17 @@ export function UpdateProgramStep({
               <SelectValue placeholder="Select a program" />
             </SelectTrigger>
             <SelectContent>
-              {activePrograms &&
+              {!activePrograms || activePrograms.length === 0 ? (
+                <SelectItem value="no-programs" disabled>
+                  No programs available for update
+                </SelectItem>
+              ) : (
                 activePrograms.map((program) => (
                   <SelectItem key={program.id} value={program.id.toString()}>
                     {program.name} ({program.abbreviation})
                   </SelectItem>
-                ))}
+                ))
+              )}
             </SelectContent>
           </Select>
         )}
