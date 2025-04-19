@@ -20,6 +20,8 @@ import {
   filterActivePrograms,
   getDepartmentPrograms,
 } from "@/app/utils/department/programFilter";
+
+import { filterCoursesByDepartment } from "@/app/utils/department/courseFilter";
 import { useAuth } from "@/hooks/useAuth";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 
@@ -126,29 +128,36 @@ export default function WizardForm() {
     } else if (fetchedCategories) {
       setPremadeCourseCategories([]);
     }
-
-    if (fetchedCourses && fetchedCourses.length > 0) {
-      // Transform API courses to match the expected format if necessary
-      const formattedCourses = fetchedCourses.map((course) => ({
-        id: course.id,
-        code: course.code,
-        title: course.descriptive_title,
-      }));
-
-      // Update the store with fetched courses
-      setPremadeCourses(formattedCourses);
-    } else if (fetchedCourses) {
-      setPremadeCourses([]);
-    }
   }, [
     fetchedGAs,
     setGraduateAttributes,
     fetchedCategories,
     setPremadeCourseCategories,
-    fetchedCourses,
-    setPremadeCourses,
   ]);
 
+  useEffect(() => {
+    if (fetchedCourses && departmentId) {
+      // Move the filtering logic inside the effect
+      const departmentCourses = filterCoursesByDepartment(
+        fetchedCourses,
+        departmentId
+      );
+
+      if (departmentCourses.length > 0) {
+        // Transform API courses to match the expected format if necessary
+        const formattedCourses = departmentCourses.map((course) => ({
+          id: course.id,
+          code: course.code,
+          title: course.descriptive_title,
+        }));
+
+        // Update the store with fetched courses
+        setPremadeCourses(formattedCourses);
+      } else {
+        setPremadeCourses([]);
+      }
+    }
+  }, [fetchedCourses, departmentId, setPremadeCourses]);
   const handleNext = () => {
     setStep(step + 1);
   };
