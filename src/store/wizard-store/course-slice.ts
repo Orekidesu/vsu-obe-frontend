@@ -24,16 +24,16 @@ export const createCourseSlice: StateCreator<
 > = (set) => ({
   courseCategories: [{ id: 15, name: "Common Courses", code: "CC" }],
   premadeCourses: [
-    { id: "csit101", code: "CSIT 101", title: "Introduction to Computing" },
-    { id: "csit102", code: "CSIT 102", title: "Computer Programming 1" },
-    { id: "csit103", code: "CSIT 103", title: "Computer Programming 2" },
-    { id: "math101", code: "MATH 101", title: "College Algebra" },
-    { id: "math102", code: "MATH 102", title: "Trigonometry" },
-    { id: "engl101", code: "ENGL 101", title: "Communication Skills 1" },
-    { id: "engl102", code: "ENGL 102", title: "Communication Skills 2" },
-    { id: "phys101", code: "PHYS 101", title: "General Physics 1" },
-    { id: "phys102", code: "PHYS 102", title: "General Physics 2" },
-    { id: "chem101", code: "CHEM 101", title: "General Chemistry" },
+    { id: 1, code: "CSIT 101", title: "Introduction to Computing" },
+    { id: 2, code: "CSIT 102", title: "Computer Programming 1" },
+    { id: 3, code: "CSIT 103", title: "Computer Programming 2" },
+    { id: 4, code: "MATH 101", title: "College Algebra" },
+    { id: 5, code: "MATH 102", title: "Trigonometry" },
+    { id: 6, code: "ENGL 101", title: "Communication Skills 1" },
+    { id: 7, code: "ENGL 102", title: "Communication Skills 2" },
+    { id: 8, code: "PHYS 101", title: "General Physics 1" },
+    { id: 9, code: "PHYS 102", title: "General Physics 2" },
+    { id: 10, code: "CHEM 101", title: "General Chemistry" },
   ],
   curriculumCourses: [],
   courseToPOMappings: [],
@@ -114,21 +114,16 @@ export const createCourseSlice: StateCreator<
     }),
 
   addCourse: (code, title) => {
-    const id = code.toLowerCase().replace(/\s+/g, ""); // Create a unique ID based on the code
-
+    // Generate a unique numeric ID based on existing courses
+    let newId = 0;
     set((state) => {
-      // Check if this course already exists in premade courses
-      const existingPremadeCourse = state.premadeCourses.find(
-        (c) => c.id === id
-      );
-      if (existingPremadeCourse) {
-        return state; // Don't add duplicates
-      }
+      const existingIds = state.premadeCourses.map((c) => c.id);
+      newId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
 
       // Add the new course to premade courses
       const updatedPremadeCourses = [
         ...state.premadeCourses,
-        { id, code, title },
+        { id: newId, code, title },
       ].sort((a, b) => a.code.localeCompare(b.code));
 
       return {
@@ -136,7 +131,8 @@ export const createCourseSlice: StateCreator<
       };
     });
 
-    return id; // Return the ID of the newly added course
+    // Return the new ID
+    return newId;
   },
 
   addCurriculumCourse: (courseId, categoryId, yearSemesterId, units) =>
