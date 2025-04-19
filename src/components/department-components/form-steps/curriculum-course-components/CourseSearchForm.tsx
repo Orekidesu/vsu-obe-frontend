@@ -78,7 +78,7 @@ export function CourseSearchForm({
                       .includes(searchTerm.toLowerCase())
                 )
             ).map((course) => (
-              <SelectItem key={course.id} value={course.id}>
+              <SelectItem key={course.id} value={course.id.toString()}>
                 {course.code} - {course.title}
               </SelectItem>
             ))}

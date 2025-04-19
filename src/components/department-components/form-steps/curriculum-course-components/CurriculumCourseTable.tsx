@@ -22,10 +22,10 @@ interface CurriculumCourseTableProps {
   courses: CurriculumCourse[];
   courseCategories: CourseCategory[];
   handleStartEdit: (course: CurriculumCourse) => void;
-  handleSaveEdit: (id: string) => void;
+  handleSaveEdit: (id: number) => void;
   handleCancelEdit: () => void;
-  removeCurriculumCourse: (id: string) => void;
-  editingId: string | null;
+  removeCurriculumCourse: (id: number) => void;
+  editingId: number | null;
   editCategory: string;
   setEditCategory: (value: string) => void;
   editUnits: string;

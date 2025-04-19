@@ -20,20 +20,20 @@ interface CurriculumCoursesStepProps {
   courseCategories: CourseCategory[];
   yearSemesters: YearSemester[];
   curriculumCourses: CurriculumCourse[];
-  addCourse: (code: string, title: string) => string;
+  addCourse: (code: string, title: string) => number;
   addCurriculumCourse: (
-    courseId: string,
+    courseId: number,
     categoryId: string,
     yearSemesterId: string,
     units: number
   ) => void;
   updateCurriculumCourse: (
-    id: string,
+    id: number,
     categoryId: string,
     yearSemesterId: string,
     units: number
   ) => void;
-  removeCurriculumCourse: (id: string) => void;
+  removeCurriculumCourse: (id: number) => void;
 }
 
 export function CurriculumCoursesStep({
@@ -54,7 +54,7 @@ export function CurriculumCoursesStep({
   const [newCourseCode, setNewCourseCode] = useState("");
   const [newCourseTitle, setNewCourseTitle] = useState("");
   const [error, setError] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editCategory, setEditCategory] = useState("");
   const [editYearSemester, setEditYearSemester] = useState("");
   const [editUnits, setEditUnits] = useState("");
@@ -74,7 +74,7 @@ export function CurriculumCoursesStep({
 
     // Add the course to the curriculum
     addCurriculumCourse(
-      selectedCourse,
+      parseInt(selectedCourse, 10),
       selectedCategory,
       selectedYearSemester,
       unitsValue
@@ -144,7 +144,7 @@ export function CurriculumCoursesStep({
   };
 
   // Save edited curriculum course
-  const handleSaveEdit = (id: string) => {
+  const handleSaveEdit = (id: number) => {
     // Validate inputs
     if (!editCategory || !editYearSemester) {
       setError("Category and year/semester are required.");
