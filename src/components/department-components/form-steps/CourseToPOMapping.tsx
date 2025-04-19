@@ -49,7 +49,7 @@ interface CourseToPOMappingStepProps {
   programOutcomes: ProgramOutcome[];
   courseToPOMappings: CourseToPOMapping[];
   updateCourseToPOMapping: (
-    courseId: string,
+    courseId: number,
     poId: number,
     contributionLevels: ContributionLevel[]
   ) => void;
@@ -65,7 +65,7 @@ export function CourseToPOMappingStep({
 
   // Get contribution levels for a specific course and PO
   const getContributionLevels = (
-    courseId: string,
+    courseId: number,
     poId: number
   ): ContributionLevel[] => {
     const mapping = courseToPOMappings.find(
@@ -76,7 +76,7 @@ export function CourseToPOMappingStep({
 
   // Toggle a contribution level for a specific course and PO
   const toggleContributionLevel = (
-    courseId: string,
+    courseId: number,
     poId: number,
     level: ContributionLevel
   ) => {
@@ -193,7 +193,7 @@ export function CourseToPOMappingStep({
             </SelectTrigger>
             <SelectContent>
               {curriculumCourses.map((course) => (
-                <SelectItem key={course.id} value={course.id}>
+                <SelectItem key={course.id} value={course.id.toString()}>
                   {course.code} - {course.title}
                 </SelectItem>
               ))}
@@ -206,8 +206,17 @@ export function CourseToPOMappingStep({
           <div className="space-y-4">
             <h3 className="text-lg font-medium">
               Mapping for:{" "}
-              {curriculumCourses.find((c) => c.id === selectedCourse)?.code} -{" "}
-              {curriculumCourses.find((c) => c.id === selectedCourse)?.title}
+              {
+                curriculumCourses.find(
+                  (c) => c.id.toString() === selectedCourse
+                )?.code
+              }{" "}
+              -{" "}
+              {
+                curriculumCourses.find(
+                  (c) => c.id.toString() === selectedCourse
+                )?.title
+              }
             </h3>
 
             <Table className="border">
@@ -224,7 +233,7 @@ export function CourseToPOMappingStep({
               <TableBody>
                 {programOutcomes.map((po) => {
                   const contributionLevels = getContributionLevels(
-                    selectedCourse,
+                    parseInt(selectedCourse, 10),
                     po.id
                   );
 
@@ -302,7 +311,7 @@ export function CourseToPOMappingStep({
                                         )}
                                         onCheckedChange={() =>
                                           toggleContributionLevel(
-                                            selectedCourse,
+                                            parseInt(selectedCourse, 10),
                                             po.id,
                                             level
                                           )

@@ -30,7 +30,7 @@ export function CoursePOMappingSection({
 }: CoursePOMappingSectionProps) {
   // Get contribution levels for a specific course and PO
   const getContributionLevels = (
-    courseId: string,
+    courseId: number,
     poId: number
   ): ContributionLevel[] => {
     const mapping = courseToPOMappings.find(
