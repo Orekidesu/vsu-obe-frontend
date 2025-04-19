@@ -17,7 +17,7 @@ import {
 import { useState as useFormErrorState } from "react";
 
 import {
-  filterActivePrograms,
+  filterActiveNoPendingPrograms,
   getDepartmentPrograms,
 } from "@/app/utils/department/programFilter";
 
@@ -115,8 +115,13 @@ export default function WizardForm() {
 
   const departmentId = session?.Department?.id;
 
-  const activePrograms = filterActivePrograms(programs, departmentId);
+  // const activePrograms = filterActivePrograms(programs, departmentId);
   const departmentPrograms = getDepartmentPrograms(programs, departmentId);
+
+  const activeNoPendingPrograms = filterActiveNoPendingPrograms(
+    programs,
+    departmentId
+  );
 
   // Load graduate attributes when they are fetched
   useEffect(() => {
@@ -342,7 +347,7 @@ export default function WizardForm() {
     }
     return false;
   };
-  // console.log(programs);
+  console.log(activeNoPendingPrograms);
   return (
     <div className="w-full max-w-3xl mx-auto">
       <h1 className="text-4xl font-bold text-center text-green-600 mb-8">
@@ -371,7 +376,7 @@ export default function WizardForm() {
         <UpdateProgramStep
           selectedProgram={selectedProgram}
           setSelectedProgram={setSelectedProgram}
-          activePrograms={activePrograms}
+          activePrograms={activeNoPendingPrograms}
           programsLoading={programsLoading}
         />
       )}
