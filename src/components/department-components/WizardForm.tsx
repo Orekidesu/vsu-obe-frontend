@@ -39,6 +39,7 @@ import { CourseCategoriesStep } from "./form-steps/CC";
 import { CurriculumCoursesStep } from "./form-steps/CurriculumCourse";
 import { CourseToPOMappingStep } from "./form-steps/CourseToPOMapping";
 import { ReviewStep } from "./form-steps/ReviewSteps";
+import useCourses from "@/hooks/department/useCourse";
 
 export default function WizardForm() {
   const [step, setStep] = useState(1);
@@ -92,6 +93,7 @@ export default function WizardForm() {
     toggleGAToPEOMapping,
     setGraduateAttributes,
     setPremadeCourseCategories,
+    setPremadeCourses,
     poToPEOMappings,
     togglePOToPEOMapping,
     togglePOToGAMapping,
@@ -103,6 +105,8 @@ export default function WizardForm() {
     useGraduateAttributes({ role: "department" });
   const { courseCategories: fetchedCategories, isLoading: categoriesLoading } =
     useCourseCategories();
+
+  const { courses: fetchedCourses, isLoading: coursesLoading } = useCourses();
 
   const { submitFullProgramProposal } = useProgramProposals();
   const { session } = useAuth() as { session: Session | null };
@@ -122,11 +126,27 @@ export default function WizardForm() {
     } else if (fetchedCategories) {
       setPremadeCourseCategories([]);
     }
+
+    if (fetchedCourses && fetchedCourses.length > 0) {
+      // Transform API courses to match the expected format if necessary
+      const formattedCourses = fetchedCourses.map((course) => ({
+        id: course.id,
+        code: course.code,
+        title: course.descriptive_title,
+      }));
+
+      // Update the store with fetched courses
+      setPremadeCourses(formattedCourses);
+    } else if (fetchedCourses) {
+      setPremadeCourses([]);
+    }
   }, [
     fetchedGAs,
     setGraduateAttributes,
     fetchedCategories,
     setPremadeCourseCategories,
+    fetchedCourses,
+    setPremadeCourses,
   ]);
 
   const handleNext = () => {
@@ -447,6 +467,7 @@ export default function WizardForm() {
           addCurriculumCourse={addCurriculumCourse}
           updateCurriculumCourse={updateCurriculumCourse}
           removeCurriculumCourse={removeCurriculumCourse}
+          isLoading={coursesLoading}
         />
       )}
       {/* Step 13: Course to PO Mapping */}

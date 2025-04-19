@@ -34,6 +34,7 @@ interface CurriculumCoursesStepProps {
     units: number
   ) => void;
   removeCurriculumCourse: (id: number) => void;
+  isLoading?: boolean;
 }
 
 export function CurriculumCoursesStep({
@@ -45,6 +46,7 @@ export function CurriculumCoursesStep({
   addCurriculumCourse,
   updateCurriculumCourse,
   removeCurriculumCourse,
+  isLoading = false,
 }: CurriculumCoursesStepProps) {
   const [activeTab, setActiveTab] = useState("search");
   const [selectedCourse, setSelectedCourse] = useState<string>("");
@@ -217,6 +219,7 @@ export function CurriculumCoursesStep({
                   setSelectedYearSemester={setSelectedYearSemester}
                   units={units}
                   setUnits={setUnits}
+                  isLoading={isLoading}
                 />
               </TabsContent>
 

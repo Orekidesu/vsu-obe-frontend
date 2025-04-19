@@ -30,6 +30,7 @@ interface CourseSearchFormProps {
   setSelectedYearSemester: (value: string) => void;
   units: string;
   setUnits: (value: string) => void;
+  isLoading?: boolean;
 }
 
 export function CourseSearchForm({
@@ -45,6 +46,7 @@ export function CourseSearchForm({
   setSelectedYearSemester,
   units,
   setUnits,
+  isLoading = false,
 }: CourseSearchFormProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -53,37 +55,56 @@ export function CourseSearchForm({
       {/* Course Selection */}
       <div className="space-y-2">
         <Label htmlFor="selectedCourse">Select Course</Label>
-        <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-          <SelectTrigger id="selectedCourse">
-            <SelectValue placeholder="Select a course" />
-          </SelectTrigger>
-          <SelectContent>
-            <div className="py-2 px-3 border-b">
-              <Input
-                placeholder="Filter courses..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-8"
-              />
+        {isLoading ? (
+          <div className="flex items-center justify-center p-2 border rounded-md border-input bg-background text-muted-foreground">
+            <div className="animate-pulse flex space-x-2 items-center">
+              <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+              <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+              <div className="h-2 w-2 bg-green-500 rounded-full"></div>
             </div>
-            {(searchTerm.trim() === ""
-              ? premadeCourses
-              : premadeCourses.filter(
-                  (course) =>
-                    course.code
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase()) ||
-                    course.title
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
+            <span className="ml-2">Loading courses...</span>
+          </div>
+        ) : (
+          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+            <SelectTrigger id="selectedCourse">
+              <SelectValue placeholder="Select a course" />
+            </SelectTrigger>
+            <SelectContent>
+              <div className="py-2 px-3 border-b">
+                <Input
+                  placeholder="Filter courses..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-8"
+                />
+              </div>
+              {premadeCourses.length === 0 ? (
+                <SelectItem value="" disabled>
+                  No courses available
+                </SelectItem>
+              ) : (
+                (searchTerm.trim() === ""
+                  ? premadeCourses
+                  : premadeCourses.filter(
+                      (course) =>
+                        course.code
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase()) ||
+                        course.title
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase())
+                    )
                 )
-            ).map((course) => (
-              <SelectItem key={course.id} value={course.id.toString()}>
-                {course.code} - {course.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+                  .filter((course) => course.id !== undefined)
+                  .map((course) => (
+                    <SelectItem key={course.id} value={course.id.toString()}>
+                      {course.code} - {course.title}
+                    </SelectItem>
+                  ))
+              )}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {/* Course Details */}
@@ -144,7 +165,12 @@ export function CourseSearchForm({
 
       <Button
         onClick={handleAddFromSearch}
-        disabled={!selectedCourse || !selectedCategory || !selectedYearSemester}
+        disabled={
+          !selectedCourse ||
+          !selectedCategory ||
+          !selectedYearSemester ||
+          isLoading
+        }
         className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white mt-4"
       >
         <Plus className="h-4 w-4" /> Add to Curriculum
