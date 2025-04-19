@@ -35,16 +35,16 @@ export const initialPremadeCourseCategories: CourseCategory[] = [
 
 // Initial premade courses
 export const initialPremadeCourses: Course[] = [
-  { id: "csit101", code: "CSIT 101", title: "Introduction to Computing" },
-  { id: "csit102", code: "CSIT 102", title: "Computer Programming 1" },
-  { id: "csit103", code: "CSIT 103", title: "Computer Programming 2" },
-  { id: "math101", code: "MATH 101", title: "College Algebra" },
-  { id: "math102", code: "MATH 102", title: "Trigonometry" },
-  { id: "engl101", code: "ENGL 101", title: "Communication Skills 1" },
-  { id: "engl102", code: "ENGL 102", title: "Communication Skills 2" },
-  { id: "phys101", code: "PHYS 101", title: "General Physics 1" },
-  { id: "phys102", code: "PHYS 102", title: "General Physics 2" },
-  { id: "chem101", code: "CHEM 101", title: "General Chemistry" },
+  { id: 1, code: "CSIT 101", title: "Introduction to Computing" },
+  { id: 2, code: "CSIT 102", title: "Computer Programming 1" },
+  { id: 3, code: "CSIT 103", title: "Computer Programming 2" },
+  { id: 4, code: "MATH 101", title: "College Algebra" },
+  { id: 5, code: "MATH 102", title: "Trigonometry" },
+  { id: 6, code: "ENGL 101", title: "Communication Skills 1" },
+  { id: 7, code: "ENGL 102", title: "Communication Skills 2" },
+  { id: 8, code: "PHYS 101", title: "General Physics 1" },
+  { id: 8, code: "PHYS 102", title: "General Physics 2" },
+  { id: 9, code: "CHEM 101", title: "General Chemistry" },
 ];
 
 // Initial curriculum courses

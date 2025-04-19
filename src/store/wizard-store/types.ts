@@ -54,7 +54,7 @@ export interface CourseCategory {
 }
 
 export interface Course {
-  id: string;
+  id: number;
   code: string;
   title: string;
 }
@@ -62,7 +62,7 @@ export interface Course {
 export type ContributionLevel = "I" | "R" | "D";
 
 export interface CourseToPOMapping {
-  courseId: string;
+  courseId: number;
   poId: number;
   contributionLevels: ContributionLevel[];
 }
@@ -124,26 +124,26 @@ export interface WizardState {
   addCourseCategory: (name: string, code: string) => void;
   updateCourseCategory: (id: number, name: string, code: string) => void;
   removeCourseCategory: (id: number) => void;
-  addCourse: (code: string, title: string) => string;
+  addCourse: (code: string, title: string) => number;
   addCurriculumCourse: (
-    courseId: string,
+    courseId: number,
     categoryId: string,
     yearSemesterId: string,
     units: number
   ) => void;
   updateCurriculumCourse: (
-    id: string,
+    id: number, //??
     categoryId: string,
     yearSemesterId: string,
     units: number
   ) => void;
-  removeCurriculumCourse: (id: string) => void;
+  removeCurriculumCourse: (id: number) => void;
   updateCourseToPOMapping: (
-    courseId: string,
+    courseId: number,
     poId: number,
     contributionLevels: ContributionLevel[]
   ) => void;
-  removeCourseToPOMapping: (courseId: string, poId: number) => void;
+  removeCourseToPOMapping: (courseId: number, poId: number) => void;
 
   // Actions - PEO related
   addPEO: () => void;
