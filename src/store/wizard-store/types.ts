@@ -144,6 +144,7 @@ export interface WizardState {
     contributionLevels: ContributionLevel[]
   ) => void;
   removeCourseToPOMapping: (courseId: number, poId: number) => void;
+  setPremadeCourses: (courses: Course[]) => void;
 
   // Actions - PEO related
   addPEO: () => void;

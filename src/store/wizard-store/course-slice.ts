@@ -20,6 +20,7 @@ export const createCourseSlice: StateCreator<
     | "removeCurriculumCourse"
     | "updateCourseToPOMapping"
     | "removeCourseToPOMapping"
+    | "setPremadeCourses"
   >
 > = (set) => ({
   courseCategories: [{ id: 15, name: "Common Courses", code: "CC" }],
@@ -261,4 +262,6 @@ export const createCourseSlice: StateCreator<
         (mapping) => !(mapping.courseId === courseId && mapping.poId === poId)
       ),
     })),
+
+  setPremadeCourses: (courses) => set({ premadeCourses: courses }),
 });
