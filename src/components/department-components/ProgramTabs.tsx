@@ -51,17 +51,18 @@ export default function ProgramTabs() {
     if (type === "program") {
       router.push(`/department/programs/${id}`);
     } else {
-      router.push(`/department/program-proposals/${id}`);
+      router.push(`/department/programs/${id}`);
+      // router.push(`/department/proposals/${id}`);
     }
   };
 
   const handleEdit = (id: number) => {
-    router.push(`/department/program-proposals/${id}/edit`);
+    router.push(`/department/proposals/${id}/edit-proposal`);
   };
 
-  const handleReview = (id: number) => {
-    router.push(`/department/program-proposals/${id}/review`);
-  };
+  // const handleReview = (id: number) => {
+  //   router.push(`/department/proposals/${id}/review`);
+  // };
 
   const isLoading = programsLoading || proposalsLoading;
 
@@ -114,7 +115,7 @@ export default function ProgramTabs() {
               {activePrograms.length > 0 ? (
                 activePrograms.map((program) => (
                   <ProgramCard
-                    key={`program-${program.id}`}
+                    key={`${program.id}`}
                     program={program}
                     status="active"
                     onViewDetails={handleViewDetails}
@@ -147,7 +148,7 @@ export default function ProgramTabs() {
                     programProposal={proposal}
                     status="pending"
                     onViewDetails={handleViewDetails}
-                    onReview={handleReview}
+                    // onReview={handleReview}
                   />
                 ))
               ) : (
