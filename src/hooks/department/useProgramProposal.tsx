@@ -1,5 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ProgramProposal } from "@/types/model/ProgramProposal";
+import {
+  ProgramProposal,
+  ProgramProposalResponse,
+} from "@/types/model/ProgramProposal";
 import { APIError } from "@/app/utils/errorHandler";
 import useApi from "../useApi";
 
@@ -48,7 +51,7 @@ const useProgramProposals = () => {
   } = useQuery({
     queryKey: ["program-proposals"],
     queryFn: async () => {
-      const response = await api.get<{ data: ProgramProposal[] }>(
+      const response = await api.get<{ data: ProgramProposalResponse[] }>(
         "department/program-proposals"
       );
 
@@ -80,6 +83,18 @@ const useProgramProposals = () => {
       throw new Error(getErrorMessage(error, "Failed to create proposal"));
     },
   });
+
+  const getProgramProposal = (id: number) => ({
+    queryKey: ["program-proposal", id],
+    queryFn: async () => {
+      const response = await api.get<{ data: ProgramProposalResponse }>(
+        `department/program-proposals/${id}`
+      );
+      return response.data.data;
+    },
+    enabled: !!id,
+  });
+
   // update program proposal
   const updateProgramProposal = useMutation<
     void,
@@ -166,6 +181,7 @@ const useProgramProposals = () => {
     isLoading,
     submitFullProgramProposal,
     error,
+    getProgramProposal,
     createProgramProposal,
     updateProgramProposal,
     deleteProgramProposal,
