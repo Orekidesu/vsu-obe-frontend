@@ -51,7 +51,7 @@ export default function ProgramTabs() {
     if (type === "program") {
       router.push(`/department/programs/${id}`);
     } else {
-      router.push(`/department/programs/${id}`);
+      router.push(`/department/proposals/${id}`);
       // router.push(`/department/proposals/${id}`);
     }
   };
