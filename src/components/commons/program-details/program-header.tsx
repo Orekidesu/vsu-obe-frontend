@@ -19,8 +19,6 @@ interface ProgramHeaderProps {
 }
 
 export function ProgramHeader({
-  programName,
-  programAbbreviation,
   actionTaken,
   onApprove,
   onRevise,

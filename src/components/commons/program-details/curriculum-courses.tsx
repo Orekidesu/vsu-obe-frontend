@@ -38,14 +38,14 @@ interface GroupedCourses {
 
 interface CurriculumCoursesProps {
   groupedCourses: GroupedCourses;
-  courses: Course[];
+  courses?: Course[];
   categories: CourseCategory[];
   getSemesterName: (semesterCode: string) => string;
 }
 
 export function CurriculumCourses({
   groupedCourses,
-  courses,
+  // courses,
   categories,
   getSemesterName,
 }: CurriculumCoursesProps) {

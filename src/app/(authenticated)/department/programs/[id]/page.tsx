@@ -14,42 +14,24 @@ import { CourseCategories } from "@/components/commons/program-details/course-ca
 import { ProgramStructure } from "@/components/commons/program-details/program-structure";
 import { CurriculumCourses } from "@/components/commons/program-details/curriculum-courses";
 import { MappingTable } from "@/components/commons/program-details/mapping-table";
-import { ContributionLegend } from "@/components/commons/program-details/contribution-level";
 import { ApproveDialog } from "@/components/commons/program-details/approve-dialog";
 import { RejectDialog } from "@/components/commons/program-details/reject-dialog";
 import { ReviseDialog } from "@/components/commons/program-details/revise-dialog";
+import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
 
 // Import custom hooks and types
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import type { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 
-// Mission statements for reference (these could also come from an API)
-const missions = [
-  {
-    id: 1,
-    statement:
-      "To produce graduates equipped with advanced knowledge and lifelong learning skills with ethical standards through high quality instruction",
-  },
-  {
-    id: 2,
-    statement:
-      "Foster innovation and critical thinking through research and creative activities",
-  },
-  {
-    id: 3,
-    statement:
-      "Promote diversity, equity, and inclusion in all aspects of education",
-  },
-  {
-    id: 4,
-    statement: "Engage with the community to address societal challenges",
-  },
-  {
-    id: 5,
-    statement:
-      "Develop ethical leaders who contribute to global sustainability",
-  },
-];
+interface CurriculumCourse {
+  course_code: string;
+  category_code: string;
+  semester_year: number;
+  semester_name: string;
+  units: number;
+  code: string;
+  descriptive_title: string;
+}
 
 export default function ProgramReviewPage() {
   const params = useParams();
@@ -91,7 +73,13 @@ export default function ProgramReviewPage() {
     semesters: [] as { year: number; sem: string }[],
     course_categories: [] as { name: string; code: string }[],
     courses: [] as { code: string; descriptive_title: string }[],
-    curriculum_courses: [] as any[],
+    curriculum_courses: [] as Array<{
+      course_code: string;
+      category_code: string;
+      semester_year: number;
+      semester_name: string;
+      units: number;
+    }>,
     peo_mission_mappings: [] as { peo_index: number; mission_id: number }[],
     ga_peo_mappings: [] as { peo_index: number; ga_id: number }[],
     po_peo_mappings: [] as { po_index: number; peo_index: number }[],
@@ -101,6 +89,7 @@ export default function ProgramReviewPage() {
       po_code: string;
       ird: string[];
     }[],
+    missions: [] as { id: number; statement: string }[],
   });
 
   // Transform API data when it's loaded
@@ -152,6 +141,19 @@ export default function ProgramReviewPage() {
           descriptive_title: course.course.descriptive_title,
         });
       }
+    });
+
+    // Extract unique missions
+    const uniqueMissions = new Map();
+    data.peos.forEach((peo) => {
+      peo.missions.forEach((mission) => {
+        if (!uniqueMissions.has(mission.mission_no)) {
+          uniqueMissions.set(mission.mission_no, {
+            id: mission.mission_no,
+            statement: mission.description,
+          });
+        }
+      });
     });
 
     // Create PEO to Mission mappings
@@ -252,6 +254,7 @@ export default function ProgramReviewPage() {
       po_peo_mappings: poPeoMappings,
       po_ga_mappings: poGaMappings,
       course_po_mappings: coursePOMappings,
+      missions: Array.from(uniqueMissions.values()),
     });
   };
 
@@ -284,12 +287,28 @@ export default function ProgramReviewPage() {
   };
 
   // Group curriculum courses by year-semester
-  const groupedCourses: Record<string, any[]> = {};
+  const groupedCourses: Record<string, CurriculumCourse[]> = {};
   transformedData.semesters.forEach((sem) => {
     const key = `${sem.year}-${sem.sem}`;
-    groupedCourses[key] = transformedData.curriculum_courses.filter(
-      (cc) => cc.semester_year === sem.year && cc.semester_name === sem.sem
-    );
+
+    // Map each course to include both course_code and code properties
+    groupedCourses[key] = transformedData.curriculum_courses
+      .filter(
+        (cc) => cc.semester_year === sem.year && cc.semester_name === sem.sem
+      )
+      .map((course) => {
+        // Find the full course details to get the descriptive title
+        const courseDetails = transformedData.courses.find(
+          (c) => c.code === course.course_code
+        );
+
+        // Return a properly formatted CurriculumCourse object
+        return {
+          ...course,
+          code: course.course_code, // Add the code property required by the interface
+          descriptive_title: courseDetails?.descriptive_title || "Unknown", // Add descriptive_title
+        };
+      });
   });
 
   // Handle approve action
@@ -381,7 +400,7 @@ export default function ProgramReviewPage() {
       tooltip: peo.statement,
     }));
 
-    const columnHeaders = missions.map((mission) => ({
+    const columnHeaders = transformedData.missions.map((mission) => ({
       id: mission.id,
       label: `M${mission.id}`,
       tooltip: mission.statement,
@@ -442,35 +461,11 @@ export default function ProgramReviewPage() {
     return { rowHeaders, columnHeaders, mappings };
   };
 
-  const prepareCourseToPOMapping = () => {
-    const rowHeaders = transformedData.courses.map((course) => ({
-      id: course.code,
-      label: course.code,
-      tooltip: course.descriptive_title,
-    }));
-
-    const columnHeaders = transformedData.pos.map((po, index) => ({
-      id: po.name,
-      label: po.name,
-      tooltip: po.statement,
-    }));
-
-    const contributionLevels = transformedData.course_po_mappings.map(
-      (mapping) => ({
-        rowId: mapping.course_code,
-        colId: mapping.po_code,
-        levels: mapping.ird,
-      })
-    );
-
-    return { rowHeaders, columnHeaders, contributionLevels };
-  };
-
   // Get mapping data
   const peoToMissionMapping = preparePEOToMissionMapping();
   const gaToPEOMapping = prepareGAToPEOMapping();
   const poToPEOMapping = preparePOToPEOMapping();
-  const courseToPOMapping = prepareCourseToPOMapping();
+  // const courseToPOMapping = prepareCourseToPOMapping();
 
   // Show loading state
   if (isLoading) {
@@ -478,7 +473,7 @@ export default function ProgramReviewPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-2">
           <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-          <p className="text-lg">Loading programdata...</p>
+          <p className="text-lg">Loading program data...</p>
         </div>
       </div>
     );
@@ -572,17 +567,15 @@ export default function ProgramReviewPage() {
             mappings={poToPEOMapping.mappings}
           />
 
-          <div>
-            <ContributionLegend getLevelBadgeColor={getLevelBadgeColor} />
-            <MappingTable
-              title="Course to PO Mapping"
-              rowHeaders={courseToPOMapping.rowHeaders}
-              columnHeaders={courseToPOMapping.columnHeaders}
-              mappings={[]} // We don't need mappings for this table as we use contribution levels
-              contributionLevels={courseToPOMapping.contributionLevels}
-              getLevelBadgeColor={getLevelBadgeColor}
-            />
-          </div>
+          <CoursePOMapping
+            courses={transformedData.courses}
+            pos={transformedData.pos}
+            semesters={transformedData.semesters}
+            curriculumCourses={transformedData.curriculum_courses}
+            coursePOMappings={transformedData.course_po_mappings}
+            getSemesterName={getSemesterName}
+            getLevelBadgeColor={getLevelBadgeColor}
+          />
         </TabsContent>
       </Tabs>
 
