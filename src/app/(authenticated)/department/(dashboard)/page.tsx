@@ -30,6 +30,8 @@ const DashboardPage = () => {
   const pendingPrograms = departmentPrograms?.filter(
     (program) => program.status === "pending"
   );
+
+  console.log("pending programs: ", pendingPrograms);
   return (
     <div className="grid grid-rows-1 content-center">
       <div className="flex flex-col md:flex-row justify-evenly gap-2 ">
