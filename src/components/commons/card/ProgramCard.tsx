@@ -58,7 +58,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
   status,
   onViewDetails,
   onEdit,
-  onReview,
+  // onReview,
 }) => {
   // Handle both program and programProposal based on status
   const isActiveProgram = status === "active" && program;
@@ -123,9 +123,9 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
           <Button onClick={() => onEdit && onEdit(id)}>Edit Program</Button>
         )}
 
-        {status === "pending" && (
+        {/* {status === "pending" && (
           <Button onClick={() => onReview && onReview(id)}>Review</Button>
-        )}
+        )} */}
       </CardFooter>
     </Card>
   );
