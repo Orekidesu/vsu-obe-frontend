@@ -10,14 +10,14 @@ import {
 import { Button } from "@/components/ui/button";
 import moment from "moment";
 import { Program } from "@/types/model/Program";
-import { ProgramProposal } from "@/types/model/ProgramProposal";
+import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Clock, AlertCircle } from "lucide-react";
 
 // Define types for the props
 export interface ProgramCardProps {
   program?: Program;
-  programProposal?: ProgramProposal;
+  programProposal?: ProgramProposalResponse;
   status: "active" | "pending" | "revision";
   onViewDetails?: (id: number, type: "program" | "proposal") => void;
   onEdit?: (id: number) => void;
@@ -78,7 +78,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
   const title = isActiveProgram ? program?.name : programProposal?.program.name;
   const abbreviation = isActiveProgram
     ? program?.abbreviation
-    : programProposal?.abbreviation;
+    : programProposal?.program.abbreviation;
   const version = isActiveProgram ? program?.version : programProposal?.version;
 
   // Format date based on data source

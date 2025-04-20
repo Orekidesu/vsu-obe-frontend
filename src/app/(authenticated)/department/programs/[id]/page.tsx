@@ -18,6 +18,8 @@ import { ApproveDialog } from "@/components/commons/program-details/approve-dial
 import { RejectDialog } from "@/components/commons/program-details/reject-dialog";
 import { ReviseDialog } from "@/components/commons/program-details/revise-dialog";
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
+import { useAuth } from "@/hooks/useAuth";
 
 // Import custom hooks and types
 import useProgramProposals from "@/hooks/department/useProgramProposal";
@@ -36,6 +38,8 @@ interface CurriculumCourse {
 export default function ProgramReviewPage() {
   const params = useParams();
   const proposalId = Number(params.id);
+  const { session } = useAuth();
+  const role = (session as Session)?.Role;
 
   const [activeTab, setActiveTab] = useState("overview");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -510,6 +514,7 @@ export default function ProgramReviewPage() {
         onApprove={handleApprove}
         onRevise={handleRevise}
         onReject={handleReject}
+        role={role}
       />
 
       <ProgramSummary

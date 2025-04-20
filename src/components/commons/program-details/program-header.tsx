@@ -13,20 +13,27 @@ interface ProgramHeaderProps {
   programName: string;
   programAbbreviation: string;
   actionTaken: string | null;
-  onApprove: () => void;
-  onRevise: () => void;
-  onReject: () => void;
+  onApprove?: () => void;
+  onRevise?: () => void;
+  onReject?: () => void;
+  role?: string;
 }
 
 export function ProgramHeader({
+  programName,
+  programAbbreviation,
   actionTaken,
   onApprove,
   onRevise,
   onReject,
+  role,
 }: ProgramHeaderProps) {
+  const showActions = role === "department";
+  const showAlert = role === "department" && actionTaken;
+
   return (
     <>
-      {actionTaken && (
+      {showAlert && (
         <Alert
           className={`mb-6 ${
             actionTaken === "approved"
@@ -76,37 +83,45 @@ export function ProgramHeader({
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Program Review</h1>
-          <p className="text-gray-600 mt-1">
-            Review and take action on the proposed program
-          </p>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {programName} ({programAbbreviation})
+          </h1>
+          {role === "Department" ? (
+            <p className="text-gray-600 mt-1">Review Program Details</p>
+          ) : (
+            <p className="text-gray-600 mt-1">
+              Review and take action on the proposed program
+            </p>
+          )}
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <Button
-            onClick={onApprove}
-            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
-            disabled={!!actionTaken}
-          >
-            <CheckCheck className="h-4 w-4" /> Approve
-          </Button>
-          <Button
-            onClick={onRevise}
-            variant="outline"
-            className="border-amber-500 text-amber-600 hover:bg-amber-50 flex items-center gap-2"
-            disabled={!!actionTaken}
-          >
-            <FileEdit className="h-4 w-4" /> Request Revisions
-          </Button>
-          <Button
-            onClick={onReject}
-            variant="outline"
-            className="border-red-500 text-red-600 hover:bg-red-50 flex items-center gap-2"
-            disabled={!!actionTaken}
-          >
-            <ThumbsDown className="h-4 w-4" /> Reject
-          </Button>
-        </div>
+        {showActions && (
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={onApprove}
+              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+              disabled={!!actionTaken}
+            >
+              <CheckCheck className="h-4 w-4" /> Approve
+            </Button>
+            <Button
+              onClick={onRevise}
+              variant="outline"
+              className="border-amber-500 text-amber-600 hover:bg-amber-50 flex items-center gap-2"
+              disabled={!!actionTaken}
+            >
+              <FileEdit className="h-4 w-4" /> Request Revisions
+            </Button>
+            <Button
+              onClick={onReject}
+              variant="outline"
+              className="border-red-500 text-red-600 hover:bg-red-50 flex items-center gap-2"
+              disabled={!!actionTaken}
+            >
+              <ThumbsDown className="h-4 w-4" /> Reject
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );
