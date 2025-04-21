@@ -95,6 +95,15 @@ const useProgramProposals = () => {
     enabled: !!id,
   });
 
+  const getProgramProposalFromCache = (id: number) => {
+    return {
+      queryKey: ["program-proposals"],
+      select: (data: ProgramProposalResponse[] | undefined) =>
+        data?.find((proposal) => proposal.id === id),
+      enabled: !!id,
+    };
+  };
+
   // update program proposal
   const updateProgramProposal = useMutation<
     void,
@@ -182,6 +191,7 @@ const useProgramProposals = () => {
     submitFullProgramProposal,
     error,
     getProgramProposal,
+    getProgramProposalFromCache,
     createProgramProposal,
     updateProgramProposal,
     deleteProgramProposal,

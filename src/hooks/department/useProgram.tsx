@@ -57,6 +57,15 @@ const usePrograms = () => {
     enabled: !!id,
   });
 
+  const getProgramFromCache = (id: number) => {
+    return {
+      queryKey: ["programs"],
+      select: (data: ProgramResponse[] | undefined) =>
+        data?.find((program) => program.id === id),
+      enabled: !!id,
+    };
+  };
+
   // update Program
 
   const updateProgram = useMutation<
@@ -116,6 +125,7 @@ const usePrograms = () => {
     error,
     createProgram,
     getProgram,
+    getProgramFromCache,
     updateProgram,
     deleteProgram,
   };
