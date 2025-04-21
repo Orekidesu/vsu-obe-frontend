@@ -1,6 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, Clock, FileEdit } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import ProgramCard from "../commons/card/ProgramCard";
 import usePrograms from "@/hooks/department/useProgram";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
@@ -109,7 +111,10 @@ export default function ProgramTabs() {
           </h2>
 
           {isLoading ? (
-            <div>Loading...</div>
+            <>
+              <Skeleton className="w-full h-52" />
+              <Skeleton className="w-full h-52" />
+            </>
           ) : (
             <>
               {activePrograms.length > 0 ? (
