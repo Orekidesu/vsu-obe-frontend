@@ -114,7 +114,7 @@ export function ReviewStep({
     poId: number
   ): ContributionLevel[] => {
     const mapping = courseToPOMappings.find(
-      (m) => m.courseId === courseId && m.poId === poId
+      (m) => m.courseId === parseInt(courseId, 10) && m.poId === poId
     );
     return mapping ? mapping.contributionLevels : [];
   };
@@ -722,12 +722,13 @@ export function ReviewStep({
                               <TableCell>
                                 {courseCategories.find(
                                   (category) =>
-                                    category.id === course.categoryId
+                                    category.id === parseInt(course.categoryId)
                                 )?.name || "Unknown"}{" "}
                                 (
                                 {courseCategories.find(
                                   (category) =>
-                                    category.id === course.categoryId
+                                    category.id ===
+                                    parseInt(course.categoryId, 10)
                                 )?.code || "?"}
                                 )
                               </TableCell>
@@ -801,7 +802,7 @@ export function ReviewStep({
                           </TableCell>
                           {programOutcomes.map((po) => {
                             const levels = getContributionLevels(
-                              course.id,
+                              course.id.toString(),
                               po.id
                             );
                             return (

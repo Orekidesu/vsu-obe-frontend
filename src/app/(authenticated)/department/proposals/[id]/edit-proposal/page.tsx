@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -11,7 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save } from "lucide-react";
 
 // Import edit section components
 import { ProgramDetailsEdit } from "@/components/department-components/edit-proposal/program-details-edit";
@@ -304,7 +303,6 @@ const graduateAttributes = [
 ];
 
 export default function EditProgramPage() {
-  const router = useRouter();
   const [expandedSections, setExpandedSections] = useState<string[]>([
     "program-details",
   ]);
@@ -476,11 +474,6 @@ export default function EditProgramPage() {
     }, 3000);
   };
 
-  // Handle back to dashboard
-  const handleBack = () => {
-    router.push("/");
-  };
-
   return (
     <main className="container mx-auto py-8 px-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -494,13 +487,6 @@ export default function EditProgramPage() {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button
-            onClick={handleBack}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back to Dashboard
-          </Button>
           <Button
             onClick={handleSave}
             className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
