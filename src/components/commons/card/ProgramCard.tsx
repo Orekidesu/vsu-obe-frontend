@@ -9,14 +9,14 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
-import { Program } from "@/types/model/Program";
+import { ProgramResponse } from "@/types/model/Program";
 import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Clock, AlertCircle } from "lucide-react";
 
 // Define types for the props
 export interface ProgramCardProps {
-  program?: Program;
+  program?: ProgramResponse;
   programProposal?: ProgramProposalResponse;
   status: "active" | "pending" | "revision";
   onViewDetails?: (id: number, type: "program" | "proposal") => void;

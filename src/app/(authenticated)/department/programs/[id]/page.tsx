@@ -93,10 +93,6 @@ export default function ActiveProgramReviewPage() {
   }, [programData]);
 
   // Transform API data to the format expected by our components
-  // ...existing code...
-
-  // Transform API data to the format expected by our components
-
   const transformApiData = (data: ProgramResponse) => {
     if (!data || !data.curriculum) return;
 
@@ -263,8 +259,6 @@ export default function ActiveProgramReviewPage() {
       missions: Array.from(uniqueMissions.values()),
     });
   };
-
-  // ...existing code...
 
   // Get semester display name
   const getSemesterName = (semesterCode: string) => {

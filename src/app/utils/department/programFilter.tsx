@@ -1,4 +1,4 @@
-import { Program } from "@/types/model/Program";
+import { ProgramResponse } from "@/types/model/Program";
 
 /**
  * Filters programs that belong to a specific department
@@ -7,9 +7,9 @@ import { Program } from "@/types/model/Program";
  * @returns Filtered array of programs
  */
 export const filterProgramsByDepartment = (
-  programs: Program[] = [],
+  programs: ProgramResponse[] = [],
   departmentId?: number | null
-): Program[] => {
+): ProgramResponse[] => {
   if (!departmentId) return [];
   return programs.filter((program) => program?.department?.id === departmentId);
 };
@@ -21,9 +21,9 @@ export const filterProgramsByDepartment = (
  * @returns Filtered array of active programs
  */
 export const filterActivePrograms = (
-  programs: Program[] = [],
+  programs: ProgramResponse[] = [],
   departmentId?: number | null
-): Program[] => {
+): ProgramResponse[] => {
   if (!departmentId) return [];
   return programs.filter(
     (program) =>
@@ -38,7 +38,7 @@ export const filterActivePrograms = (
  * @returns Array of program IDs
  */
 export const getDepartmentProgramIds = (
-  programs: Program[] = [],
+  programs: ProgramResponse[] = [],
   departmentId?: number | null
 ): number[] => {
   const departmentPrograms = filterProgramsByDepartment(programs, departmentId);
@@ -52,9 +52,9 @@ export const getDepartmentProgramIds = (
  * @returns Array of programs belonging to the department
  */
 export const getDepartmentPrograms = (
-  programs: Program[] = [],
+  programs: ProgramResponse[] = [],
   departmentId?: number | null
-): Program[] => {
+): ProgramResponse[] => {
   if (!departmentId) return [];
   return filterProgramsByDepartment(programs, departmentId);
 };
@@ -66,9 +66,9 @@ export const getDepartmentPrograms = (
  * @returns Filtered array of active programs with no pending counterparts
  */
 export const filterActiveNoPendingPrograms = (
-  programs: Program[] = [],
+  programs: ProgramResponse[] = [],
   departmentId?: number | null
-): Program[] => {
+): ProgramResponse[] => {
   if (!departmentId) return [];
 
   // Step 1: Get all active programs in the department
