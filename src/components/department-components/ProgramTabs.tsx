@@ -1,6 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, Clock, FileEdit } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import ProgramCard from "../commons/card/ProgramCard";
 import usePrograms from "@/hooks/department/useProgram";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
@@ -9,6 +11,10 @@ import useProgramProposals from "@/hooks/department/useProgramProposal";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import {
+  filterActivePrograms,
+  getDepartmentProgramIds,
+} from "@/app/utils/department/programFilter";
 
 export default function ProgramTabs() {
   const { programs = [], isLoading: programsLoading } = usePrograms();
@@ -22,24 +28,13 @@ export default function ProgramTabs() {
   const departmentId = session?.Department?.id;
 
   // get all the programs that has the same department with the session
-  // Filter programs and proposals by department
-  const departmentPrograms = departmentId
-    ? programs.filter((program) => program?.department?.id === departmentId)
-    : [];
-
   // Filter active programs by department - with null checks
-  const activePrograms = departmentId
-    ? departmentPrograms.filter(
-        (program) =>
-          program?.department?.id === departmentId &&
-          program.status === "active"
-      )
-    : [];
+  const activePrograms = filterActivePrograms(programs, departmentId);
 
   // Get all department program IDs for filtering proposals
-  const departmentProgramIds = departmentPrograms.map((program) => program.id);
+  const departmentProgramIds = getDepartmentProgramIds(programs, departmentId);
 
-  // Filter program proposals using program IDs from department programs
+  // Filter programs and proposals by department
   const departmentProposals = programProposals.filter((proposal) =>
     departmentProgramIds.includes(proposal?.program?.id)
   );
@@ -58,23 +53,24 @@ export default function ProgramTabs() {
     if (type === "program") {
       router.push(`/department/programs/${id}`);
     } else {
-      router.push(`/department/program-proposals/${id}`);
+      router.push(`/department/proposals/${id}`);
+      // router.push(`/department/proposals/${id}`);
     }
   };
 
   const handleEdit = (id: number) => {
-    router.push(`/department/program-proposals/${id}/edit`);
+    router.push(`/department/proposals/${id}/edit-proposal`);
   };
 
-  const handleReview = (id: number) => {
-    router.push(`/department/program-proposals/${id}/review`);
-  };
+  // const handleReview = (id: number) => {
+  //   router.push(`/department/proposals/${id}/review`);
+  // };
 
   const isLoading = programsLoading || proposalsLoading;
 
   // Function to navigate to the new proposal page
   const navigateToNewProposal = () => {
-    router.push("/department/program-proposals/new");
+    router.push("/department/proposals/new-program");
   };
 
   // Show the add button in the header only for the active tab IF that tab has content
@@ -115,13 +111,16 @@ export default function ProgramTabs() {
           </h2>
 
           {isLoading ? (
-            <div>Loading...</div>
+            <>
+              <Skeleton className="w-full h-52" />
+              <Skeleton className="w-full h-52" />
+            </>
           ) : (
             <>
               {activePrograms.length > 0 ? (
                 activePrograms.map((program) => (
                   <ProgramCard
-                    key={`program-${program.id}`}
+                    key={`${program.id}`}
                     program={program}
                     status="active"
                     onViewDetails={handleViewDetails}
@@ -154,7 +153,7 @@ export default function ProgramTabs() {
                     programProposal={proposal}
                     status="pending"
                     onViewDetails={handleViewDetails}
-                    onReview={handleReview}
+                    // onReview={handleReview}
                   />
                 ))
               ) : (

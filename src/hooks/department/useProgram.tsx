@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Program } from "@/types/model/Program";
+import { Program, ProgramResponse } from "@/types/model/Program";
 import { APIError } from "@/app/utils/errorHandler";
 import useApi from "../useApi";
 
@@ -20,7 +20,7 @@ const usePrograms = () => {
   } = useQuery({
     queryKey: ["programs"],
     queryFn: async () => {
-      const response = await api.get<{ data: Program[] }>(
+      const response = await api.get<{ data: ProgramResponse[] }>(
         "department/programs"
       );
 
@@ -46,6 +46,26 @@ const usePrograms = () => {
     },
   });
 
+  const getProgram = (id: number) => ({
+    queryKey: ["program", id],
+    queryFn: async () => {
+      const response = await api.get<{ data: ProgramResponse }>(
+        `department/programs/${id}`
+      );
+      return response.data.data;
+    },
+    enabled: !!id,
+  });
+
+  const getProgramFromCache = (id: number) => {
+    return {
+      queryKey: ["programs"],
+      select: (data: ProgramResponse[] | undefined) =>
+        data?.find((program) => program.id === id),
+      enabled: !!id,
+    };
+  };
+
   // update Program
 
   const updateProgram = useMutation<
@@ -61,7 +81,7 @@ const usePrograms = () => {
       queryClient.invalidateQueries({ queryKey: ["programs"] });
     },
     onError: (error) => {
-      throw new Error(getErrorMessage(error, "Failed to updated Program"));
+      throw new Error(getErrorMessage(error, "Failed to update Program"));
     },
   });
 
@@ -83,7 +103,7 @@ const usePrograms = () => {
       ]);
 
       queryClient.setQueryData<Program[]>(["programs"], (old) =>
-        old ? old.filter((faculty) => faculty.id !== id) : []
+        old ? old.filter((program) => program.id !== id) : []
       );
 
       return { previousPrograms };
@@ -92,7 +112,7 @@ const usePrograms = () => {
       if (context?.previousPrograms) {
         queryClient.setQueryData(["programs"], context.previousPrograms);
       }
-      throw new Error(getErrorMessage(error, "Failed to delete faculty"));
+      throw new Error(getErrorMessage(error, "Failed to delete course"));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["programs"] });
@@ -104,6 +124,8 @@ const usePrograms = () => {
     isLoading,
     error,
     createProgram,
+    getProgram,
+    getProgramFromCache,
     updateProgram,
     deleteProgram,
   };
