@@ -35,7 +35,7 @@ interface CurriculumCourse {
   descriptive_title: string;
 }
 
-export default function ActiveProgramReviewPage() {
+export default function PendingProgramReviewPage() {
   const params = useParams();
   const proposalId = Number(params.id);
   const { session } = useAuth();

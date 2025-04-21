@@ -12,7 +12,7 @@ import {
 interface ProgramHeaderProps {
   programName: string;
   programAbbreviation: string;
-  actionTaken: string | null;
+  actionTaken?: string | null;
   onApprove?: () => void;
   onRevise?: () => void;
   onReject?: () => void;

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Program } from "@/types/model/Program";
+import { Program, ProgramResponse } from "@/types/model/Program";
 import { APIError } from "@/app/utils/errorHandler";
 import useApi from "../useApi";
 
@@ -20,7 +20,7 @@ const usePrograms = () => {
   } = useQuery({
     queryKey: ["programs"],
     queryFn: async () => {
-      const response = await api.get<{ data: Program[] }>(
+      const response = await api.get<{ data: ProgramResponse[] }>(
         "department/programs"
       );
 
@@ -44,6 +44,17 @@ const usePrograms = () => {
     onError: (error) => {
       throw new Error(getErrorMessage(error, "Failed to create Program"));
     },
+  });
+
+  const getProgram = (id: number) => ({
+    queryKey: ["program", id],
+    queryFn: async () => {
+      const response = await api.get<{ data: ProgramResponse }>(
+        `department/programs/${id}`
+      );
+      return response.data.data;
+    },
+    enabled: !!id,
   });
 
   // update Program
@@ -104,6 +115,7 @@ const usePrograms = () => {
     isLoading,
     error,
     createProgram,
+    getProgram,
     updateProgram,
     deleteProgram,
   };

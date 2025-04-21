@@ -14,16 +14,14 @@ import { CourseCategories } from "@/components/commons/program-details/course-ca
 import { ProgramStructure } from "@/components/commons/program-details/program-structure";
 import { CurriculumCourses } from "@/components/commons/program-details/curriculum-courses";
 import { MappingTable } from "@/components/commons/program-details/mapping-table";
-import { ApproveDialog } from "@/components/commons/program-details/approve-dialog";
-import { RejectDialog } from "@/components/commons/program-details/reject-dialog";
-import { ReviseDialog } from "@/components/commons/program-details/revise-dialog";
+
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { useAuth } from "@/hooks/useAuth";
 
 // Import custom hooks and types
-import useProgramProposals from "@/hooks/department/useProgramProposal";
-import type { ProgramProposalResponse } from "@/types/model/ProgramProposal";
+import usePrograms from "@/hooks/department/useProgram";
+import { ProgramResponse } from "@/types/model/Program";
 
 interface CurriculumCourse {
   course_code: string;
@@ -37,24 +35,14 @@ interface CurriculumCourse {
 
 export default function ActiveProgramReviewPage() {
   const params = useParams();
-  const proposalId = Number(params.id);
+  const programId = Number(params.id);
   const { session } = useAuth();
   const role = (session as Session)?.Role;
 
   const [activeTab, setActiveTab] = useState("overview");
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [reviseDialogOpen, setReviseDialogOpen] = useState(false);
-  const [feedback, setFeedback] = useState("");
-  const [revisionRequests, setRevisionRequests] = useState<
-    { section: string; details: string }[]
-  >([]);
-  const [currentSection, setCurrentSection] = useState("");
-  const [currentDetails, setCurrentDetails] = useState("");
-  const [actionTaken, setActionTaken] = useState<string | null>(null);
 
   // Get program proposal hooks
-  const { getProgramProposal, updateProgramProposal } = useProgramProposals();
+  const { getProgram } = usePrograms();
 
   // Fetch program proposal data
   const {
@@ -62,8 +50,8 @@ export default function ActiveProgramReviewPage() {
     error,
     isLoading,
   } = useQuery({
-    ...getProgramProposal(proposalId),
-    enabled: !!proposalId,
+    ...getProgram(programId),
+    enabled: !!programId,
   });
 
   console.log("the fetched data:", programData);
@@ -98,95 +86,132 @@ export default function ActiveProgramReviewPage() {
 
   // Transform API data when it's loaded
   useEffect(() => {
-    if (
-      programData &&
-      programData.curriculum &&
-      programData.peos &&
-      programData.pos
-    ) {
+    if (programData) {
+      // Check if programData exists first
       transformApiData(programData);
     }
   }, [programData]);
 
   // Transform API data to the format expected by our components
-  const transformApiData = (data: ProgramProposalResponse) => {
+  // ...existing code...
+
+  // Transform API data to the format expected by our components
+  const transformApiData = (data: ProgramResponse) => {
     if (!data) return;
-    // Extract unique semesters
-    const uniqueSemesters = new Map();
-    data?.curriculum.courses.forEach((course) => {
-      const key = `${course.semester.year}-${course.semester.sem}`;
-      if (!uniqueSemesters.has(key)) {
-        uniqueSemesters.set(key, {
-          year: course.semester.year,
-          sem: course.semester.sem,
-        });
-      }
-    });
 
-    // Extract unique categories
-    const uniqueCategories = new Map();
-    data.curriculum.courses.forEach((course) => {
-      const key = course.category.code;
-      if (!uniqueCategories.has(key)) {
-        uniqueCategories.set(key, {
-          name: course.category.name,
-          code: course.category.code,
-        });
-      }
-    });
+    // Extract unique semesters from curriculum
+    const semestersSet = new Set<string>();
+    const categoriesSet = new Set<string>();
+    const coursesMap = new Map();
+    const curriculumCourses: Array<{
+      course_code: string;
+      category_code: string;
+      semester_year: number;
+      semester_name: string;
+      units: number;
+    }> = [];
 
-    // Extract unique courses
-    const uniqueCourses = new Map();
-    data.curriculum.courses.forEach((course) => {
-      const key = course.course.code;
-      if (!uniqueCourses.has(key)) {
-        uniqueCourses.set(key, {
-          code: course.course.code,
-          descriptive_title: course.course.descriptive_title,
-        });
-      }
-    });
+    // Extract PEO mission mappings
+    const peoMissionMappings: Array<{ peo_index: number; mission_id: number }> =
+      [];
+    const gaPeoMappings: Array<{ peo_index: number; ga_id: number }> = [];
+    const poPeoMappings: Array<{ po_index: number; peo_index: number }> = [];
+    const poGaMappings: Array<{ po_index: number; ga_id: number }> = [];
+    const coursePOMappings: Array<{
+      course_code: string;
+      po_code: string;
+      ird: string[];
+    }> = [];
 
-    // Extract unique missions
-    const uniqueMissions = new Map();
-    data.peos.forEach((peo) => {
-      peo.missions.forEach((mission) => {
-        if (!uniqueMissions.has(mission.mission_no)) {
-          uniqueMissions.set(mission.mission_no, {
-            id: mission.mission_no,
+    // Extract missions from PEOs
+    const missionsSet = new Set<number>();
+    const missions: Array<{ id: number; statement: string }> = [];
+
+    // Process courses from curriculum
+    if (data.curriculum?.courses) {
+      data.curriculum.courses.forEach((item) => {
+        // Extract semesters
+        semestersSet.add(`${item.semester.year}-${item.semester.sem}`);
+
+        // Extract categories
+        categoriesSet.add(item.category.code);
+
+        // Store courses
+        coursesMap.set(item.course.code, {
+          code: item.course.code,
+          descriptive_title: item.course.descriptive_title,
+        });
+
+        // Store curriculum courses
+        curriculumCourses.push({
+          course_code: item.course.code,
+          category_code: item.category.code,
+          semester_year: item.semester.year,
+          semester_name: item.semester.sem,
+          units: parseFloat(item.units),
+        });
+
+        // Process course-PO mappings
+        if (item.po_mappings) {
+          item.po_mappings.forEach((mapping) => {
+            // Check if this course-PO mapping already exists
+            const existingMapping = coursePOMappings.find(
+              (m) =>
+                m.course_code === item.course.code &&
+                m.po_code === mapping.po_name
+            );
+
+            if (existingMapping) {
+              // Add IRD level if not already present
+              if (!existingMapping.ird.includes(mapping.ird)) {
+                existingMapping.ird.push(mapping.ird);
+              }
+            } else {
+              // Create new mapping
+              coursePOMappings.push({
+                course_code: item.course.code,
+                po_code: mapping.po_name,
+                ird: [mapping.ird],
+              });
+            }
+          });
+        }
+      });
+    }
+
+    // Process PEO mappings
+    data.peos?.forEach((peo, peoIndex) => {
+      // Process PEO-mission mappings
+      peo.missions?.forEach((mission) => {
+        peoMissionMappings.push({
+          peo_index: peoIndex,
+          mission_id: mission.id,
+        });
+
+        // Collect unique missions
+        if (!missionsSet.has(mission.id)) {
+          missionsSet.add(mission.id);
+          missions.push({
+            id: mission.id,
             statement: mission.description,
           });
         }
       });
-    });
 
-    // Create PEO to Mission mappings
-    const peoMissionMappings: { peo_index: number; mission_id: number }[] = [];
-    data.peos.forEach((peo, peoIndex) => {
-      peo.missions.forEach((mission) => {
-        peoMissionMappings.push({
-          peo_index: peoIndex,
-          mission_id: mission.mission_no,
-        });
-      });
-    });
-
-    // Create GA to PEO mappings
-    const gaPeoMappings: { peo_index: number; ga_id: number }[] = [];
-    data.peos.forEach((peo, peoIndex) => {
-      peo.graduate_attributes.forEach((ga) => {
+      // Process PEO-GA mappings
+      peo.graduate_attributes?.forEach((ga) => {
         gaPeoMappings.push({
           peo_index: peoIndex,
-          ga_id: ga.ga_no,
+          ga_id: ga.id,
         });
       });
     });
 
-    // Create PO to PEO mappings
-    const poPeoMappings: { po_index: number; peo_index: number }[] = [];
-    data.pos.forEach((po, poIndex) => {
-      po.peos.forEach((peo) => {
-        // Find the index of this PEO in the peos array
+    // Process PO mappings
+    data.pos?.forEach((po, poIndex) => {
+      // Process PO-PEO mappings
+      po.peos?.forEach((peo) => {
+        // Find the index of this PEO in the data.peos array
         const peoIndex = data.peos.findIndex((p) => p.id === peo.id);
         if (peoIndex !== -1) {
           poPeoMappings.push({
@@ -195,72 +220,65 @@ export default function ActiveProgramReviewPage() {
           });
         }
       });
-    });
 
-    // Create PO to GA mappings
-    const poGaMappings: { po_index: number; ga_id: number }[] = [];
-    data.pos.forEach((po, poIndex) => {
-      po.graduate_attributes.forEach((ga) => {
+      // Process PO-GA mappings
+      po.graduate_attributes?.forEach((ga) => {
         poGaMappings.push({
           po_index: poIndex,
-          ga_id: ga.ga_no,
+          ga_id: ga.id,
         });
       });
     });
 
-    // Create Course to PO mappings
-    const coursePOMappings: {
-      course_code: string;
-      po_code: string;
-      ird: string[];
-    }[] = [];
-    data.curriculum.courses.forEach((course) => {
-      course.po_mappings.forEach((mapping) => {
-        // Find the PO by ID
-        const po = data.pos.find((p) => p.id === mapping.po_id);
-        if (po) {
-          coursePOMappings.push({
-            course_code: course.course.code,
-            po_code: po.name,
-            ird: [mapping.ird], // Convert single IRD to array format
-          });
-        }
-      });
+    // Convert semesters set to array
+    const semesters = Array.from(semestersSet).map((semString) => {
+      const [year, sem] = semString.split("-");
+      return { year: parseInt(year), sem };
     });
 
-    // Create curriculum courses
-    const curriculumCourses = data.curriculum.courses.map((course) => ({
-      course_code: course.course.code,
-      category_code: course.category.code,
-      semester_year: course.semester.year,
-      semester_name: course.semester.sem,
-      units: Number.parseFloat(course.units),
-    }));
+    // Convert categories set to array
+    const course_categories = Array.from(categoriesSet).map((code) => {
+      // Find the matching category from curriculum
+      const categoryData = data.curriculum?.courses.find(
+        (c) => c.category.code === code
+      )?.category;
 
-    // Set the transformed data
-    setTransformedData({
+      return {
+        code: code,
+        name: categoryData?.name || code,
+      };
+    });
+
+    // Initialize with empty values
+    const transformedResult = {
       program: {
-        name: data.program.name,
-        abbreviation: data.program.abbreviation,
+        name: data.name,
+        abbreviation: data.abbreviation,
       },
-      peos: data.peos.map((peo) => ({ statement: peo.statement })),
-      pos: data.pos.map((po) => ({
-        name: po.name,
-        statement: po.statement,
-      })),
-      curriculum: { name: data.curriculum.name },
-      semesters: Array.from(uniqueSemesters.values()),
-      course_categories: Array.from(uniqueCategories.values()),
-      courses: Array.from(uniqueCourses.values()),
+      peos: data.peos?.map((peo) => ({ statement: peo.statement })) || [],
+      pos:
+        data.pos?.map((po) => ({
+          name: po.name,
+          statement: po.statement,
+        })) || [],
+      curriculum: { name: data.curriculum?.name || "" },
+      semesters,
+      course_categories,
+      courses: Array.from(coursesMap.values()),
       curriculum_courses: curriculumCourses,
       peo_mission_mappings: peoMissionMappings,
       ga_peo_mappings: gaPeoMappings,
       po_peo_mappings: poPeoMappings,
       po_ga_mappings: poGaMappings,
       course_po_mappings: coursePOMappings,
-      missions: Array.from(uniqueMissions.values()),
-    });
+      missions,
+    };
+
+    // Set the transformed data
+    setTransformedData(transformedResult);
   };
+
+  // ...existing code...
 
   // Get semester display name
   const getSemesterName = (semesterCode: string) => {
@@ -314,87 +332,6 @@ export default function ActiveProgramReviewPage() {
         };
       });
   });
-
-  // Handle approve action
-  const handleApprove = () => {
-    setConfirmDialogOpen(true);
-  };
-
-  // Confirm approval
-  const confirmApprove = async () => {
-    try {
-      await updateProgramProposal.mutateAsync({
-        id: proposalId,
-        updatedData: { status: "approved" },
-      });
-      setConfirmDialogOpen(false);
-      setActionTaken("approved");
-    } catch (error) {
-      console.error("Error approving program:", error);
-    }
-  };
-
-  // Handle reject action
-  const handleReject = () => {
-    setRejectDialogOpen(true);
-  };
-
-  // Confirm rejection
-  const confirmReject = async () => {
-    try {
-      await updateProgramProposal.mutateAsync({
-        id: proposalId,
-        updatedData: { status: "rejected", comment: feedback },
-      });
-      setRejectDialogOpen(false);
-      setActionTaken("rejected");
-    } catch (error) {
-      console.error("Error rejecting program:", error);
-    }
-  };
-
-  // Handle revise action
-  const handleRevise = () => {
-    setReviseDialogOpen(true);
-  };
-
-  // Add revision request
-  const addRevisionRequest = () => {
-    if (currentSection && currentDetails) {
-      setRevisionRequests([
-        ...revisionRequests,
-        { section: currentSection, details: currentDetails },
-      ]);
-      setCurrentSection("");
-      setCurrentDetails("");
-    }
-  };
-
-  // Remove revision request
-  const removeRevisionRequest = (index: number) => {
-    const updatedRequests = [...revisionRequests];
-    updatedRequests.splice(index, 1);
-    setRevisionRequests(updatedRequests);
-  };
-
-  // Confirm revision request
-  const confirmRevise = async () => {
-    try {
-      // Format the revision requests into a comment
-      const revisionComment = revisionRequests
-        .map((req) => `${req.section}: ${req.details}`)
-        .join("\n\n");
-
-      await updateProgramProposal.mutateAsync({
-        id: proposalId,
-        updatedData: { status: "revision", comment: revisionComment },
-      });
-      setReviseDialogOpen(false);
-      setActionTaken("revision");
-    } catch (error) {
-      console.error("Error requesting revisions:", error);
-    }
-  };
 
   // Prepare data for mapping tables
   const preparePEOToMissionMapping = () => {
@@ -510,10 +447,6 @@ export default function ActiveProgramReviewPage() {
       <ProgramHeader
         programName={transformedData.program.name}
         programAbbreviation={transformedData.program.abbreviation}
-        actionTaken={actionTaken || programData?.status || null}
-        onApprove={handleApprove}
-        onRevise={handleRevise}
-        onReject={handleReject}
         role={role}
       />
 
@@ -583,34 +516,6 @@ export default function ActiveProgramReviewPage() {
           />
         </TabsContent>
       </Tabs>
-
-      {/* Dialogs */}
-      <ApproveDialog
-        open={confirmDialogOpen}
-        onOpenChange={setConfirmDialogOpen}
-        onConfirm={confirmApprove}
-      />
-
-      <RejectDialog
-        open={rejectDialogOpen}
-        onOpenChange={setRejectDialogOpen}
-        feedback={feedback}
-        setFeedback={setFeedback}
-        onConfirm={confirmReject}
-      />
-
-      <ReviseDialog
-        open={reviseDialogOpen}
-        onOpenChange={setReviseDialogOpen}
-        currentSection={currentSection}
-        setCurrentSection={setCurrentSection}
-        currentDetails={currentDetails}
-        setCurrentDetails={setCurrentDetails}
-        revisionRequests={revisionRequests}
-        addRevisionRequest={addRevisionRequest}
-        removeRevisionRequest={removeRevisionRequest}
-        onConfirm={confirmRevise}
-      />
     </main>
   );
 }
