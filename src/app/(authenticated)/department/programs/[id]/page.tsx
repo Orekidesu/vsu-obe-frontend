@@ -96,109 +96,73 @@ export default function ActiveProgramReviewPage() {
   // ...existing code...
 
   // Transform API data to the format expected by our components
+
   const transformApiData = (data: ProgramResponse) => {
-    if (!data) return;
+    if (!data || !data.curriculum) return;
 
-    // Extract unique semesters from curriculum
-    const semestersSet = new Set<string>();
-    const categoriesSet = new Set<string>();
-    const coursesMap = new Map();
-    const curriculumCourses: Array<{
-      course_code: string;
-      category_code: string;
-      semester_year: number;
-      semester_name: string;
-      units: number;
-    }> = [];
-
-    // Extract PEO mission mappings
-    const peoMissionMappings: Array<{ peo_index: number; mission_id: number }> =
-      [];
-    const gaPeoMappings: Array<{ peo_index: number; ga_id: number }> = [];
-    const poPeoMappings: Array<{ po_index: number; peo_index: number }> = [];
-    const poGaMappings: Array<{ po_index: number; ga_id: number }> = [];
-    const coursePOMappings: Array<{
-      course_code: string;
-      po_code: string;
-      ird: string[];
-    }> = [];
-
-    // Extract missions from PEOs
-    const missionsSet = new Set<number>();
-    const missions: Array<{ id: number; statement: string }> = [];
-
-    // Process courses from curriculum
-    if (data.curriculum?.courses) {
-      data.curriculum.courses.forEach((item) => {
-        // Extract semesters
-        semestersSet.add(`${item.semester.year}-${item.semester.sem}`);
-
-        // Extract categories
-        categoriesSet.add(item.category.code);
-
-        // Store courses
-        coursesMap.set(item.course.code, {
-          code: item.course.code,
-          descriptive_title: item.course.descriptive_title,
+    // Extract unique semesters
+    const uniqueSemesters = new Map();
+    data.curriculum.courses.forEach((course) => {
+      const key = `${course.semester.year}-${course.semester.sem}`;
+      if (!uniqueSemesters.has(key)) {
+        uniqueSemesters.set(key, {
+          year: course.semester.year,
+          sem: course.semester.sem,
         });
+      }
+    });
 
-        // Store curriculum courses
-        curriculumCourses.push({
-          course_code: item.course.code,
-          category_code: item.category.code,
-          semester_year: item.semester.year,
-          semester_name: item.semester.sem,
-          units: parseFloat(item.units),
+    // Extract unique categories
+    const uniqueCategories = new Map();
+    data.curriculum.courses.forEach((course) => {
+      const key = course.category.code;
+      if (!uniqueCategories.has(key)) {
+        uniqueCategories.set(key, {
+          name: course.category.name,
+          code: course.category.code,
         });
+      }
+    });
 
-        // Process course-PO mappings
-        if (item.po_mappings) {
-          item.po_mappings.forEach((mapping) => {
-            // Check if this course-PO mapping already exists
-            const existingMapping = coursePOMappings.find(
-              (m) =>
-                m.course_code === item.course.code &&
-                m.po_code === mapping.po_name
-            );
+    // Extract unique courses
+    const uniqueCourses = new Map();
+    data.curriculum.courses.forEach((course) => {
+      const key = course.course.code;
+      if (!uniqueCourses.has(key)) {
+        uniqueCourses.set(key, {
+          code: course.course.code,
+          descriptive_title: course.course.descriptive_title,
+        });
+      }
+    });
 
-            if (existingMapping) {
-              // Add IRD level if not already present
-              if (!existingMapping.ird.includes(mapping.ird)) {
-                existingMapping.ird.push(mapping.ird);
-              }
-            } else {
-              // Create new mapping
-              coursePOMappings.push({
-                course_code: item.course.code,
-                po_code: mapping.po_name,
-                ird: [mapping.ird],
-              });
-            }
-          });
-        }
-      });
-    }
-
-    // Process PEO mappings
-    data.peos?.forEach((peo, peoIndex) => {
-      // Process PEO-mission mappings
+    // Extract unique missions
+    const uniqueMissions = new Map();
+    data.peos?.forEach((peo) => {
       peo.missions?.forEach((mission) => {
-        peoMissionMappings.push({
-          peo_index: peoIndex,
-          mission_id: mission.id,
-        });
-
-        // Collect unique missions
-        if (!missionsSet.has(mission.id)) {
-          missionsSet.add(mission.id);
-          missions.push({
+        if (!uniqueMissions.has(mission.id)) {
+          uniqueMissions.set(mission.id, {
             id: mission.id,
             statement: mission.description,
           });
         }
       });
+    });
 
-      // Process PEO-GA mappings
+    // Create PEO to Mission mappings
+    const peoMissionMappings: { peo_index: number; mission_id: number }[] = [];
+    data.peos?.forEach((peo, peoIndex) => {
+      peo.missions?.forEach((mission) => {
+        peoMissionMappings.push({
+          peo_index: peoIndex,
+          mission_id: mission.id,
+        });
+      });
+    });
+
+    // Create GA to PEO mappings
+    const gaPeoMappings: { peo_index: number; ga_id: number }[] = [];
+    data.peos?.forEach((peo, peoIndex) => {
       peo.graduate_attributes?.forEach((ga) => {
         gaPeoMappings.push({
           peo_index: peoIndex,
@@ -207,12 +171,12 @@ export default function ActiveProgramReviewPage() {
       });
     });
 
-    // Process PO mappings
+    // Create PO to PEO mappings
+    const poPeoMappings: { po_index: number; peo_index: number }[] = [];
     data.pos?.forEach((po, poIndex) => {
-      // Process PO-PEO mappings
       po.peos?.forEach((peo) => {
-        // Find the index of this PEO in the data.peos array
-        const peoIndex = data.peos.findIndex((p) => p.id === peo.id);
+        // Find the index of this PEO in the peos array
+        const peoIndex = data.peos?.findIndex((p) => p.id === peo.id) || -1;
         if (peoIndex !== -1) {
           poPeoMappings.push({
             po_index: poIndex,
@@ -220,8 +184,11 @@ export default function ActiveProgramReviewPage() {
           });
         }
       });
+    });
 
-      // Process PO-GA mappings
+    // Create PO to GA mappings
+    const poGaMappings: { po_index: number; ga_id: number }[] = [];
+    data.pos?.forEach((po, poIndex) => {
       po.graduate_attributes?.forEach((ga) => {
         poGaMappings.push({
           po_index: poIndex,
@@ -230,27 +197,49 @@ export default function ActiveProgramReviewPage() {
       });
     });
 
-    // Convert semesters set to array
-    const semesters = Array.from(semestersSet).map((semString) => {
-      const [year, sem] = semString.split("-");
-      return { year: parseInt(year), sem };
+    // Create Course to PO mappings with IRD groups
+    const coursePOMappings: {
+      course_code: string;
+      po_code: string;
+      ird: string[];
+    }[] = [];
+
+    data.curriculum.courses.forEach((course) => {
+      course.po_mappings?.forEach((mapping) => {
+        // Check if this course-PO mapping already exists
+        const existingMapping = coursePOMappings.find(
+          (m) =>
+            m.course_code === course.course.code &&
+            m.po_code === mapping.po_name
+        );
+
+        if (existingMapping) {
+          // Add IRD level if not already present
+          if (!existingMapping.ird.includes(mapping.ird)) {
+            existingMapping.ird.push(mapping.ird);
+          }
+        } else {
+          // Create new mapping
+          coursePOMappings.push({
+            course_code: course.course.code,
+            po_code: mapping.po_name,
+            ird: [mapping.ird],
+          });
+        }
+      });
     });
 
-    // Convert categories set to array
-    const course_categories = Array.from(categoriesSet).map((code) => {
-      // Find the matching category from curriculum
-      const categoryData = data.curriculum?.courses.find(
-        (c) => c.category.code === code
-      )?.category;
+    // Create curriculum courses
+    const curriculumCourses = data.curriculum.courses.map((course) => ({
+      course_code: course.course.code,
+      category_code: course.category.code,
+      semester_year: course.semester.year,
+      semester_name: course.semester.sem,
+      units: parseFloat(course.units),
+    }));
 
-      return {
-        code: code,
-        name: categoryData?.name || code,
-      };
-    });
-
-    // Initialize with empty values
-    const transformedResult = {
+    // Set the transformed data
+    setTransformedData({
       program: {
         name: data.name,
         abbreviation: data.abbreviation,
@@ -262,20 +251,17 @@ export default function ActiveProgramReviewPage() {
           statement: po.statement,
         })) || [],
       curriculum: { name: data.curriculum?.name || "" },
-      semesters,
-      course_categories,
-      courses: Array.from(coursesMap.values()),
+      semesters: Array.from(uniqueSemesters.values()),
+      course_categories: Array.from(uniqueCategories.values()),
+      courses: Array.from(uniqueCourses.values()),
       curriculum_courses: curriculumCourses,
       peo_mission_mappings: peoMissionMappings,
       ga_peo_mappings: gaPeoMappings,
       po_peo_mappings: poPeoMappings,
       po_ga_mappings: poGaMappings,
       course_po_mappings: coursePOMappings,
-      missions,
-    };
-
-    // Set the transformed data
-    setTransformedData(transformedResult);
+      missions: Array.from(uniqueMissions.values()),
+    });
   };
 
   // ...existing code...
