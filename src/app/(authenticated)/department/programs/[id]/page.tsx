@@ -361,6 +361,33 @@ export default function ActiveProgramReviewPage() {
     return { rowHeaders, columnHeaders, mappings };
   };
 
+  // PO GA
+  const preparePOToGAMapping = () => {
+    // Get all unique GA IDs from the mappings
+    const gaIds = [
+      ...new Set(transformedData.po_ga_mappings.map((m) => m.ga_id)),
+    ];
+
+    const rowHeaders = transformedData.pos.map((po, index) => ({
+      id: index,
+      label: po.name,
+      tooltip: po.statement,
+    }));
+
+    const columnHeaders = gaIds.map((gaId) => ({
+      id: gaId,
+      label: `GA${gaId}`,
+      tooltip: `Graduate Attribute ${gaId}`,
+    }));
+
+    const mappings = transformedData.po_ga_mappings.map((mapping) => ({
+      rowId: mapping.po_index,
+      colId: mapping.ga_id,
+    }));
+
+    return { rowHeaders, columnHeaders, mappings };
+  };
+  // PO PEO
   const preparePOToPEOMapping = () => {
     const rowHeaders = transformedData.pos.map((po, index) => ({
       id: index,
@@ -386,8 +413,7 @@ export default function ActiveProgramReviewPage() {
   const peoToMissionMapping = preparePEOToMissionMapping();
   const gaToPEOMapping = prepareGAToPEOMapping();
   const poToPEOMapping = preparePOToPEOMapping();
-  // const courseToPOMapping = prepareCourseToPOMapping();
-
+  const poToGAMapping = preparePOToGAMapping();
   // Show loading state
   if (isLoading) {
     return (
@@ -476,6 +502,12 @@ export default function ActiveProgramReviewPage() {
             rowHeaders={gaToPEOMapping.rowHeaders}
             columnHeaders={gaToPEOMapping.columnHeaders}
             mappings={gaToPEOMapping.mappings}
+          />
+          <MappingTable
+            title="PO to Graduate Attributes Mapping"
+            rowHeaders={poToGAMapping.rowHeaders}
+            columnHeaders={poToGAMapping.columnHeaders}
+            mappings={poToGAMapping.mappings}
           />
 
           <MappingTable
