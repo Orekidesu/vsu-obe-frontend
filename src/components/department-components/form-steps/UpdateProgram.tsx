@@ -6,12 +6,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Program } from "@/types/model/Program";
+import { ProgramResponse } from "@/types/model/Program";
 
 interface UpdateProgramStepProps {
   selectedProgram: string;
   setSelectedProgram: (program: string) => void;
-  activePrograms: Program[];
+  activePrograms: ProgramResponse[];
   programsLoading: boolean;
 }
 

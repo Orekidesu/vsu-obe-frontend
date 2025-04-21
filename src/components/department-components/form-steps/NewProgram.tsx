@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Program } from "@/types/model/Program";
+import { ProgramResponse } from "@/types/model/Program";
 
 interface NewProgramStepProps {
   programName: string;
@@ -8,7 +8,7 @@ interface NewProgramStepProps {
   setProgramName: (name: string) => void;
   setProgramAbbreviation: (abbreviation: string) => void;
   // activePrograms: Program[];
-  departmentPrograms: Program[];
+  departmentPrograms: ProgramResponse[];
 }
 
 export function NewProgramStep({
