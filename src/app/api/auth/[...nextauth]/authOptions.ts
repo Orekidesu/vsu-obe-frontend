@@ -1,6 +1,8 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { DefaultSession, NextAuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
+import { Faculty } from "@/types/model/Faculty";
+import { Department } from "@/types/model/Department";
 
 // Define a proper type for authenticated user
 interface AuthUser {
@@ -15,6 +17,8 @@ export interface Session extends DefaultSession {
   accessToken?: string;
   role?: string;
   Role?: string;
+  Faculty?: Faculty;
+  Department?: Department;
 }
 
 export const authOptions: NextAuthOptions = {

@@ -11,6 +11,35 @@ const getCustomPathname = (path: string) => {
         return "Unknown Path";
     }
   }
+
+  if (path.startsWith("/department")) {
+    switch (path) {
+      case "/department":
+        return "Dashboard";
+      case "/department/programs/all-programs":
+        return "All Programs";
+      case "/department/programs/archive":
+        return "Archived Programs";
+      case "/department/courses":
+        return "Courses";
+      case "/department/committees":
+        return "Committees";
+      case "/department/settings":
+        return "Settings";
+
+      // Not visible to side bar
+      case "/department/proposals/new-program":
+        return "Propose Program Page";
+
+      default:
+        if (path.startsWith("/department/programs")) {
+          return "Programs";
+        }
+        return "Dashboard";
+    }
+  }
+
+  return "Unknown Path";
 };
 
 export default getCustomPathname;

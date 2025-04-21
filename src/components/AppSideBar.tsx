@@ -8,6 +8,9 @@ import {
   LayoutDashboard,
   BookOpenText,
   ChevronDown,
+  LucideUsers,
+  GraduationCap,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -53,20 +56,38 @@ const roleMenuItems: Record<string, MenuItem[]> = {
   ],
   Dean: [{ title: "Dashboard", url: "/dean/dashboard", icon: LayoutDashboard }],
   Department: [
-    { title: "Dashboard", url: "/department/dashboard", icon: LayoutDashboard },
+    { title: "Dashboard", url: "/department", icon: LayoutDashboard },
     {
       title: "Programs",
       icon: BookOpenText,
       submenus: [
-        { title: "Manage Courses", url: "/department/manage-courses" },
-        { title: "Assign Instructors", url: "/department/assign-instructors" },
+        { title: "All Programs", url: "/department/programs/all-programs" },
+        // { title: "Active Programs", url: "/department/programs/active" },
+        // { title: "Pending Programs", url: "/department/programs/pending" },
+        // { title: "Add Program", url: "/department/programs/add" },
+        { title: "Archived", url: "/department/programs/archive" },
       ],
+    },
+    {
+      title: "Courses",
+      url: "/department/courses",
+      icon: GraduationCap,
+    },
+    {
+      title: "Committees",
+      url: "/department/committees",
+      icon: LucideUsers,
+    },
+    {
+      title: "Settings",
+      url: "/department/settings",
+      icon: Settings,
     },
   ],
 };
 
 interface AppSidebarProps {
-  role: string; 
+  role: string;
   session: { accessToken?: string };
 }
 
