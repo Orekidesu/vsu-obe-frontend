@@ -42,7 +42,7 @@ export default function ActiveProgramReviewPage() {
   const [activeTab, setActiveTab] = useState("overview");
 
   // Get program proposal hooks
-  const { getProgram } = usePrograms();
+  const { getProgramFromCache } = usePrograms();
 
   // Fetch program proposal data
   const {
@@ -50,7 +50,7 @@ export default function ActiveProgramReviewPage() {
     error,
     isLoading,
   } = useQuery({
-    ...getProgram(programId),
+    ...getProgramFromCache(programId),
     enabled: !!programId,
   });
 

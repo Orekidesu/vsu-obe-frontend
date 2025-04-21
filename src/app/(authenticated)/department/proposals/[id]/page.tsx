@@ -54,7 +54,8 @@ export default function PendingProgramReviewPage() {
   const [actionTaken, setActionTaken] = useState<string | null>(null);
 
   // Get program proposal hooks
-  const { getProgramProposal, updateProgramProposal } = useProgramProposals();
+  const { getProgramProposalFromCache, updateProgramProposal } =
+    useProgramProposals();
 
   // Fetch program proposal data
   const {
@@ -62,7 +63,7 @@ export default function PendingProgramReviewPage() {
     error,
     isLoading,
   } = useQuery({
-    ...getProgramProposal(proposalId),
+    ...getProgramProposalFromCache(proposalId),
     enabled: !!proposalId,
   });
 
