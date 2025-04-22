@@ -15,6 +15,9 @@ interface AuthUser {
 // Extend the default session type
 export interface Session extends DefaultSession {
   accessToken?: string;
+  First_Name?: string;
+  Last_Name?: string;
+  Email?: string;
   role?: string;
   Role?: string;
   Faculty?: Faculty;
