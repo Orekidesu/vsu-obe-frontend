@@ -7,6 +7,8 @@ const getCustomPathname = (path: string) => {
         return "Faculties and Departments";
       case "/admin/user-management":
         return "User Management";
+      case "/admin/settings":
+        return "Settings";
       default:
         return "Unknown Path";
     }

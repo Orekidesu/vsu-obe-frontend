@@ -67,8 +67,6 @@ export default function PendingProgramReviewPage() {
     enabled: !!proposalId,
   });
 
-  console.log("the fetched data:", programData);
-
   // Transformed data for components
   const [transformedData, setTransformedData] = useState({
     program: { name: "", abbreviation: "" },
