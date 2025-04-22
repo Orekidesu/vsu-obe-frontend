@@ -30,7 +30,13 @@ const passwordSchema = z
 
 // Define the type from the schema
 type PasswordFormValues = z.infer<typeof passwordSchema>;
-
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
 export function ChangePasswordForm() {
   const { toast } = useToast();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -75,9 +81,10 @@ export function ChangePasswordForm() {
         return;
       }
       form.reset();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       const errorMessage =
-        error.response?.data?.message ||
+        apiError.response?.data?.message ||
         "There was a problem changing your password. Please try again.";
       toast({
         title: "Error",
