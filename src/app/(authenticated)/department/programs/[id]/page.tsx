@@ -54,8 +54,6 @@ export default function ActiveProgramReviewPage() {
     enabled: !!programId,
   });
 
-  console.log("the fetched data:", programData);
-
   // Transformed data for components
   const [transformedData, setTransformedData] = useState({
     program: { name: "", abbreviation: "" },
