@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+import useApi from "@/hooks/useApi";
 // Define the schema for password change form
 const passwordSchema = z
   .object({
@@ -36,6 +37,8 @@ export function ChangePasswordForm() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const api = useApi();
+
   // Initialize the form with React Hook Form and Zod validation
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
@@ -50,20 +53,35 @@ export function ChangePasswordForm() {
   const onSubmit = async (data: PasswordFormValues) => {
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      toast({
-        title: "Password updated",
-        description: "Your password has been changed successfully.",
+      const response = await api.post("/change-password", {
+        current_password: data.currentPassword,
+        password: data.newPassword,
+        password_confirmation: data.newPassword,
       });
 
-      // Reset form
+      if (response.status === 200) {
+        toast({
+          title: "Password updated",
+          description: "Your password has been changed successfully.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description:
+            "Failed to change password. " + response.data?.message ||
+            "Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
       form.reset();
-    } catch {
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "There was a problem changing your password. Please try again.";
       toast({
         title: "Error",
-        description:
-          "There was a problem changing your password. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }

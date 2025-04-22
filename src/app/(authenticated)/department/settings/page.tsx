@@ -40,8 +40,6 @@ export default function SettingsPage() {
     }
   }, [user]);
 
-  console.log(user);
-
   const updateUserInfo = (updatedInfo: Partial<typeof formattedUser>) => {
     setFormattedUser({ ...formattedUser, ...updatedInfo });
   };
