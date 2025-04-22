@@ -11,23 +11,40 @@ import {
 } from "@/components/ui/card";
 import { PersonalInfoForm } from "@/components/commons/settings/personal-info-form";
 import { ChangePasswordForm } from "@/components/commons/settings/change-password-form";
-// import { UserCog } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { getUserData, getUserRole } from "@/app/utils/commons/userDataHandler";
+import { useEffect } from "react";
 
-// Mock user data - in a real app, this would come from your auth system
-const mockUser = {
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@example.com",
-  role: "Administrator",
+const defaultUser = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  role: "",
 };
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("account");
-  const [user, setUser] = useState(mockUser);
+
+  const { session } = useAuth();
+  const [user, setUser] = useState(defaultUser);
+
+  useEffect(() => {
+    if (session) {
+      const userData = getUserData(session);
+      const role = getUserRole(session);
+
+      setUser({
+        ...userData,
+        role,
+      });
+    }
+  }, [session]);
 
   const updateUserInfo = (updatedInfo: Partial<typeof user>) => {
     setUser({ ...user, ...updatedInfo });
   };
+
+  console.log(session);
 
   return (
     <div className="container mx-auto max-w-4xl">
