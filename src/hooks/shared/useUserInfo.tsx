@@ -9,7 +9,7 @@ interface UserInfo {
   Role: string;
 }
 
-const useUser = () => {
+const useUserInfo = () => {
   const api = useApi();
   const queryClient = useQueryClient();
 
@@ -58,4 +58,4 @@ const useUser = () => {
   };
 };
 
-export default useUser;
+export default useUserInfo;

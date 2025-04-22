@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 
 import { useEffect } from "react";
-import useUser from "@/hooks/shared/useUser";
+import useUserInfo from "@/hooks/shared/useUserInfo";
 
 // Define the schema for personal info form
 const personalInfoSchema = z.object({
@@ -45,7 +45,7 @@ export function PersonalInfoForm({
   updateUserInfo,
 }: PersonalInfoFormProps) {
   const { toast } = useToast();
-  const { updateUserInfo: updateUserMutation } = useUser();
+  const { updateUserInfo: updateUserMutation } = useUserInfo();
   // Initialize the form with React Hook Form and Zod validation
   const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),

@@ -12,7 +12,7 @@ import {
 import { PersonalInfoForm } from "@/components/commons/settings/personal-info-form";
 import { ChangePasswordForm } from "@/components/commons/settings/change-password-form";
 import { useEffect } from "react";
-import useUser from "@/hooks/shared/useUser";
+import useUserInfo from "@/hooks/shared/useUserInfo";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const defaultUser = {
@@ -26,7 +26,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("account");
 
   const [formattedUser, setFormattedUser] = useState(defaultUser);
-  const { user, isLoading } = useUser();
+  const { user, isLoading } = useUserInfo();
 
   // Transform API user data format to our component format
   useEffect(() => {
