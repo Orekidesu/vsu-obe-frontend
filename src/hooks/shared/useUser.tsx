@@ -33,7 +33,7 @@ const useUser = () => {
   // Change user information
   const updateUserInfo = useMutation<void, APIError, Partial<UserInfo>>({
     mutationFn: async (userData: Partial<UserInfo>) => {
-      const response = await api.put("change-user-info", {
+      const response = await api.post("change-user-info", {
         first_name: userData.First_Name,
         last_name: userData.Last_Name,
         email: userData.Role,
