@@ -90,7 +90,7 @@ export function CourseSearchForm({
                         course.code
                           .toLowerCase()
                           .includes(searchTerm.toLowerCase()) ||
-                        course.title
+                        course.descriptive_title
                           .toLowerCase()
                           .includes(searchTerm.toLowerCase())
                     )
@@ -98,7 +98,7 @@ export function CourseSearchForm({
                   .filter((course) => course.id !== undefined)
                   .map((course) => (
                     <SelectItem key={course.id} value={course.id.toString()}>
-                      {course.code} - {course.title}
+                      {course.code} - {course.descriptive_title}
                     </SelectItem>
                   ))
               )}

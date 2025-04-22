@@ -56,7 +56,7 @@ export interface CourseCategory {
 export interface Course {
   id: number;
   code: string;
-  title: string;
+  descriptive_title: string;
 }
 
 export type ContributionLevel = "I" | "R" | "D";

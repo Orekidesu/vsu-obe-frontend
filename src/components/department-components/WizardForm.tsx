@@ -21,7 +21,6 @@ import {
   getDepartmentPrograms,
 } from "@/app/utils/department/programFilter";
 
-import { filterCoursesByDepartment } from "@/app/utils/department/courseFilter";
 import { useAuth } from "@/hooks/useAuth";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 
@@ -58,7 +57,6 @@ export default function WizardForm() {
     academicYear,
     yearSemesters,
     courseCategories,
-    premadeCourses,
     curriculumCourses,
     courseToPOMappings,
     setFormType,
@@ -123,6 +121,7 @@ export default function WizardForm() {
     departmentId
   );
 
+  console.log(fetchedCourses);
   // Load graduate attributes when they are fetched
   useEffect(() => {
     if (fetchedGAs && fetchedGAs.length > 0) {
@@ -143,17 +142,13 @@ export default function WizardForm() {
   useEffect(() => {
     if (fetchedCourses && departmentId) {
       // Move the filtering logic inside the effect
-      const departmentCourses = filterCoursesByDepartment(
-        fetchedCourses,
-        departmentId
-      );
 
-      if (departmentCourses.length > 0) {
+      if (fetchedCourses.length > 0) {
         // Transform API courses to match the expected format if necessary
-        const formattedCourses = departmentCourses.map((course) => ({
+        const formattedCourses = fetchedCourses.map((course) => ({
           id: course.id,
           code: course.code,
-          title: course.descriptive_title,
+          descriptive_title: course.descriptive_title,
         }));
 
         // Update the store with fetched courses
@@ -217,7 +212,7 @@ export default function WizardForm() {
       curriculumCourses: curriculumCourses.map((course) => ({
         id: String(course.id), // Convert id to string
         code: course.code,
-        title: course.title,
+        title: course.descriptive_title,
         yearSemesterId: String(course.yearSemesterId), // Convert id to string
         categoryId: String(course.categoryId), // Convert id to string
         units: course.units,
@@ -473,7 +468,7 @@ export default function WizardForm() {
       {/* Step 12: Curriculum Courses */}
       {step === 12 && (
         <CurriculumCoursesStep
-          premadeCourses={premadeCourses}
+          premadeCourses={fetchedCourses || []}
           courseCategories={courseCategories}
           yearSemesters={yearSemesters}
           curriculumCourses={curriculumCourses}
