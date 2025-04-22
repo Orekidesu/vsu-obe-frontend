@@ -15,6 +15,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+import { useEffect } from "react";
+import useUser from "@/hooks/shared/useUser";
+
 // Define the schema for personal info form
 const personalInfoSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -42,7 +45,7 @@ export function PersonalInfoForm({
   updateUserInfo,
 }: PersonalInfoFormProps) {
   const { toast } = useToast();
-
+  const { updateUserInfo: updateUserMutation } = useUser();
   // Initialize the form with React Hook Form and Zod validation
   const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),
@@ -52,14 +55,26 @@ export function PersonalInfoForm({
       email: user.email,
     },
   });
+  // Update form values when user prop changes
+  useEffect(() => {
+    form.reset({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    });
+  }, [user, form]);
 
   // Handle form submission
   const onSubmit = async (data: PersonalInfoFormValues) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Convert form data to API format
+      await updateUserMutation.mutateAsync({
+        First_Name: data.firstName,
+        Last_Name: data.lastName,
+        Email: data.email,
+      });
 
-      // Update user info in parent component
+      // Update local state in parent component
       updateUserInfo(data);
 
       toast({
@@ -67,11 +82,17 @@ export function PersonalInfoForm({
         description: "Your personal information has been updated successfully.",
       });
     } catch {
+      updateUserInfo(user);
       toast({
         title: "Error",
         description:
           "There was a problem updating your information. Please try again.",
         variant: "destructive",
+      });
+      form.reset({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
       });
     }
   };
@@ -136,8 +157,8 @@ export function PersonalInfoForm({
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            Your role determines your permissions in the system. Contact an
-            administrator to change your role.
+            Your role determines your permissions in the system.You cannot edit
+            your role.
           </p>
         </div>
 

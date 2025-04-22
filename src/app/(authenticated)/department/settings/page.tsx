@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/card";
 import { PersonalInfoForm } from "@/components/commons/settings/personal-info-form";
 import { ChangePasswordForm } from "@/components/commons/settings/change-password-form";
-import { useAuth } from "@/hooks/useAuth";
-import { getUserData, getUserRole } from "@/app/utils/commons/userDataHandler";
 import { useEffect } from "react";
+import useUser from "@/hooks/shared/useUser";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const defaultUser = {
   firstName: "",
@@ -25,27 +25,53 @@ const defaultUser = {
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("account");
 
-  const { session } = useAuth();
-  const [user, setUser] = useState(defaultUser);
+  const [formattedUser, setFormattedUser] = useState(defaultUser);
+  const { user, isLoading } = useUser();
 
+  // Transform API user data format to our component format
   useEffect(() => {
-    if (session) {
-      const userData = getUserData(session);
-      const role = getUserRole(session);
-
-      setUser({
-        ...userData,
-        role,
+    if (user) {
+      setFormattedUser({
+        firstName: user.First_Name || "",
+        lastName: user.Last_Name || "",
+        email: user.Email || "",
+        role: user.Role || "",
       });
     }
-  }, [session]);
+  }, [user]);
 
-  const updateUserInfo = (updatedInfo: Partial<typeof user>) => {
-    setUser({ ...user, ...updatedInfo });
+  console.log(user);
+
+  const updateUserInfo = (updatedInfo: Partial<typeof formattedUser>) => {
+    setFormattedUser({ ...formattedUser, ...updatedInfo });
   };
 
-  console.log(session);
-
+  if (isLoading) {
+    return (
+      <div className="container mx-auto max-w-4xl">
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-[400px]" />
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-72" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Skeleton className="h-10" />
+                  <Skeleton className="h-10" />
+                </div>
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10 w-32" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="container mx-auto max-w-4xl">
       <Tabs
@@ -67,7 +93,10 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <PersonalInfoForm user={user} updateUserInfo={updateUserInfo} />
+              <PersonalInfoForm
+                user={formattedUser}
+                updateUserInfo={updateUserInfo}
+              />
             </CardContent>
           </Card>
         </TabsContent>
