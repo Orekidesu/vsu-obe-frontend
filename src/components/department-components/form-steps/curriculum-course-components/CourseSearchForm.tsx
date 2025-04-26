@@ -79,7 +79,8 @@ export function CourseSearchForm({
                 />
               </div>
               {premadeCourses.length === 0 ? (
-                <SelectItem value="" disabled>
+                <SelectItem value="no-courses" disabled>
+                  {/* <SelectItem value="" disabled> */}
                   No courses available
                 </SelectItem>
               ) : (

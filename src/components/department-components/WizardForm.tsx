@@ -363,7 +363,7 @@ export default function WizardForm() {
       </h1>
 
       {/* Step 1: Select form type */}
-      {step === 100 && (
+      {step === 1 && (
         <FormTypeStep formType={formType} setFormType={setFormType} />
       )}
 
@@ -502,7 +502,7 @@ export default function WizardForm() {
         />
       )}
       {/* Step 14: Committee Assignment */}
-      {step === 1 && (
+      {step === 14 && (
         <CommitteeAssignmentStep
           committees={committees}
           selectedCommittees={selectedCommittees}
