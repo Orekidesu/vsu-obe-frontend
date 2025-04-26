@@ -73,6 +73,12 @@ export interface CurriculumCourse extends Course {
   units: number;
 }
 
+export interface Committee {
+  id: number;
+  first_name: string;
+  last_name: string;
+}
+
 export interface WizardState {
   // Program info
   formType: string;
@@ -90,6 +96,8 @@ export interface WizardState {
   premadeCourses: Course[];
   curriculumCourses: CurriculumCourse[];
   courseToPOMappings: CourseToPOMapping[];
+  committees: Committee[];
+  selectedCommittees: number[];
 
   // Educational objectives
   peos: ProgramEducationalObjective[];
@@ -145,6 +153,9 @@ export interface WizardState {
   ) => void;
   removeCourseToPOMapping: (courseId: number, poId: number) => void;
   setPremadeCourses: (courses: Course[]) => void;
+  setSelectedCommittees: (committeeIds: number[]) => void;
+  addCommittee: (committeeId: number) => void;
+  removeCommittee: (committeeId: number) => void;
 
   // Actions - PEO related
   addPEO: () => void;
