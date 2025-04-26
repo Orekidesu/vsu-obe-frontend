@@ -533,6 +533,8 @@ export default function WizardForm() {
           gaToPEOMappings={gaToPEOMappings}
           poToPEOMappings={poToPEOMappings}
           poToGAMappings={poToGAMappings}
+          committees={committees}
+          selectedCommittees={selectedCommittees}
           goToStep={goToStep}
         />
       )}
