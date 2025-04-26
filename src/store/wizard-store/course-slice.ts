@@ -25,16 +25,16 @@ export const createCourseSlice: StateCreator<
 > = (set) => ({
   courseCategories: [{ id: 15, name: "Common Courses", code: "CC" }],
   premadeCourses: [
-    { id: 1, code: "CSIT 101", title: "Introduction to Computing" },
-    { id: 2, code: "CSIT 102", title: "Computer Programming 1" },
-    { id: 3, code: "CSIT 103", title: "Computer Programming 2" },
-    { id: 4, code: "MATH 101", title: "College Algebra" },
-    { id: 5, code: "MATH 102", title: "Trigonometry" },
-    { id: 6, code: "ENGL 101", title: "Communication Skills 1" },
-    { id: 7, code: "ENGL 102", title: "Communication Skills 2" },
-    { id: 8, code: "PHYS 101", title: "General Physics 1" },
-    { id: 9, code: "PHYS 102", title: "General Physics 2" },
-    { id: 10, code: "CHEM 101", title: "General Chemistry" },
+    { id: 1, code: "CSIT 101", descriptive_title: "Introduction to Computing" },
+    { id: 2, code: "CSIT 102", descriptive_title: "Computer Programming 1" },
+    { id: 3, code: "CSIT 103", descriptive_title: "Computer Programming 2" },
+    { id: 4, code: "MATH 101", descriptive_title: "College Algebra" },
+    { id: 5, code: "MATH 102", descriptive_title: "Trigonometry" },
+    { id: 6, code: "ENGL 101", descriptive_title: "Communication Skills 1" },
+    { id: 7, code: "ENGL 102", descriptive_title: "Communication Skills 2" },
+    { id: 8, code: "PHYS 101", descriptive_title: "General Physics 1" },
+    { id: 9, code: "PHYS 102", descriptive_title: "General Physics 2" },
+    { id: 10, code: "CHEM 101", descriptive_title: "General Chemistry" },
   ],
   curriculumCourses: [],
   courseToPOMappings: [],
@@ -114,7 +114,7 @@ export const createCourseSlice: StateCreator<
       };
     }),
 
-  addCourse: (code, title) => {
+  addCourse: (code, descriptive_title) => {
     // Generate a unique numeric ID based on existing courses
     let newId = 0;
     set((state) => {
@@ -124,7 +124,7 @@ export const createCourseSlice: StateCreator<
       // Add the new course to premade courses
       const updatedPremadeCourses = [
         ...state.premadeCourses,
-        { id: newId, code, title },
+        { id: newId, code, descriptive_title },
       ].sort((a, b) => a.code.localeCompare(b.code));
 
       return {
