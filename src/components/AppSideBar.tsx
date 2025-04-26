@@ -74,7 +74,7 @@ const roleMenuItems: Record<string, MenuItem[]> = {
       ],
     },
     {
-      title: "Courses",
+      title: "Manage Courses",
       url: "/department/courses",
       icon: GraduationCap,
     },
