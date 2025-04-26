@@ -194,7 +194,7 @@ export function CourseToPOMappingStep({
             <SelectContent>
               {curriculumCourses.map((course) => (
                 <SelectItem key={course.id} value={course.id.toString()}>
-                  {course.code} - {course.title}
+                  {course.code} - {course.descriptive_title}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -215,7 +215,7 @@ export function CourseToPOMappingStep({
               {
                 curriculumCourses.find(
                   (c) => c.id.toString() === selectedCourse
-                )?.title
+                )?.descriptive_title
               }
             </h3>
 
@@ -378,7 +378,7 @@ export function CourseToPOMappingStep({
                               <span>{course.code}</span>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{course.title}</p>
+                              <p>{course.descriptive_title}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>

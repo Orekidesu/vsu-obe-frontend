@@ -62,7 +62,7 @@ export function CurriculumCourseTable({
             {editingId === course.id ? (
               <>
                 <TableCell>{course.code}</TableCell>
-                <TableCell>{course.title}</TableCell>
+                <TableCell>{course.descriptive_title}</TableCell>
                 <TableCell>
                   <Select value={editCategory} onValueChange={setEditCategory}>
                     <SelectTrigger>
@@ -114,7 +114,7 @@ export function CurriculumCourseTable({
             ) : (
               <>
                 <TableCell>{course.code}</TableCell>
-                <TableCell>{course.title}</TableCell>
+                <TableCell>{course.descriptive_title}</TableCell>
                 <TableCell>
                   {courseCategories.find(
                     (category) => category.id.toString() === course.categoryId
