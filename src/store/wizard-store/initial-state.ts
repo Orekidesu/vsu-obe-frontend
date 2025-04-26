@@ -5,6 +5,7 @@ import {
   CourseToPOMapping,
   YearSemester,
   ProgramTemplate,
+  Committee,
 } from "./types";
 
 import { GraduateAttribute } from "@/types/model/GraduateAttributes";
@@ -35,16 +36,16 @@ export const initialPremadeCourseCategories: CourseCategory[] = [
 
 // Initial premade courses
 export const initialPremadeCourses: Course[] = [
-  { id: 1, code: "CSIT 101", title: "Introduction to Computing" },
-  { id: 2, code: "CSIT 102", title: "Computer Programming 1" },
-  { id: 3, code: "CSIT 103", title: "Computer Programming 2" },
-  { id: 4, code: "MATH 101", title: "College Algebra" },
-  { id: 5, code: "MATH 102", title: "Trigonometry" },
-  { id: 6, code: "ENGL 101", title: "Communication Skills 1" },
-  { id: 7, code: "ENGL 102", title: "Communication Skills 2" },
-  { id: 8, code: "PHYS 101", title: "General Physics 1" },
-  { id: 8, code: "PHYS 102", title: "General Physics 2" },
-  { id: 9, code: "CHEM 101", title: "General Chemistry" },
+  { id: 1, code: "CSIT 101", descriptive_title: "Introduction to Computing" },
+  { id: 2, code: "CSIT 102", descriptive_title: "Computer Programming 1" },
+  { id: 3, code: "CSIT 103", descriptive_title: "Computer Programming 2" },
+  { id: 4, code: "MATH 101", descriptive_title: "College Algebra" },
+  { id: 5, code: "MATH 102", descriptive_title: "Trigonometry" },
+  { id: 6, code: "ENGL 101", descriptive_title: "Communication Skills 1" },
+  { id: 7, code: "ENGL 102", descriptive_title: "Communication Skills 2" },
+  { id: 8, code: "PHYS 101", descriptive_title: "General Physics 1" },
+  { id: 8, code: "PHYS 102", descriptive_title: "General Physics 2" },
+  { id: 9, code: "CHEM 101", descriptive_title: "General Chemistry" },
 ];
 
 // Initial curriculum courses
@@ -67,6 +68,19 @@ export const predefinedYearSemesters = [
   { year: 4, semester: "first", label: "Year 4 - First Semester" },
   { year: 4, semester: "second", label: "Year 4 - Second Semester" },
   { year: 4, semester: "midyear", label: "Year 4 - Midyear" },
+];
+
+export const initialCommittees: Committee[] = [
+  { id: 1, first_name: "James", last_name: "Smith" },
+  { id: 2, first_name: "Maria", last_name: "Garcia" },
+  { id: 3, first_name: "Robert", last_name: "Johnson" },
+  { id: 4, first_name: "Lisa", last_name: "Wong" },
+  { id: 5, first_name: "David", last_name: "Kim" },
+  { id: 6, first_name: "Sarah", last_name: "Patel" },
+  { id: 7, first_name: "Michael", last_name: "Williams" },
+  { id: 8, first_name: "Jennifer", last_name: "Martinez" },
+  { id: 9, first_name: "Ahmed", last_name: "Ali" },
+  { id: 10, first_name: "Emily", last_name: "Chen" },
 ];
 
 export const createProgramTemplates = (): ProgramTemplate[] => {
