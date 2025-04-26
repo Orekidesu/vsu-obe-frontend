@@ -39,6 +39,7 @@ import { YearSemesterStep } from "./form-steps/YearSemester";
 import { CourseCategoriesStep } from "./form-steps/CC";
 import { CurriculumCoursesStep } from "./form-steps/CurriculumCourse";
 import { CourseToPOMappingStep } from "./form-steps/CourseToPOMapping";
+import { CommitteeAssignmentStep } from "./form-steps/CommitteeAssignment";
 import { ReviewStep } from "./form-steps/ReviewSteps";
 import useCourses from "@/hooks/department/useCourse";
 
@@ -97,6 +98,13 @@ export default function WizardForm() {
     poToPEOMappings,
     togglePOToPEOMapping,
     togglePOToGAMapping,
+
+    // ... existing destructured state
+    committees,
+    selectedCommittees,
+    setSelectedCommittees,
+    addCommittee,
+    removeCommittee,
   } = useWizardStore();
 
   const { programs, isLoading: programsLoading } = usePrograms();
@@ -257,7 +265,7 @@ export default function WizardForm() {
     // pwede mag add later
   };
   // Calculate progress percentage
-  const progressValue = (step / 14) * 100;
+  const progressValue = (step / 15) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -337,9 +345,14 @@ export default function WizardForm() {
       return courseToPOMappings.length > 0;
     }
     if (step === 14) {
+      // At least one committee is required
+      return selectedCommittees.length > 0;
+    }
+    if (step === 15) {
       // Review step is always valid
       return true;
     }
+
     return false;
   };
   console.log(activeNoPendingPrograms);
@@ -350,7 +363,7 @@ export default function WizardForm() {
       </h1>
 
       {/* Step 1: Select form type */}
-      {step === 1 && (
+      {step === 100 && (
         <FormTypeStep formType={formType} setFormType={setFormType} />
       )}
 
@@ -488,8 +501,19 @@ export default function WizardForm() {
           updateCourseToPOMapping={updateCourseToPOMapping}
         />
       )}
+      {/* Step 14: Committee Assignment */}
+      {step === 1 && (
+        <CommitteeAssignmentStep
+          committees={committees}
+          selectedCommittees={selectedCommittees}
+          addCommittee={addCommittee}
+          removeCommittee={removeCommittee}
+          setSelectedCommittees={setSelectedCommittees}
+        />
+      )}
+
       {/* Step 14: Review */}
-      {step === 14 && (
+      {step === 15 && (
         <ReviewStep
           formType={formType}
           programName={programName}
@@ -527,7 +551,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 14 && (
+          {step < 15 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -537,7 +561,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 14 && (
+          {step === 15 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
