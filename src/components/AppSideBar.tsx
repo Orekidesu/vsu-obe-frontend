@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import {
   LogOut,
@@ -36,6 +34,7 @@ import {
 import handleLogout from "@/app/utils/handleLogout";
 import Image from "next/image";
 import vsuLogo from "../../public/assets/images/vsu_logo.png";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 
 type MenuItem = {
   title: string;
@@ -67,9 +66,6 @@ const roleMenuItems: Record<string, MenuItem[]> = {
       icon: BookOpenText,
       submenus: [
         { title: "All Programs", url: "/department/programs/all-programs" },
-        // { title: "Active Programs", url: "/department/programs/active" },
-        // { title: "Pending Programs", url: "/department/programs/pending" },
-        // { title: "Add Program", url: "/department/programs/add" },
         { title: "Archived", url: "/department/programs/archive" },
       ],
     },
@@ -93,12 +89,59 @@ const roleMenuItems: Record<string, MenuItem[]> = {
 
 interface AppSidebarProps {
   role: string;
-  session: { accessToken?: string };
+  session: Session;
 }
 
 const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
   const pathname = usePathname();
   const roleBasedMenu = roleMenuItems[role] || [];
+
+  // Generate personalized display info based on role
+  const getPersonalizedDisplay = () => {
+    if (role === "Admin") {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">Admin</p>
+        </div>
+      );
+    } else if (role === "Dean" && session.Faculty) {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">{`Dean`}</p>
+          <p className="text-sm font-thin pt-2 ">{`${session.Faculty.name}`}</p>
+        </div>
+      );
+    } else if (role === "Department" && session.Department) {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">{`Department`}</p>
+          <p className="text-sm font-thin pt-2 ">
+            {`${session.Department.name}`}
+          </p>
+          <p className="text-sm font-thin ">{` (${session.Department.abbreviation})`}</p>
+        </div>
+      );
+    } else if (role === "Faculty" && session.Department) {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">{`Faculty`}</p>
+          <p className="text-sm font-thin pt-2 ">{`${session?.Department?.name}`}</p>
+          <p className="text-sm font-thin ">{` (${session?.Department?.abbreviation})`}</p>
+        </div>
+      );
+    }
+    // Fallback if no role-specific display is available
+    return (
+      <div className="flex flex-col items-center text-center">
+        <p className="font-semibold">{role}</p>
+        {session.First_Name && session.Last_Name && (
+          <p className="text-xs text-muted-foreground mt-1">
+            {`${session.First_Name} ${session.Last_Name}`}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   const renderMenuItem = (item: MenuItem) => (
     <SidebarMenuItem key={item.title}>
@@ -152,7 +195,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
             height={80}
             priority
           />
-          <p className="font-semibold">{role}</p>
+          {getPersonalizedDisplay()}
         </div>
       </SidebarHeader>
       <SidebarContent>
