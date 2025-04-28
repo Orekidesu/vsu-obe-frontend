@@ -13,7 +13,8 @@ import useProgramProposals from "@/hooks/department/useProgramProposal";
 import {
   createFullProgramProposalPayload,
   submitFullProgramProposalHandler,
-} from "@/app/utils/department/handleProgramPrposal";
+} from "@/app/utils/department/handleProgramProposal";
+import useUsers from "@/hooks/shared/useUser";
 import { useState as useFormErrorState } from "react";
 
 import {
@@ -40,6 +41,7 @@ import { CourseCategoriesStep } from "./form-steps/CC";
 import { CurriculumCoursesStep } from "./form-steps/CurriculumCourse";
 import { CourseToPOMappingStep } from "./form-steps/CourseToPOMapping";
 import { CommitteeAssignmentStep } from "./form-steps/CommitteeAssignment";
+import { CommitteeCourseAssignmentStep } from "./form-steps/CommitteeCourseAssignment";
 import { ReviewStep } from "./form-steps/ReviewSteps";
 import useCourses from "@/hooks/department/useCourse";
 
@@ -99,12 +101,16 @@ export default function WizardForm() {
     togglePOToPEOMapping,
     togglePOToGAMapping,
 
-    // ... existing destructured state
     committees,
     selectedCommittees,
     setSelectedCommittees,
+    committeeCourseAssignments,
     addCommittee,
     removeCommittee,
+    setCommittees,
+    assignCourseToCommittee,
+    removeCourseAssignment,
+    getCommitteeForCourse,
   } = useWizardStore();
 
   const { programs, isLoading: programsLoading } = usePrograms();
@@ -113,7 +119,9 @@ export default function WizardForm() {
     useGraduateAttributes({ role: "department" });
   const { courseCategories: fetchedCategories, isLoading: categoriesLoading } =
     useCourseCategories();
-
+  const { users: fetchedUsers, isLoading: usersLoading } = useUsers({
+    role: "department",
+  });
   const { courses: fetchedCourses, isLoading: coursesLoading } = useCourses();
 
   const { submitFullProgramProposal } = useProgramProposals();
@@ -129,7 +137,7 @@ export default function WizardForm() {
     departmentId
   );
 
-  console.log(fetchedCourses);
+  // GAS
   // Load graduate attributes when they are fetched
   useEffect(() => {
     if (fetchedGAs && fetchedGAs.length > 0) {
@@ -147,6 +155,7 @@ export default function WizardForm() {
     setPremadeCourseCategories,
   ]);
 
+  // Courses
   useEffect(() => {
     if (fetchedCourses && departmentId) {
       // Move the filtering logic inside the effect
@@ -166,6 +175,27 @@ export default function WizardForm() {
       }
     }
   }, [fetchedCourses, departmentId, setPremadeCourses]);
+
+  // Users/Committees
+  useEffect(() => {
+    if (fetchedUsers && fetchedUsers.length > 0) {
+      // Filter users who are staff or faculty (potential committee members)
+      const potentialCommittees = fetchedUsers.filter(
+        (user) => user.role?.name === "Staff" || user.role?.name === "Faculty"
+      );
+
+      // Transform users to Committee format
+      const formattedCommittees = potentialCommittees.map((user) => ({
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      }));
+
+      // Update the store with transformed committees
+      setCommittees(formattedCommittees);
+    }
+  }, [fetchedUsers, setCommittees]);
+
   const handleNext = () => {
     setStep(step + 1);
   };
@@ -230,6 +260,14 @@ export default function WizardForm() {
         poId: String(mapping.poId), // Convert id to string
         contributionLevels: mapping.contributionLevels,
       })),
+
+      selectedCommittees,
+      committeeCourseAssignments: committeeCourseAssignments.map(
+        (assignment) => ({
+          committeeId: assignment.committeeId,
+          courseId: String(assignment.courseId),
+        })
+      ),
     };
 
     // Transform data into the required payload format using the utility function
@@ -265,7 +303,7 @@ export default function WizardForm() {
     // pwede mag add later
   };
   // Calculate progress percentage
-  const progressValue = (step / 15) * 100;
+  const progressValue = (step / 16) * 100;
   const isStepValid = () => {
     if (step === 1) return !!formType;
     if (step === 2) {
@@ -349,13 +387,23 @@ export default function WizardForm() {
       return selectedCommittees.length > 0;
     }
     if (step === 15) {
+      // All courses must be assigned to committees
+      return (
+        curriculumCourses.length > 0 &&
+        curriculumCourses.every((course) =>
+          committeeCourseAssignments.some(
+            (assignment) => assignment.courseId === course.id
+          )
+        )
+      );
+    }
+    if (step === 16) {
       // Review step is always valid
       return true;
     }
 
     return false;
   };
-  console.log(activeNoPendingPrograms);
   return (
     <div className="w-full max-w-3xl mx-auto">
       <h1 className="text-4xl font-bold text-center text-green-600 mb-8">
@@ -509,11 +557,25 @@ export default function WizardForm() {
           addCommittee={addCommittee}
           removeCommittee={removeCommittee}
           setSelectedCommittees={setSelectedCommittees}
+          isLoading={usersLoading}
+        />
+      )}
+      {/* Step 15: Committee Course Assignment */}
+      {step === 15 && (
+        <CommitteeCourseAssignmentStep
+          committees={committees}
+          selectedCommittees={selectedCommittees}
+          curriculumCourses={curriculumCourses}
+          yearSemesters={yearSemesters}
+          committeeCourseAssignments={committeeCourseAssignments}
+          assignCourseToCommittee={assignCourseToCommittee}
+          removeCourseAssignment={removeCourseAssignment}
+          getCommitteeForCourse={getCommitteeForCourse}
         />
       )}
 
-      {/* Step 14: Review */}
-      {step === 15 && (
+      {/* Step 16: Review */}
+      {step === 16 && (
         <ReviewStep
           formType={formType}
           programName={programName}
@@ -535,6 +597,7 @@ export default function WizardForm() {
           poToGAMappings={poToGAMappings}
           committees={committees}
           selectedCommittees={selectedCommittees}
+          committeeCourseAssignments={committeeCourseAssignments}
           goToStep={goToStep}
         />
       )}
@@ -553,7 +616,7 @@ export default function WizardForm() {
         )}
 
         <div className="ml-auto">
-          {step < 15 && (
+          {step < 16 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -563,7 +626,7 @@ export default function WizardForm() {
             </Button>
           )}
 
-          {step === 15 && (
+          {step === 16 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}
