@@ -73,10 +73,16 @@ export const createCurriculumSlice: StateCreator<
         (mapping) => !removedCourseIds.includes(mapping.courseId)
       );
 
+      // Remove any committee course assignments associated with removed courses
+      const updatedCommitteeCourseAssignments =
+        state.committeeCourseAssignments.filter(
+          (assignment) => !removedCourseIds.includes(assignment.courseId)
+        );
       return {
         yearSemesters: state.yearSemesters.filter((ys) => ys.id !== id),
         curriculumCourses: updatedCurriculumCourses,
         courseToPOMappings: updatedCourseToPOMappings,
+        committeeCourseAssignments: updatedCommitteeCourseAssignments,
       };
     }),
 });

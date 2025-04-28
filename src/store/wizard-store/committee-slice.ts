@@ -1,6 +1,6 @@
 import { StateCreator } from "zustand";
 import { WizardState } from "./types";
-import { initialCommittees } from "./initial-state";
+import { initialCommitteeCourseAssignments } from "./initial-state";
 
 export const createCommitteeSlice: StateCreator<
   WizardState,
@@ -10,13 +10,24 @@ export const createCommitteeSlice: StateCreator<
     WizardState,
     | "committees"
     | "selectedCommittees"
+    | "committeeCourseAssignments"
+    | "setCommittees" // Add this new action
     | "setSelectedCommittees"
     | "addCommittee"
     | "removeCommittee"
+    | "assignCourseToCommittee"
+    | "removeCourseAssignment"
+    | "getCommitteeForCourse"
   >
-> = (set) => ({
-  committees: initialCommittees,
+> = (set, get) => ({
+  committees: [], // Start with empty array instead of initialCommittees
   selectedCommittees: [],
+  committeeCourseAssignments: initialCommitteeCourseAssignments,
+
+  // Add new action to set committees from API
+  setCommittees: (committees) => {
+    set({ committees });
+  },
 
   setSelectedCommittees: (committeeIds) => {
     set({ selectedCommittees: committeeIds.map((id) => id) });
@@ -28,11 +39,62 @@ export const createCommitteeSlice: StateCreator<
     }));
   },
 
-  removeCommittee: (committeeId) => {
+  removeCommittee: (committeeId) =>
+    set((state) => {
+      // Remove any course assignments for this committee
+      const updatedCommitteeCourseAssignments =
+        state.committeeCourseAssignments.filter(
+          (assignment) => assignment.committeeId !== committeeId
+        );
+
+      return {
+        selectedCommittees: state.selectedCommittees.filter(
+          (id) => id !== committeeId
+        ),
+        committeeCourseAssignments: updatedCommitteeCourseAssignments,
+      };
+    }),
+
+  // committee course assignment methods
+  assignCourseToCommittee: (committeeId, courseId) =>
+    set((state) => {
+      // Check if this course is already assigned to any committee
+      const existingAssignment = state.committeeCourseAssignments.find(
+        (assignment) => assignment.courseId === courseId
+      );
+
+      if (existingAssignment) {
+        // Update the existing assignment
+        return {
+          committeeCourseAssignments: state.committeeCourseAssignments.map(
+            (assignment) =>
+              assignment.courseId === courseId
+                ? { committeeId, courseId }
+                : assignment
+          ),
+        };
+      } else {
+        // Add a new assignment
+        return {
+          committeeCourseAssignments: [
+            ...state.committeeCourseAssignments,
+            { committeeId, courseId },
+          ],
+        };
+      }
+    }),
+
+  removeCourseAssignment: (courseId) =>
     set((state) => ({
-      selectedCommittees: state.selectedCommittees.filter(
-        (id) => id !== committeeId
+      committeeCourseAssignments: state.committeeCourseAssignments.filter(
+        (assignment) => assignment.courseId !== courseId
       ),
-    }));
+    })),
+
+  getCommitteeForCourse: (courseId) => {
+    const assignment = get().committeeCourseAssignments.find(
+      (a) => a.courseId === courseId
+    );
+    return assignment ? assignment.committeeId : null;
   },
 });

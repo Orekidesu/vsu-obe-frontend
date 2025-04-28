@@ -107,10 +107,17 @@ export const createCourseSlice: StateCreator<
         (mapping) => !removedCourseIds.includes(mapping.courseId)
       );
 
+      // Remove any committee course assignments associated with removed courses
+      const updatedCommitteeCourseAssignments =
+        state.committeeCourseAssignments.filter(
+          (assignment) => !removedCourseIds.includes(assignment.courseId)
+        );
+
       return {
         courseCategories: state.courseCategories.filter((cc) => cc.id !== id),
         curriculumCourses: updatedCurriculumCourses,
         courseToPOMappings: updatedCourseToPOMappings,
+        committeeCourseAssignments: updatedCommitteeCourseAssignments,
       };
     }),
 
@@ -211,6 +218,10 @@ export const createCourseSlice: StateCreator<
       // Also remove any course to PO mappings for this course
       courseToPOMappings: state.courseToPOMappings.filter(
         (mapping) => mapping.courseId !== id
+      ),
+      // Also remove any committee course assignments for this course
+      committeeCourseAssignments: state.committeeCourseAssignments.filter(
+        (assignment) => assignment.courseId !== id
       ),
     })),
 
