@@ -9,7 +9,7 @@ export function FinalConfirmation() {
       </div>
       <p>
         Please ensure all information is correct before submitting. Once
-        submitted, your program proposal will be sent for review and approval.
+        submitted, your program proposal will be sent in the pending section.
       </p>
     </div>
   );
