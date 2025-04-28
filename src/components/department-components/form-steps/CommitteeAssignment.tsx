@@ -22,6 +22,7 @@ interface CommitteeAssignmentStepProps {
   addCommittee: (committeeId: number) => void;
   removeCommittee: (committeeId: number) => void;
   setSelectedCommittees: (committeeIds: number[]) => void;
+  isLoading?: boolean;
 }
 
 export function CommitteeAssignmentStep({
@@ -30,6 +31,7 @@ export function CommitteeAssignmentStep({
   addCommittee,
   removeCommittee,
   setSelectedCommittees,
+  isLoading = false,
 }: CommitteeAssignmentStepProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -161,7 +163,25 @@ export function CommitteeAssignmentStep({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredCommittees.length === 0 ? (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    className="text-center py-6 text-muted-foreground"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-pulse flex space-x-2 items-center">
+                        <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                        <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                        <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                      </div>
+                      <span className="ml-2">
+                        Loading Available Committees...
+                      </span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : filteredCommittees.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={3}
@@ -216,8 +236,7 @@ export function CommitteeAssignmentStep({
             className="bg-amber-50 border-amber-200 text-amber-800"
           >
             <AlertDescription>
-              Please select at least one committee member to review this program
-              proposal.
+              Please select at least one committee member
             </AlertDescription>
           </Alert>
         )}
