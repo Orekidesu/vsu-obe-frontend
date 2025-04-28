@@ -19,7 +19,7 @@ import {
   Trash2,
   FileSearch2,
 } from "lucide-react";
-import useUsers from "@/hooks/admin/useUser";
+import useUsers from "@/hooks/shared/useUser";
 import CustomDropdown from "@/components/commons/dropdown/CustomDropdown";
 import CustomDialog from "@/components/commons/dialog/CustomDialog";
 import { CustomAlertDialog } from "@/components/commons/alert-dialog/CustomAlertDialog";
