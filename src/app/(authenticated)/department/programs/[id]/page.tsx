@@ -14,6 +14,7 @@ import { CourseCategories } from "@/components/commons/program-details/course-ca
 import { ProgramStructure } from "@/components/commons/program-details/program-structure";
 import { CurriculumCourses } from "@/components/commons/program-details/curriculum-courses";
 import { MappingTable } from "@/components/commons/program-details/mapping-table";
+// import { CommitteeAssignments } from "@/components/commons/program-details/committee-assignments";
 
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
