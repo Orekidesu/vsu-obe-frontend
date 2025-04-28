@@ -79,6 +79,11 @@ export interface Committee {
   last_name: string;
 }
 
+export interface CommitteeCourseAssignment {
+  committeeId: number;
+  courseId: number;
+}
+
 export interface WizardState {
   // Program info
   formType: string;
@@ -98,6 +103,7 @@ export interface WizardState {
   courseToPOMappings: CourseToPOMapping[];
   committees: Committee[];
   selectedCommittees: number[];
+  committeeCourseAssignments: CommitteeCourseAssignment[];
 
   // Educational objectives
   peos: ProgramEducationalObjective[];
@@ -156,6 +162,11 @@ export interface WizardState {
   setSelectedCommittees: (committeeIds: number[]) => void;
   addCommittee: (committeeId: number) => void;
   removeCommittee: (committeeId: number) => void;
+  setCommittees: (committees: Committee[]) => void;
+
+  assignCourseToCommittee: (committeeId: number, courseId: number) => void;
+  removeCourseAssignment: (courseId: number) => void;
+  getCommitteeForCourse: (courseId: number) => number | null;
 
   // Actions - PEO related
   addPEO: () => void;

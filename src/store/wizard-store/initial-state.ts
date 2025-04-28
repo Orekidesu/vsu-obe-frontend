@@ -6,6 +6,7 @@ import {
   YearSemester,
   ProgramTemplate,
   Committee,
+  CommitteeCourseAssignment,
 } from "./types";
 
 import { GraduateAttribute } from "@/types/model/GraduateAttributes";
@@ -82,6 +83,9 @@ export const initialCommittees: Committee[] = [
   { id: 9, first_name: "Ahmed", last_name: "Ali" },
   { id: 10, first_name: "Emily", last_name: "Chen" },
 ];
+
+export const initialCommitteeCourseAssignments: CommitteeCourseAssignment[] =
+  [];
 
 export const createProgramTemplates = (): ProgramTemplate[] => {
   // Helper function to create year-semester combinations
