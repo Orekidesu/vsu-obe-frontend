@@ -2,64 +2,11 @@ import { toast } from "@/hooks/use-toast";
 import { ProgramProposal } from "@/types/model/ProgramProposal";
 import { UseMutationResult } from "@tanstack/react-query";
 import { APIError, handleMutationError } from "../errorHandler";
-
+import {
+  FullProgramProposalPayload,
+  WizardFormData,
+} from "./programProposalPayload"; // Import from shared file
 // Define types for the full proposal payload
-
-interface FullProgramProposalPayload {
-  program: {
-    name: string;
-    abbreviation: string;
-  };
-  peos: Array<{ statement: string }>;
-  peo_mission_mappings: Array<{ peo_index: number; mission_id: number }>;
-  ga_peo_mappings: Array<{ peo_index: number; ga_id: number }>;
-  pos: Array<{ name: string; statement: string }>;
-  po_peo_mappings: Array<{ po_index: number; peo_index: number }>;
-  po_ga_mappings: Array<{ po_index: number; ga_id: number }>;
-  curriculum: { name: string };
-  semesters: Array<{ year: number; sem: string }>;
-  course_categories: Array<{ name: string; code: string }>;
-  courses: Array<{ code: string; descriptive_title: string }>;
-  curriculum_courses: Array<{
-    course_code: string;
-    category_code: string;
-    semester_year: number;
-    semester_name: string;
-    units: number;
-  }>;
-  course_po_mappings: Array<{
-    course_code: string;
-    po_code: string;
-    ird: string[];
-  }>;
-}
-// Define form data interface for better type safety
-interface WizardFormData {
-  programName: string;
-  programAbbreviation: string;
-  peos: Array<{ id: string; statement: string }>;
-  programOutcomes: Array<{ id: string; name: string; statement: string }>;
-  peoToMissionMappings: Array<{ peoId: string; missionId: number }>;
-  gaToPEOMappings: Array<{ peoId: string; gaId: number }>;
-  poToPEOMappings: Array<{ poId: string; peoId: string }>;
-  poToGAMappings: Array<{ poId: string; gaId: number }>;
-  curriculumName: string;
-  yearSemesters: Array<{ id: string; year: number; semester: string }>;
-  courseCategories: Array<{ id: string; name: string; code: string }>;
-  curriculumCourses: Array<{
-    id: string;
-    code: string;
-    title: string;
-    yearSemesterId: string;
-    categoryId: string;
-    units: number;
-  }>;
-  courseToPOMappings: Array<{
-    courseId: string;
-    poId: string;
-    contributionLevels: string[];
-  }>;
-}
 
 // create
 export const createProgramPrposalHandler = async (
@@ -160,7 +107,6 @@ export const deleteProgramProposalHandler = async (
   });
 };
 
-// Full program proposal
 // Submit full program proposal
 export const submitFullProgramProposalHandler = async (
   submitFullProposalMutation: UseMutationResult<
@@ -217,7 +163,40 @@ export const createFullProgramProposalPayload = (
     courseCategories,
     curriculumCourses,
     courseToPOMappings,
+    selectedCommittees,
+    committeeCourseAssignments,
   } = formData;
+
+  const committeeAssignmentMap = new Map<number, string[]>();
+
+  // Initialize maps for each selected committee
+  selectedCommittees.forEach((committeeId) => {
+    committeeAssignmentMap.set(committeeId, []);
+  });
+
+  // Group courses by committee ID
+  committeeCourseAssignments.forEach((assignment) => {
+    const courseCode =
+      curriculumCourses.find((course) => course.id === assignment.courseId)
+        ?.code || "";
+
+    if (courseCode) {
+      const existingCodes =
+        committeeAssignmentMap.get(assignment.committeeId) || [];
+      committeeAssignmentMap.set(assignment.committeeId, [
+        ...existingCodes,
+        courseCode,
+      ]);
+    }
+  });
+
+  // Convert the map to the required format
+  const committeeAssignments = Array.from(committeeAssignmentMap.entries())
+    .map(([committeeId, courseCodes]) => ({
+      user_id: committeeId,
+      course_codes: courseCodes,
+    }))
+    .filter((assignment) => assignment.course_codes.length > 0);
 
   return {
     program: {
@@ -288,5 +267,9 @@ export const createFullProgramProposalPayload = (
         ird: mapping.contributionLevels,
       };
     }),
+    committees: selectedCommittees.map((committeeId) => ({
+      user_id: committeeId,
+    })),
+    committee_course_assignments: committeeAssignments,
   };
 };
