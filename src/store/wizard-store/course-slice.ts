@@ -23,7 +23,7 @@ export const createCourseSlice: StateCreator<
     | "setPremadeCourses"
   >
 > = (set) => ({
-  courseCategories: [{ id: 15, name: "Common Courses", code: "CC" }],
+  courseCategories: [{ id: 15, name: "General Education", code: "GE" }],
   premadeCourses: [
     { id: 1, code: "CSIT 101", descriptive_title: "Introduction to Computing" },
     { id: 2, code: "CSIT 102", descriptive_title: "Computer Programming 1" },

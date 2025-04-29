@@ -15,7 +15,7 @@ import { GraduateAttribute } from "@/types/model/GraduateAttributes";
 export const defaultGraduateAttributes: GraduateAttribute[] = [];
 export const initialYearSemesters: YearSemester[] = [];
 export const initialCourseCategories: CourseCategory[] = [
-  { id: 15, name: "Common Courses", code: "CC" },
+  { id: 15, name: "General Education", code: "GE" },
 ];
 
 export const initialPremadeCourseCategories: CourseCategory[] = [
