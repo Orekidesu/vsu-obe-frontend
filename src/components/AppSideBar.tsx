@@ -85,6 +85,27 @@ const roleMenuItems: Record<string, MenuItem[]> = {
       icon: Settings,
     },
   ],
+  Faculty_Member: [
+    { title: "Dashboard", url: "/faculty", icon: LayoutDashboard },
+    {
+      title: "Syllabi",
+      icon: BookOpenText,
+      submenus: [
+        { title: "All Syllabi", url: "/faculty/syllabi/all-syllabi" },
+        { title: "Archived", url: "/faculty/syllabi/archive" },
+      ],
+    },
+    {
+      title: "Manage Courses",
+      url: "/faculty/courses",
+      icon: GraduationCap,
+    },
+    {
+      title: "Settings",
+      url: "/faculty/settings",
+      icon: Settings,
+    },
+  ],
 };
 
 interface AppSidebarProps {
@@ -121,12 +142,14 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
           <p className="text-sm font-thin ">{` (${session.Department.abbreviation})`}</p>
         </div>
       );
-    } else if (role === "Faculty" && session.Department) {
+    } else if (role === "Faculty_Member" && session.Department) {
       return (
         <div className="flex flex-col items-center text-center">
-          <p className="font-semibold">{`Faculty`}</p>
-          <p className="text-sm font-thin pt-2 ">{`${session?.Department?.name}`}</p>
-          <p className="text-sm font-thin ">{` (${session?.Department?.abbreviation})`}</p>
+          <p className="font-semibold">{`Faculty Member`}</p>
+          <p className="text-sm font-thin pt-2 ">
+            {`${session.Department.name}`}
+          </p>
+          <p className="text-sm font-thin ">{` (${session.Department.abbreviation})`}</p>
         </div>
       );
     }

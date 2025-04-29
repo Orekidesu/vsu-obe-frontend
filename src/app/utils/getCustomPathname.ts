@@ -41,6 +41,24 @@ const getCustomPathname = (path: string) => {
     }
   }
 
+  if (path.startsWith("/faculty")) {
+    switch (path) {
+      case "/faculty":
+        return "Dashboard";
+      case "/faculty/courses":
+        return "Course Management";
+      case "/faculty/syllabi/all-syllabi":
+        return "All Syllabi";
+      case "/faculty/syllabi/archive":
+        return "Archived Syllabi";
+      case "/faculty/settings":
+        return "Settings";
+
+      default:
+        return "Dashboard";
+    }
+  }
+
   return "Unknown Path";
 };
 
