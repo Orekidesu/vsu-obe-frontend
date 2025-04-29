@@ -179,9 +179,9 @@ export default function WizardForm() {
   // Users/Committees
   useEffect(() => {
     if (fetchedUsers && fetchedUsers.length > 0) {
-      // Filter users who are staff or faculty (potential committee members)
+      // Filter users who are faculty member or faculty (potential committee members)
       const potentialCommittees = fetchedUsers.filter(
-        (user) => user.role?.name === "Staff" || user.role?.name === "Faculty"
+        (user) => user.role?.name === "Faculty_Member"
       );
 
       // Transform users to Committee format

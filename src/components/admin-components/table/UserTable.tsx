@@ -169,7 +169,7 @@ const UserTable = () => {
   const roleColors: { [key: string]: string } = {
     Dean: "bg-green-200 text-green-800",
     Department: "bg-yellow-200 text-yellow-800",
-    Staff: "bg-orange-200 text-orange-800",
+    Faculty_Member: "bg-orange-200 text-orange-800",
   };
   return (
     <div className="w-full">

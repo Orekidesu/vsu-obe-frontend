@@ -189,7 +189,7 @@ const UserForm: React.FC<UserFormProps> = ({
       // When switching to "Dean," reset the department
       form.setValue("department_id", null);
     } else {
-      // When switching back to "Staff," restore the previous department value
+      // When switching back to "Faculty_Member," restore the previous department value
       form.setValue(
         "department_id",
         form.getValues("department_id") ?? undefined
