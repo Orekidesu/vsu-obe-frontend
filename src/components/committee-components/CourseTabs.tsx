@@ -1,39 +1,40 @@
-import { AlertCircle, FileEdit, BookOpen } from "lucide-react";
+import { AlertCircle, FileEdit, BookOpen, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CourseCard } from "@/components/commons/card/CourseCard";
-import { useState } from "react";
+import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 
-// Define types for the course data
-export interface CourseBase {
+// Define types for revision courses
+export interface RevisionCourse {
   id: string;
   code: string;
   title: string;
   category: string;
   yearSemester: string;
   units: number;
-}
-
-export type PendingCourse = CourseBase;
-
-export interface RevisionCourse extends CourseBase {
   revisionReason: string;
 }
 
 export function CourseTabs() {
-  // Dummy data for pending courses
-  const [pendingCourses] = useState<PendingCourse[]>([
-    {
-      id: "p1",
-      code: "CSCI 101",
-      title: "Introduction to Computer Science",
-      category: "Core Courses",
-      yearSemester: "Year 1 - First Semester",
-      units: 3,
-    },
-  ]);
+  // Fetch curriculum courses from API
+  const { curriculumCourses, isLoading, error } = useCurriculumCourses();
 
-  // Dummy data for courses needing revision
-  const [revisionCourses] = useState<RevisionCourse[]>([
+  // Format semester for display
+  const formatSemester = (year: number, sem: string): string => {
+    const semesterName =
+      sem === "first"
+        ? "First Semester"
+        : sem === "second"
+          ? "Second Semester"
+          : sem === "midyear"
+            ? "Midyear"
+            : sem;
+
+    return `Year ${year} - ${semesterName}`;
+  };
+
+  // In a real application, you'd have an endpoint for revision courses
+  // For now we'll use dummy data for the revision tab
+  const revisionCourses: RevisionCourse[] = [
     {
       id: "r1",
       code: "CSCI 301",
@@ -44,7 +45,7 @@ export function CourseTabs() {
       revisionReason:
         "Update learning outcomes to match new curriculum standards",
     },
-  ]);
+  ];
 
   // Handlers for course actions
   const handleAddDetails = (courseId: string) => {
@@ -75,28 +76,46 @@ export function CourseTabs() {
             <h3 className="text-xl font-semibold">Courses Pending Details</h3>
           </div>
 
-          {pendingCourses.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2">Loading courses...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center p-10 border rounded-lg bg-red-50">
+              <AlertCircle className="h-10 w-10 mx-auto mb-4 text-red-500" />
+              <h3 className="text-lg font-medium mb-2">
+                Error Loading Courses
+              </h3>
+              <p className="text-muted-foreground">
+                There was a problem loading your courses. Please try again.
+              </p>
+            </div>
+          ) : !curriculumCourses || curriculumCourses.length === 0 ? (
             <div className="text-center p-10 border rounded-lg bg-muted/50">
               <BookOpen className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-lg font-medium mb-2">No Pending Courses</h3>
               <p className="text-muted-foreground">
-                You don not have any courses that need details to be added.
+                You do not have any courses that need details to be added.
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {pendingCourses.map((course) => (
+              {curriculumCourses.map((course) => (
                 <CourseCard
-                  key={course.id}
-                  id={course.id}
-                  code={course.code}
-                  title={course.title}
-                  category={course.category}
-                  yearSemester={course.yearSemester}
-                  units={course.units}
+                  key={course.id.toString()}
+                  id={course.id.toString()}
+                  code={course.course.code}
+                  title={course.course.descriptive_title}
+                  category={course.course_category.name}
+                  yearSemester={formatSemester(
+                    course.semester.year,
+                    course.semester.sem
+                  )}
+                  units={Number(course.units)}
                   status="pending"
                   actionText="Add Details"
-                  onAction={() => handleAddDetails(course.id)}
+                  onAction={() => handleAddDetails(course.id.toString())}
                 />
               ))}
             </div>
@@ -116,7 +135,7 @@ export function CourseTabs() {
                 No Courses Need Revision
               </h3>
               <p className="text-muted-foreground">
-                You don not have any courses that need to be revised.
+                You do not have any courses that need to be revised.
               </p>
             </div>
           ) : (
