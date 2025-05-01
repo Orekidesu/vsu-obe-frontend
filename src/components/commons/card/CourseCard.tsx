@@ -40,7 +40,7 @@ export function CourseCard({
 }: CourseCardProps) {
   // Determine border color based on status
   const borderClass =
-    status === "pending" ? "border-amber-200" : "border-red-200";
+    status === "pending" ? "border-green-300" : "border-red-300";
 
   // Determine status badge style
   const statusBadgeClass =

@@ -2,7 +2,7 @@ import { AlertCircle, FileEdit, BookOpen, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CourseCard } from "@/components/commons/card/CourseCard";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
-
+import { useRouter } from "next/navigation";
 // Define types for revision courses
 export interface RevisionCourse {
   id: string;
@@ -15,6 +15,8 @@ export interface RevisionCourse {
 }
 
 export function CourseTabs() {
+  const router = useRouter();
+
   // Fetch curriculum courses from API
   const { curriculumCourses, isLoading, error } = useCurriculumCourses();
 
@@ -32,8 +34,6 @@ export function CourseTabs() {
     return `Year ${year} - ${semesterName}`;
   };
 
-  // In a real application, you'd have an endpoint for revision courses
-  // For now we'll use dummy data for the revision tab
   const revisionCourses: RevisionCourse[] = [
     {
       id: "r1",
@@ -48,9 +48,9 @@ export function CourseTabs() {
   ];
 
   // Handlers for course actions
+  // In your CourseTabs.tsx where the "Add Details" button is clicked
   const handleAddDetails = (courseId: string) => {
-    console.log(`Add details for course ${courseId}`);
-    // In a real app, you would navigate to a form or open a modal
+    router.push(`/faculty/courses/course-details/${courseId}`);
   };
 
   const handleRevise = (courseId: string) => {
