@@ -7,6 +7,15 @@ export interface CourseOutcome {
   statement: string;
 }
 
+// Define the CO_ABCD mapping interface
+export interface CO_ABCD_Mapping {
+  co_id: number;
+  audience: string;
+  behavior: string;
+  condition: string;
+  degree: string;
+}
+
 // Define the Course Details state
 interface CourseDetailsState {
   // Course identification
@@ -14,8 +23,15 @@ interface CourseDetailsState {
   courseCode: string;
   courseTitle: string;
 
+  // Current step
+  currentStep: number;
+  setCurrentStep: (step: number) => void;
+
   // Course outcomes
   courseOutcomes: CourseOutcome[];
+
+  // ABCD mappings
+  coAbcdMappings: CO_ABCD_Mapping[];
 
   // Actions
   setCourseInfo: (
@@ -26,16 +42,30 @@ interface CourseDetailsState {
   addCourseOutcome: () => void;
   updateCourseOutcome: (id: number, name: string, statement: string) => void;
   removeCourseOutcome: (id: number) => void;
+
+  // ABCD model actions
+  updateCourseOutcomeABCD: (
+    co_id: number,
+    audience: string,
+    behavior: string,
+    condition: string,
+    degree: string
+  ) => void;
+  getABCDMappingForCO: (co_id: number) => CO_ABCD_Mapping | undefined;
 }
 
-export const useCourseDetailsStore = create<CourseDetailsState>((set) => ({
+export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
   // Initial state
   courseId: "",
   courseCode: "",
   courseTitle: "",
+  currentStep: 1,
   courseOutcomes: [{ id: 1, name: "", statement: "" }], // Start with one empty outcome
+  coAbcdMappings: [], // Start with empty mappings
 
   // Actions
+  setCurrentStep: (step) => set({ currentStep: step }),
+
   setCourseInfo: (courseId, courseCode, courseTitle) =>
     set({ courseId, courseCode, courseTitle }),
 
@@ -61,9 +91,63 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set) => ({
     })),
 
   removeCourseOutcome: (id) =>
-    set((state) => ({
-      courseOutcomes: state.courseOutcomes.filter(
+    set((state) => {
+      // Remove the outcome
+      const updatedOutcomes = state.courseOutcomes.filter(
         (outcome) => outcome.id !== id
-      ),
-    })),
+      );
+
+      // Also remove any ABCD mappings for this outcome
+      const updatedMappings = state.coAbcdMappings.filter(
+        (mapping) => mapping.co_id !== id
+      );
+
+      return {
+        courseOutcomes: updatedOutcomes,
+        coAbcdMappings: updatedMappings,
+      };
+    }),
+
+  updateCourseOutcomeABCD: (co_id, audience, behavior, condition, degree) =>
+    set((state) => {
+      // Check if a mapping already exists for this outcome
+      const existingMappingIndex = state.coAbcdMappings.findIndex(
+        (mapping) => mapping.co_id === co_id
+      );
+
+      let updatedMappings;
+
+      if (existingMappingIndex >= 0) {
+        // Update existing mapping
+        updatedMappings = [...state.coAbcdMappings];
+        updatedMappings[existingMappingIndex] = {
+          co_id,
+          audience,
+          behavior,
+          condition,
+          degree,
+        };
+      } else {
+        // Create new mapping
+        updatedMappings = [
+          ...state.coAbcdMappings,
+          {
+            co_id,
+            audience,
+            behavior,
+            condition,
+            degree,
+          },
+        ];
+      }
+
+      return { coAbcdMappings: updatedMappings };
+    }),
+
+  getABCDMappingForCO: (courseOutcomeId) => {
+    const state = get();
+    return state.coAbcdMappings.find(
+      (mapping) => mapping.co_id === courseOutcomeId
+    );
+  },
 }));

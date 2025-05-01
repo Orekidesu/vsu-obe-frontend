@@ -1,24 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useCourseDetailsStore } from "@/store/course/course-store";
+import {
+  CourseOutcome,
+  useCourseDetailsStore,
+} from "@/store/course/course-store";
 import { CourseOutcomesStep } from "@/components/committee-components/form-steps/CourseOutcomeStep";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
+import { CourseOutcomesABCDStep } from "./form-steps/CourseOutcomeABCDStep";
 
 interface WizardFormCourseProps {
   courseId: string;
 }
 
 export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
-  const [step, setStep] = useState(1);
   const router = useRouter();
   const { curriculumCourses, isLoading } = useCurriculumCourses();
 
-  const { courseCode, courseTitle, courseOutcomes, setCourseInfo } =
-    useCourseDetailsStore();
+  const {
+    courseCode,
+    courseTitle,
+    courseOutcomes,
+    coAbcdMappings,
+    setCourseInfo,
+    currentStep,
+    setCurrentStep,
+    getABCDMappingForCO,
+  } = useCourseDetailsStore();
 
   // Initialize course information when component mounts
   useEffect(() => {
@@ -37,12 +48,12 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   }, [courseId, curriculumCourses, isLoading, setCourseInfo]);
 
   // Calculate progress percentage based on total steps
-  const totalSteps = 1; // Currently only one step, will expand later
-  const progressValue = (step / totalSteps) * 100;
+  const totalSteps = 2; // Currently only one step, will expand later
+  const progressValue = (currentStep / totalSteps) * 100;
 
   const handleNext = () => {
-    if (step < totalSteps) {
-      setStep(step + 1);
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
     } else {
       // Submit the form
       handleSubmit();
@@ -50,8 +61,8 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   };
 
   const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
     } else {
       // Go back to the courses page
       router.push("/faculty/courses");
@@ -65,6 +76,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       courseCode,
       courseTitle,
       courseOutcomes,
+      coAbcdMappings,
     });
 
     // Show success message
@@ -74,9 +86,45 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     router.push("/faculty/courses");
   };
 
+  // Validation function to check if B, C, and D are in the CO statement
+  const validateABCD = (
+    outcome: CourseOutcome,
+    behavior: string,
+    condition: string,
+    degree: string
+  ) => {
+    if (!outcome.statement) return false;
+
+    // Check if each component is present in the statement
+    const statementLower = outcome.statement.toLowerCase();
+    const behaviorPresent =
+      behavior && statementLower.includes(behavior.toLowerCase());
+    const conditionPresent =
+      condition && statementLower.includes(condition.toLowerCase());
+    const degreePresent =
+      degree && statementLower.includes(degree.toLowerCase());
+
+    // Check for overlap between components
+    const hasOverlap = (a: string, b: string) => {
+      if (!a || !b) return false;
+      return (
+        a.toLowerCase() === b.toLowerCase() ||
+        a.toLowerCase().includes(b.toLowerCase()) ||
+        b.toLowerCase().includes(a.toLowerCase())
+      );
+    };
+
+    const noOverlap =
+      !hasOverlap(behavior, condition) &&
+      !hasOverlap(behavior, degree) &&
+      !hasOverlap(condition, degree);
+
+    return behaviorPresent && conditionPresent && degreePresent && noOverlap;
+  };
+
   // Check if current step is valid to proceed
   const isStepValid = () => {
-    if (step === 1) {
+    if (currentStep === 1) {
       // Validate course outcomes
       return (
         courseOutcomes.length > 0 &&
@@ -85,10 +133,23 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
             outcome.name.trim() !== "" && outcome.statement.trim() !== ""
         )
       );
+    } else if (currentStep === 2) {
+      // Validate ABCD mapping
+      return courseOutcomes.every((outcome) => {
+        // Get the mapping for this outcome
+        const mapping = getABCDMappingForCO(outcome.id);
+
+        // If the outcome has no ABCD mapping, it's not valid
+        if (!mapping) return false;
+
+        const { behavior, condition, degree } = mapping;
+
+        // Use the validation function
+        return validateABCD(outcome, behavior, condition, degree);
+      });
     }
     return false;
   };
-
   // Show loading state while course data is being fetched
   if (isLoading) {
     return (
@@ -132,7 +193,10 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       </div>
 
       {/* Step 1: Course Outcomes */}
-      {step === 1 && <CourseOutcomesStep />}
+      {currentStep === 1 && <CourseOutcomesStep />}
+
+      {/* Step 2: ABCD Mapping */}
+      {currentStep === 2 && <CourseOutcomesABCDStep />}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
@@ -150,7 +214,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
           disabled={!isStepValid()}
           className="bg-green-600 hover:bg-green-700"
         >
-          {step === totalSteps ? "Submit" : "Next"}
+          {currentStep === totalSteps ? "Submit" : "Next"}
         </Button>
       </div>
     </div>
