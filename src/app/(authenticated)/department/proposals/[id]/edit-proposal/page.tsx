@@ -207,16 +207,16 @@ const samplePayload = {
     },
   ],
   course_po_mappings: [
-    { course_code: "CSIT 101", po_code: "Problem Analysis", ird: ["I"] },
-    { course_code: "CSIT 102", po_code: "Problem Analysis", ird: ["I", "R"] },
-    { course_code: "CSIT 103", po_code: "Problem Analysis", ird: ["R"] },
-    { course_code: "CSIT 201", po_code: "Problem Analysis", ird: ["R", "D"] },
-    { course_code: "CSIT 202", po_code: "Design Development", ird: ["I", "R"] },
-    { course_code: "CSIT 301", po_code: "Design Development", ird: ["R", "D"] },
-    { course_code: "CSIT 301", po_code: "Modern Tools", ird: ["I", "R"] },
-    { course_code: "CSIT 401", po_code: "Modern Tools", ird: ["R", "D"] },
-    { course_code: "CSIT 401", po_code: "Ethics", ird: ["I"] },
-    { course_code: "CSIT 402", po_code: "Ethics", ird: ["R", "D"] },
+    { course_code: "CSIT 101", po_code: "Problem Analysis", ied: ["I"] },
+    { course_code: "CSIT 102", po_code: "Problem Analysis", ied: ["I", "E"] },
+    { course_code: "CSIT 103", po_code: "Problem Analysis", ied: ["E"] },
+    { course_code: "CSIT 201", po_code: "Problem Analysis", ied: ["E", "D"] },
+    { course_code: "CSIT 202", po_code: "Design Development", ied: ["I", "E"] },
+    { course_code: "CSIT 301", po_code: "Design Development", ied: ["E", "D"] },
+    { course_code: "CSIT 301", po_code: "Modern Tools", ied: ["I", "E"] },
+    { course_code: "CSIT 401", po_code: "Modern Tools", ied: ["E", "D"] },
+    { course_code: "CSIT 401", po_code: "Ethics", ied: ["I"] },
+    { course_code: "CSIT 402", po_code: "Ethics", ied: ["E", "D"] },
   ],
 };
 
@@ -449,7 +449,7 @@ export default function EditProgramPage() {
 
   // Update Course PO Mappings
   const updateCoursePOMappings = (
-    mappings: { course_code: string; po_code: string; ird: string[] }[]
+    mappings: { course_code: string; po_code: string; ied: string[] }[]
   ) => {
     setProgramData({
       ...programData,

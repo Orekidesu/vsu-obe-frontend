@@ -78,7 +78,7 @@ export default function ActiveProgramReviewPage() {
     course_po_mappings: [] as {
       course_code: string;
       po_code: string;
-      ird: string[];
+      ied: string[];
     }[],
     missions: [] as { id: number; statement: string }[],
   });
@@ -192,11 +192,11 @@ export default function ActiveProgramReviewPage() {
       });
     });
 
-    // Create Course to PO mappings with IRD groups
+    // Create Course to PO mappings with IED groups
     const coursePOMappings: {
       course_code: string;
       po_code: string;
-      ird: string[];
+      ied: string[];
     }[] = [];
 
     data.curriculum.courses.forEach((course) => {
@@ -209,16 +209,16 @@ export default function ActiveProgramReviewPage() {
         );
 
         if (existingMapping) {
-          // Add IRD level if not already present
-          if (!existingMapping.ird.includes(mapping.ird)) {
-            existingMapping.ird.push(mapping.ird);
+          // Add IED level if not already present
+          if (!existingMapping.ied.includes(mapping.ied)) {
+            existingMapping.ied.push(mapping.ied);
           }
         } else {
           // Create new mapping
           coursePOMappings.push({
             course_code: course.course.code,
             po_code: mapping.po_name,
-            ird: [mapping.ird],
+            ied: [mapping.ied],
           });
         }
       });
@@ -278,7 +278,7 @@ export default function ActiveProgramReviewPage() {
     switch (level) {
       case "I":
         return "bg-blue-100 text-blue-800";
-      case "R":
+      case "E":
         return "bg-green-100 text-green-800";
       case "D":
         return "bg-purple-100 text-purple-800";

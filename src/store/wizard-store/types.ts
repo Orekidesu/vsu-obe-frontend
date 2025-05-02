@@ -59,7 +59,7 @@ export interface Course {
   descriptive_title: string;
 }
 
-export type ContributionLevel = "I" | "R" | "D";
+export type ContributionLevel = "I" | "E" | "D";
 
 export interface CourseToPOMapping {
   courseId: number;

@@ -64,7 +64,7 @@ interface CurriculumCourse {
 interface CoursePOMapping {
   course_code: string;
   po_code: string;
-  ird: string[];
+  ied: string[];
 }
 
 interface CoursePOMappingEditProps {
@@ -121,7 +121,7 @@ export function CoursePOMappingEdit({
     const mapping = localMappings.find(
       (m) => m.course_code === courseCode && m.po_code === poCode
     );
-    return mapping ? mapping.ird : [];
+    return mapping ? mapping.ied : [];
   };
 
   // Toggle a contribution level for a specific course and PO
@@ -159,14 +159,14 @@ export function CoursePOMappingEdit({
         // Update levels
         updatedMappings[existingMappingIndex] = {
           ...updatedMappings[existingMappingIndex],
-          ird: newLevels,
+          ied: newLevels,
         };
       }
     } else if (newLevels.length > 0) {
       // Add new mapping
       updatedMappings = [
         ...localMappings,
-        { course_code: courseCode, po_code: poCode, ird: newLevels },
+        { course_code: courseCode, po_code: poCode, ied: newLevels },
       ];
     } else {
       // No changes needed
@@ -182,7 +182,7 @@ export function CoursePOMappingEdit({
     switch (level) {
       case "I":
         return "bg-blue-100 text-blue-800 hover:bg-blue-200";
-      case "R":
+      case "E":
         return "bg-green-100 text-green-800 hover:bg-green-200";
       case "D":
         return "bg-purple-100 text-purple-800 hover:bg-purple-200";
@@ -196,8 +196,8 @@ export function CoursePOMappingEdit({
     switch (level) {
       case "I":
         return "Introductory";
-      case "R":
-        return "Reinforcement";
+      case "E":
+        return "Enabling";
       case "D":
         return "Development";
       default:
@@ -213,8 +213,8 @@ export function CoursePOMappingEdit({
           <span>Introductory</span>
         </div>
         <div className="flex items-center gap-2">
-          <Badge className="bg-green-100 text-green-800">R</Badge>
-          <span>Reinforcement</span>
+          <Badge className="bg-green-100 text-green-800">E</Badge>
+          <span>Enabling</span>
         </div>
         <div className="flex items-center gap-2">
           <Badge className="bg-purple-100 text-purple-800">D</Badge>
@@ -334,7 +334,7 @@ export function CoursePOMappingEdit({
                           <div className="space-y-4">
                             <h4 className="font-medium">Contribution Levels</h4>
                             <div className="space-y-2">
-                              {(["I", "R", "D"] as string[]).map((level) => (
+                              {(["I", "E", "D"] as string[]).map((level) => (
                                 <div
                                   key={level}
                                   className="flex items-center space-x-2"
@@ -499,7 +499,7 @@ export function CoursePOMappingEdit({
                                               </h4>
                                               <div className="space-y-2">
                                                 {(
-                                                  ["I", "R", "D"] as string[]
+                                                  ["I", "E", "D"] as string[]
                                                 ).map((level) => (
                                                   <div
                                                     key={level}

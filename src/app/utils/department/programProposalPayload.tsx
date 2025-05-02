@@ -23,7 +23,7 @@ export interface FullProgramProposalPayload {
   course_po_mappings: Array<{
     course_code: string;
     po_code: string;
-    ird: string[];
+    ied: string[];
   }>;
   committees: Array<{ user_id: number }>;
   committee_course_assignments: Array<{

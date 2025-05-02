@@ -90,7 +90,7 @@ export default function PendingProgramReviewPage() {
     course_po_mappings: [] as {
       course_code: string;
       po_code: string;
-      ird: string[];
+      ied: string[];
     }[],
     missions: [] as { id: number; statement: string }[],
   });
@@ -211,7 +211,7 @@ export default function PendingProgramReviewPage() {
     const coursePOMappings: {
       course_code: string;
       po_code: string;
-      ird: string[];
+      ied: string[];
     }[] = [];
     data.curriculum.courses.forEach((course) => {
       course.po_mappings.forEach((mapping) => {
@@ -221,7 +221,7 @@ export default function PendingProgramReviewPage() {
           coursePOMappings.push({
             course_code: course.course.code,
             po_code: po.name,
-            ird: [mapping.ird], // Convert single IRD to array format
+            ied: [mapping.ied], // Convert single IED to array format
           });
         }
       });
@@ -280,7 +280,7 @@ export default function PendingProgramReviewPage() {
     switch (level) {
       case "I":
         return "bg-blue-100 text-blue-800";
-      case "R":
+      case "E":
         return "bg-green-100 text-green-800";
       case "D":
         return "bg-purple-100 text-purple-800";

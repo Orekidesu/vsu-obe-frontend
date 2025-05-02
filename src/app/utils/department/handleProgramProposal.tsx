@@ -264,7 +264,7 @@ export const createFullProgramProposalPayload = (
       return {
         course_code: course?.code || "",
         po_code: po?.name || "",
-        ird: mapping.contributionLevels,
+        ied: mapping.contributionLevels,
       };
     }),
     committees: selectedCommittees.map((committeeId) => ({

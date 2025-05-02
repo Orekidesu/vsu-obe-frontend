@@ -48,7 +48,7 @@ interface CurriculumCourse {
 interface CoursePOMapping {
   course_code: string;
   po_code: string;
-  ird: string[];
+  ied: string[];
 }
 
 interface CoursePOMappingProps {
@@ -98,7 +98,7 @@ export function CoursePOMapping({
     const mapping = coursePOMappings.find(
       (m) => m.course_code === courseCode && m.po_code === poCode
     );
-    return mapping ? mapping.ird : [];
+    return mapping ? mapping.ied : [];
   };
 
   return (
