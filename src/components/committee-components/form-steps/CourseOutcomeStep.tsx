@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -12,16 +10,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Trash2 } from "lucide-react";
-import { useCourseDetailsStore } from "@/store/course/course-store";
+import { CourseOutcome } from "@/store/course/course-store";
 
-export function CourseOutcomesStep() {
-  const {
-    courseOutcomes,
-    addCourseOutcome,
-    updateCourseOutcome,
-    removeCourseOutcome,
-  } = useCourseDetailsStore();
+// Define props interface
+interface CourseOutcomesStepProps {
+  courseOutcomes: CourseOutcome[];
+  addCourseOutcome: () => void;
+  updateCourseOutcome: (id: number, name: string, statement: string) => void;
+  removeCourseOutcome: (id: number) => void;
+}
 
+export function CourseOutcomesStep({
+  courseOutcomes,
+  addCourseOutcome,
+  updateCourseOutcome,
+  removeCourseOutcome,
+}: CourseOutcomesStepProps) {
   return (
     <>
       <h2 className="text-2xl font-semibold text-center mb-8">
