@@ -27,11 +27,17 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     courseOutcomes,
     coAbcdMappings,
     coCpaMappings,
-    setCourseInfo,
     currentStep,
+    setCourseInfo,
     setCurrentStep,
+    addCourseOutcome,
+    updateCourseOutcome,
+    removeCourseOutcome,
+    updateCourseOutcomeABCD,
+    updateCourseOutcomeCPA,
     getABCDMappingForCO,
     getCPAMappingForCO,
+    resetStore,
   } = useCourseDetailsStore();
 
   // Initialize course information when component mounts
@@ -53,6 +59,44 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   // Calculate progress percentage based on total steps
   const totalSteps = 3; // Currently only one step, will expand later
   const progressValue = (currentStep / totalSteps) * 100;
+
+  // Validation function to check if B, C, and D are in the CO statement
+  const validateABCD = (
+    outcome: CourseOutcome,
+    behavior: string,
+    condition: string,
+    degree: string
+  ): boolean => {
+    if (!outcome.statement) return false;
+
+    // Check if each component is present in the statement
+    const statementLower = outcome.statement.toLowerCase();
+    const behaviorPresent =
+      behavior && statementLower.includes(behavior.toLowerCase());
+    const conditionPresent =
+      condition && statementLower.includes(condition.toLowerCase());
+    const degreePresent =
+      degree && statementLower.includes(degree.toLowerCase());
+
+    // Check for overlap between components
+    const hasOverlap = (a: string, b: string): boolean => {
+      if (!a || !b) return false;
+      return (
+        a.toLowerCase() === b.toLowerCase() ||
+        a.toLowerCase().includes(b.toLowerCase()) ||
+        b.toLowerCase().includes(a.toLowerCase())
+      );
+    };
+
+    const noOverlap =
+      !hasOverlap(behavior, condition) &&
+      !hasOverlap(behavior, degree) &&
+      !hasOverlap(condition, degree);
+
+    return Boolean(
+      behaviorPresent && conditionPresent && degreePresent && noOverlap
+    );
+  };
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -86,44 +130,9 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     // Show success message
     alert("Course details saved successfully!");
 
+    resetStore();
     // Navigate back to the courses page
     router.push("/faculty/courses");
-  };
-
-  // Validation function to check if B, C, and D are in the CO statement
-  const validateABCD = (
-    outcome: CourseOutcome,
-    behavior: string,
-    condition: string,
-    degree: string
-  ) => {
-    if (!outcome.statement) return false;
-
-    // Check if each component is present in the statement
-    const statementLower = outcome.statement.toLowerCase();
-    const behaviorPresent =
-      behavior && statementLower.includes(behavior.toLowerCase());
-    const conditionPresent =
-      condition && statementLower.includes(condition.toLowerCase());
-    const degreePresent =
-      degree && statementLower.includes(degree.toLowerCase());
-
-    // Check for overlap between components
-    const hasOverlap = (a: string, b: string) => {
-      if (!a || !b) return false;
-      return (
-        a.toLowerCase() === b.toLowerCase() ||
-        a.toLowerCase().includes(b.toLowerCase()) ||
-        b.toLowerCase().includes(a.toLowerCase())
-      );
-    };
-
-    const noOverlap =
-      !hasOverlap(behavior, condition) &&
-      !hasOverlap(behavior, degree) &&
-      !hasOverlap(condition, degree);
-
-    return behaviorPresent && conditionPresent && degreePresent && noOverlap;
   };
 
   // Check if current step is valid to proceed
@@ -208,14 +217,34 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         </p>
       </div>
 
-      {/* Step 1: Course Outcomes */}
-      {currentStep === 1 && <CourseOutcomesStep />}
+      {/* Pass props to the step components */}
+      {currentStep === 1 && (
+        <CourseOutcomesStep
+          courseOutcomes={courseOutcomes}
+          addCourseOutcome={addCourseOutcome}
+          updateCourseOutcome={updateCourseOutcome}
+          removeCourseOutcome={removeCourseOutcome}
+        />
+      )}
 
-      {/* Step 2: ABCD Mapping */}
-      {currentStep === 2 && <CourseOutcomesABCDStep />}
+      {currentStep === 2 && (
+        <CourseOutcomesABCDStep
+          courseOutcomes={courseOutcomes}
+          coAbcdMappings={coAbcdMappings}
+          updateCourseOutcomeABCD={updateCourseOutcomeABCD}
+          getABCDMappingForCO={getABCDMappingForCO}
+          validateABCD={validateABCD}
+        />
+      )}
 
-      {/* Step 3: CPA Classification */}
-      {currentStep === 3 && <CourseOutcomesCPAStep />}
+      {currentStep === 3 && (
+        <CourseOutcomesCPAStep
+          courseOutcomes={courseOutcomes}
+          coCpaMappings={coCpaMappings}
+          updateCourseOutcomeCPA={updateCourseOutcomeCPA}
+          getCPAMappingForCO={getCPAMappingForCO}
+        />
+      )}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">
