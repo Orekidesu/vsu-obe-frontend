@@ -68,6 +68,9 @@ interface CourseDetailsState {
     domain: "cognitive" | "psychomotor" | "affective" | null
   ) => void;
   getCPAMappingForCO: (courseOutcomeId: number) => CO_CPA_Mapping | undefined;
+
+  // Reset function
+  resetStore: () => void;
 }
 
 export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
@@ -209,4 +212,13 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
       (mapping) => mapping.courseOutcomeId === courseOutcomeId
     );
   },
+
+  // Reset function to clear all state
+  resetStore: () =>
+    set({
+      currentStep: 1,
+      courseOutcomes: [{ id: 1, name: "", statement: "" }],
+      coAbcdMappings: [],
+      coCpaMappings: [],
+    }),
 }));
