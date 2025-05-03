@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,15 +12,33 @@ import {
   AlertCircle,
   InfoIcon,
 } from "lucide-react";
-import { useCourseDetailsStore } from "@/store/course/course-store";
 
-export function CourseOutcomesCPAStep() {
-  const {
-    courseOutcomes,
-    coCpaMappings,
-    updateCourseOutcomeCPA,
-    getCPAMappingForCO,
-  } = useCourseDetailsStore();
+import { CourseOutcome, CO_CPA_Mapping } from "@/store/course/course-store";
+
+interface CourseOutcomesCPAStepProps {
+  courseOutcomes: CourseOutcome[];
+  coCpaMappings: CO_CPA_Mapping[];
+  updateCourseOutcomeCPA: (
+    courseOutcomeId: number,
+    domain: "cognitive" | "psychomotor" | "affective" | null
+  ) => void;
+  getCPAMappingForCO: (courseOutcomeId: number) => CO_CPA_Mapping | undefined;
+}
+
+interface CPAMappingCardProps {
+  outcome: { id: number; name: string; statement: string };
+  existingMapping?: CO_CPA_Mapping;
+  updateCourseOutcomeCPA: (
+    courseOutcomeId: number,
+    domain: "cognitive" | "psychomotor" | "affective" | null
+  ) => void;
+}
+
+export function CourseOutcomesCPAStep({
+  courseOutcomes,
+  updateCourseOutcomeCPA,
+  getCPAMappingForCO,
+}: CourseOutcomesCPAStepProps) {
   const [activeTab, setActiveTab] = useState(
     courseOutcomes[0]?.id.toString() || "1"
   );
@@ -119,7 +135,11 @@ export function CourseOutcomesCPAStep() {
 
         {courseOutcomes.map((outcome) => (
           <TabsContent key={outcome.id} value={outcome.id.toString()}>
-            <CPAMappingCard outcome={outcome} />
+            <CPAMappingCard
+              outcome={outcome}
+              existingMapping={getCPAMappingForCO(outcome.id)}
+              updateCourseOutcomeCPA={updateCourseOutcomeCPA}
+            />
           </TabsContent>
         ))}
       </Tabs>
@@ -129,12 +149,9 @@ export function CourseOutcomesCPAStep() {
 
 function CPAMappingCard({
   outcome,
-}: {
-  outcome: { id: number; name: string; statement: string };
-}) {
-  const { getCPAMappingForCO, updateCourseOutcomeCPA } =
-    useCourseDetailsStore();
-  const existingMapping = getCPAMappingForCO(outcome.id);
+  existingMapping,
+  updateCourseOutcomeCPA,
+}: CPAMappingCardProps) {
   const [domain, setDomain] = useState<
     "cognitive" | "psychomotor" | "affective" | null
   >(existingMapping?.domain || null);
