@@ -11,7 +11,7 @@ import {
 import { CourseOutcomesStep } from "@/components/committee-components/form-steps/CourseOutcomeStep";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 import { CourseOutcomesABCDStep } from "./form-steps/CourseOutcomeABCDStep";
-import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPA";
+import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPAStep";
 
 interface WizardFormCourseProps {
   courseId: string;
