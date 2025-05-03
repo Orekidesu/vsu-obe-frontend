@@ -1,16 +1,16 @@
 "use client";
 import React from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
+// import { useAuth } from "@/hooks/useAuth";
+// import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 // import { Skeleton } from "@/components/ui/skeleton";
 // import { Loader2 } from "lucide-react";
 
 // import CustomCard2 from "@/components/commons/card/CustomCard2";
 
 const DashboardPage = () => {
-  const { session } = useAuth() as { session: Session | null };
+  // const { session } = useAuth() as { session: Session | null };
 
-  console.log(session);
+  // console.log(session); //check if the iscommittee is in the session
 
   return (
     <div className="grid grid-rows-1 content-center">
