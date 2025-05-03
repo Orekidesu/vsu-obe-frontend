@@ -27,7 +27,10 @@ export const useAuth = () => {
             !pathName.startsWith("/department")
           ) {
             router.push("/department");
-          } else if (role === "Faculty" && !pathName.startsWith("/faculty")) {
+          } else if (
+            role === "Faculty_Member" &&
+            !pathName.startsWith("/faculty")
+          ) {
             router.push("/faculty");
           }
         }

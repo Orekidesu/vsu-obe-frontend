@@ -42,8 +42,10 @@ export default function LoginForm() {
         router.push("/admin");
       } else if (role === "Department") {
         router.push("/department");
-      } else {
+      } else if (role === "Dean") {
         router.push("/dean");
+      } else {
+        router.push("/faculty");
       }
     }
   }, [status, session, router]);
