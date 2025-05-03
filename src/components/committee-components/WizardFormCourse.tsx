@@ -11,6 +11,7 @@ import {
 import { CourseOutcomesStep } from "@/components/committee-components/form-steps/CourseOutcomeStep";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 import { CourseOutcomesABCDStep } from "./form-steps/CourseOutcomeABCDStep";
+import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPA";
 
 interface WizardFormCourseProps {
   courseId: string;
@@ -25,10 +26,12 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     courseTitle,
     courseOutcomes,
     coAbcdMappings,
+    coCpaMappings,
     setCourseInfo,
     currentStep,
     setCurrentStep,
     getABCDMappingForCO,
+    getCPAMappingForCO,
   } = useCourseDetailsStore();
 
   // Initialize course information when component mounts
@@ -48,7 +51,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   }, [courseId, curriculumCourses, isLoading, setCourseInfo]);
 
   // Calculate progress percentage based on total steps
-  const totalSteps = 2; // Currently only one step, will expand later
+  const totalSteps = 3; // Currently only one step, will expand later
   const progressValue = (currentStep / totalSteps) * 100;
 
   const handleNext = () => {
@@ -77,6 +80,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       courseTitle,
       courseOutcomes,
       coAbcdMappings,
+      coCpaMappings,
     });
 
     // Show success message
@@ -147,6 +151,18 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         // Use the validation function
         return validateABCD(outcome, behavior, condition, degree);
       });
+    } else if (currentStep === 3) {
+      // Validate CPA classification
+      return courseOutcomes.every((outcome) => {
+        // Get the mapping for this outcome
+        const mapping = getCPAMappingForCO(outcome.id);
+
+        // If the outcome has no CPA mapping, it's not valid
+        if (!mapping) return false;
+
+        // A domain must be selected
+        return mapping.domain !== null;
+      });
     }
     return false;
   };
@@ -197,6 +213,9 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
 
       {/* Step 2: ABCD Mapping */}
       {currentStep === 2 && <CourseOutcomesABCDStep />}
+
+      {/* Step 3: CPA Classification */}
+      {currentStep === 3 && <CourseOutcomesCPAStep />}
 
       {/* Progress bar */}
       <div className="mt-12 mb-8">

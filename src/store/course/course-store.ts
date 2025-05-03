@@ -16,6 +16,12 @@ export interface CO_ABCD_Mapping {
   degree: string;
 }
 
+// Define the CO_CPA mapping interface
+export interface CO_CPA_Mapping {
+  courseOutcomeId: number;
+  domain: "cognitive" | "psychomotor" | "affective" | null;
+}
+
 // Define the Course Details state
 interface CourseDetailsState {
   // Course identification
@@ -32,6 +38,9 @@ interface CourseDetailsState {
 
   // ABCD mappings
   coAbcdMappings: CO_ABCD_Mapping[];
+
+  // CPA mappings
+  coCpaMappings: CO_CPA_Mapping[];
 
   // Actions
   setCourseInfo: (
@@ -52,6 +61,13 @@ interface CourseDetailsState {
     degree: string
   ) => void;
   getABCDMappingForCO: (co_id: number) => CO_ABCD_Mapping | undefined;
+
+  // CPA classification actions
+  updateCourseOutcomeCPA: (
+    courseOutcomeId: number,
+    domain: "cognitive" | "psychomotor" | "affective" | null
+  ) => void;
+  getCPAMappingForCO: (courseOutcomeId: number) => CO_CPA_Mapping | undefined;
 }
 
 export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
@@ -62,6 +78,7 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
   currentStep: 1,
   courseOutcomes: [{ id: 1, name: "", statement: "" }], // Start with one empty outcome
   coAbcdMappings: [], // Start with empty mappings
+  coCpaMappings: [], // Start with empty CPA mappings
 
   // Actions
   setCurrentStep: (step) => set({ currentStep: step }),
@@ -98,13 +115,19 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
       );
 
       // Also remove any ABCD mappings for this outcome
-      const updatedMappings = state.coAbcdMappings.filter(
+      const updatedABCDMappings = state.coAbcdMappings.filter(
         (mapping) => mapping.co_id !== id
+      );
+
+      // Also remove any CPA mappings for this outcome
+      const updatedCPAMappings = state.coCpaMappings.filter(
+        (mapping) => mapping.courseOutcomeId !== id
       );
 
       return {
         courseOutcomes: updatedOutcomes,
-        coAbcdMappings: updatedMappings,
+        coAbcdMappings: updatedABCDMappings,
+        coCpaMappings: updatedCPAMappings,
       };
     }),
 
@@ -148,6 +171,42 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
     const state = get();
     return state.coAbcdMappings.find(
       (mapping) => mapping.co_id === courseOutcomeId
+    );
+  },
+  updateCourseOutcomeCPA: (courseOutcomeId, domain) =>
+    set((state) => {
+      // Check if a mapping already exists for this outcome
+      const existingMappingIndex = state.coCpaMappings.findIndex(
+        (mapping) => mapping.courseOutcomeId === courseOutcomeId
+      );
+
+      let updatedMappings;
+
+      if (existingMappingIndex >= 0) {
+        // Update existing mapping
+        updatedMappings = [...state.coCpaMappings];
+        updatedMappings[existingMappingIndex] = {
+          courseOutcomeId,
+          domain,
+        };
+      } else {
+        // Create new mapping
+        updatedMappings = [
+          ...state.coCpaMappings,
+          {
+            courseOutcomeId,
+            domain,
+          },
+        ];
+      }
+
+      return { coCpaMappings: updatedMappings };
+    }),
+
+  getCPAMappingForCO: (courseOutcomeId) => {
+    const state = get();
+    return state.coCpaMappings.find(
+      (mapping) => mapping.courseOutcomeId === courseOutcomeId
     );
   },
 }));
