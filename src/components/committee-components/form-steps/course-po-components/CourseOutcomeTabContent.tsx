@@ -92,7 +92,8 @@ export function CourseOutcomeTabContent({
             <Table className="border">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[80px] border">PO</TableHead>
+                  <TableHead className="w-[80px] border">PO #</TableHead>
+                  <TableHead className="w-[80px] border">PO Name</TableHead>
                   <TableHead className="border">Statement</TableHead>
                   <TableHead className="w-[250px] border text-center">
                     Contribution Level
@@ -100,7 +101,7 @@ export function CourseOutcomeTabContent({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {programOutcomes.map((po) => {
+                {programOutcomes.map((po, index) => {
                   const contributionLevel = getContributionLevel(
                     courseOutcome.id,
                     po.id
@@ -109,7 +110,10 @@ export function CourseOutcomeTabContent({
                   return (
                     <TableRow key={po.id}>
                       <TableCell className="font-medium border">
-                        PO{po.id}
+                        PO-{index + 1}
+                      </TableCell>
+                      <TableCell className="font-medium border">
+                        {po.name}
                       </TableCell>
                       <TableCell className="border">
                         <TooltipProvider>
