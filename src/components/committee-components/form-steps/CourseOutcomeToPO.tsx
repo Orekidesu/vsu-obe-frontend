@@ -105,6 +105,15 @@ export function CourseOutcomesPOStep({
   //   }
   // };
 
+  // Check if a contribution level is available for a specific PO
+  const isContributionLevelAvailable = (
+    programOutcome: ProgramOutcome,
+    level: "I" | "E" | "D"
+  ): boolean => {
+    // Safety check in case availableContributionLevels is not defined
+    return programOutcome.availableContributionLevels?.includes(level) ?? true;
+  };
+
   // Truncate long text for display
   const truncateText = (text: string, maxLength = 40) => {
     if (!text) return "";
@@ -129,6 +138,10 @@ export function CourseOutcomesPOStep({
               Map each Course Outcome (CO) to one or more Program Outcomes (POs)
               by selecting a contribution level. Each CO must be mapped to at
               least one PO.
+            </p>
+            <p className="text-sm text-blue-700">
+              Note: Not all contribution levels are available for every Program
+              Outcome. Unavailable options will be disabled.
             </p>
             <div className="flex flex-wrap gap-3 pt-1">
               <div className="flex items-center gap-1.5">
@@ -263,10 +276,13 @@ export function CourseOutcomesPOStep({
                                   <RadioGroupItem
                                     value="I"
                                     id={`i-${co.id}-${po.id}`}
+                                    disabled={
+                                      !isContributionLevelAvailable(po, "I")
+                                    }
                                   />
                                   <Label
                                     htmlFor={`i-${co.id}-${po.id}`}
-                                    className="flex items-center"
+                                    className={`flex items-center ${!isContributionLevelAvailable(po, "I") ? "opacity-50" : ""}`}
                                   >
                                     <Badge className={getLevelBadgeColor("I")}>
                                       I
@@ -277,10 +293,13 @@ export function CourseOutcomesPOStep({
                                   <RadioGroupItem
                                     value="E"
                                     id={`e-${co.id}-${po.id}`}
+                                    disabled={
+                                      !isContributionLevelAvailable(po, "E")
+                                    }
                                   />
                                   <Label
                                     htmlFor={`e-${co.id}-${po.id}`}
-                                    className="flex items-center"
+                                    className={`flex items-center ${!isContributionLevelAvailable(po, "E") ? "opacity-50" : ""}`}
                                   >
                                     <Badge className={getLevelBadgeColor("E")}>
                                       E
@@ -291,10 +310,13 @@ export function CourseOutcomesPOStep({
                                   <RadioGroupItem
                                     value="D"
                                     id={`d-${co.id}-${po.id}`}
+                                    disabled={
+                                      !isContributionLevelAvailable(po, "D")
+                                    }
                                   />
                                   <Label
                                     htmlFor={`d-${co.id}-${po.id}`}
-                                    className="flex items-center"
+                                    className={`flex items-center ${!isContributionLevelAvailable(po, "D") ? "opacity-50" : ""}`}
                                   >
                                     <Badge className={getLevelBadgeColor("D")}>
                                       D
@@ -344,6 +366,10 @@ export function CourseOutcomesPOStep({
                   {programOutcomes.map((po) => (
                     <TableHead key={po.id} className="border text-center">
                       PO{po.id}
+                      <div className="text-xs font-normal mt-1">
+                        {po.availableContributionLevels?.join(", ") ||
+                          "I, E, D"}
+                      </div>
                     </TableHead>
                   ))}
                 </TableRow>

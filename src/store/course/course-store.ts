@@ -11,6 +11,7 @@ export interface ProgramOutcome {
   id: number;
   name: string;
   statement: string;
+  availableContributionLevels: ("I" | "E" | "D")[]; // Which contribution levels are available for this PO
 }
 // Define the CO_ABCD mapping interface
 export interface CO_ABCD_Mapping {
@@ -271,20 +272,30 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
         if (existingMappingIndex >= 0) {
           updatedMappings.splice(existingMappingIndex, 1);
         }
-      } else if (existingMappingIndex >= 0) {
-        // Update existing mapping
-        updatedMappings[existingMappingIndex] = {
-          courseOutcomeId,
-          programOutcomeId,
-          contributionLevel,
-        };
       } else {
-        // Create new mapping
-        updatedMappings.push({
-          courseOutcomeId,
-          programOutcomeId,
-          contributionLevel,
-        });
+        // Find the PO to check if the contribution level is valid
+        const po = state.programOutcomes.find(
+          (po) => po.id === programOutcomeId
+        );
+
+        // Only update if the contribution level is available for this PO
+        if (po && po.availableContributionLevels.includes(contributionLevel)) {
+          if (existingMappingIndex >= 0) {
+            // Update existing mapping
+            updatedMappings[existingMappingIndex] = {
+              courseOutcomeId,
+              programOutcomeId,
+              contributionLevel,
+            };
+          } else {
+            // Create new mapping
+            updatedMappings.push({
+              courseOutcomeId,
+              programOutcomeId,
+              contributionLevel,
+            });
+          }
+        }
       }
 
       return { coPoMappings: updatedMappings };

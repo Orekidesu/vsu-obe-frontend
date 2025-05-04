@@ -10,7 +10,7 @@ import {
 } from "@/store/course/course-store";
 import { CourseOutcomesStep } from "@/components/committee-components/form-steps/CourseOutcome";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
-import useCoursePO from "@/hooks/shared/useCoursePO";
+// import useCoursePO from "@/hooks/shared/useCoursePO";
 
 import { CourseOutcomesABCDStep } from "./form-steps/CourseOutcomeABCD";
 import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPA";
@@ -23,9 +23,9 @@ interface WizardFormCourseProps {
 export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   const router = useRouter();
   const { curriculumCourses, isLoading } = useCurriculumCourses();
-  const { coursePOs, isLoading: courseLoading } = useCoursePO(
-    parseInt(courseId, 10)
-  );
+  // const { coursePOs, isLoading: courseLoading } = useCoursePO(
+  //   parseInt(courseId, 10)
+  // );
 
   const {
     courseCode,
@@ -204,24 +204,28 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         name: "Engineering Knowledge",
         statement:
           "Apply knowledge of mathematics, science, engineering fundamentals, and specialization to solve complex engineering problems.",
+        availableContributionLevels: ["I", "E", "D"] as ("I" | "E" | "D")[], // All levels available
       },
       {
         id: 2,
         name: "Problem Analysis",
         statement:
           "Identify, formulate, research literature, and analyze complex engineering problems reaching substantiated conclusions.",
+        availableContributionLevels: ["I", "E"] as ("I" | "E" | "D")[], // Only I and E available
       },
       {
         id: 3,
         name: "Design/Development of Solutions",
         statement:
           "Design solutions for complex engineering problems and design system components or processes that meet specified needs.",
+        availableContributionLevels: ["E", "D"] as ("I" | "E" | "D")[], // Only E and D available
       },
       {
         id: 4,
         name: "Investigation",
         statement:
           "Conduct investigations of complex problems using research-based knowledge and methods including design of experiments, analysis and interpretation of data.",
+        availableContributionLevels: ["D"] as ("I" | "E" | "D")[], // Only D available
       },
     ];
     useCourseDetailsStore.getState().setProgramOutcomes(samplePOs);
