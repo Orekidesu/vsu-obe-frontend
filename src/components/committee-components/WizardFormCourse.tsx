@@ -10,6 +10,8 @@ import {
 } from "@/store/course/course-store";
 import { CourseOutcomesStep } from "@/components/committee-components/form-steps/CourseOutcome";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
+import useCoursePO from "@/hooks/shared/useCoursePO";
+
 import { CourseOutcomesABCDStep } from "./form-steps/CourseOutcomeABCD";
 import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPA";
 import { CourseOutcomesPOStep } from "./form-steps/CourseOutcomeToPO";
@@ -21,6 +23,9 @@ interface WizardFormCourseProps {
 export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   const router = useRouter();
   const { curriculumCourses, isLoading } = useCurriculumCourses();
+  const { coursePOs, isLoading: courseLoading } = useCoursePO(
+    parseInt(courseId, 10)
+  );
 
   const {
     courseCode,
