@@ -35,6 +35,16 @@ export interface CO_PO_Mapping {
   contributionLevel: "I" | "E" | "D"; // Introductory, Enabling, Development
 }
 
+// Define the Assessment Task interface
+export interface AssessmentTask {
+  id: string; // Unique identifier
+  courseOutcomeId: number; // Which CO this task belongs to
+  code: string; // e.g., Q1, MT, FE, LB1
+  name: string; // e.g., Quiz 1, Midterm, Final Exam
+  tool: string; // e.g., Marking Scheme, Rubric
+  weight: number; // Weight in percentage (e.g., 10 for 10%)
+}
+
 // Define the Course Details state
 interface CourseDetailsState {
   // Course identification
@@ -60,6 +70,9 @@ interface CourseDetailsState {
 
   // CO-PO mappings
   coPoMappings: CO_PO_Mapping[];
+
+  // Assessment tasks
+  assessmentTasks: AssessmentTask[];
 
   // Actions
   setCourseInfo: (
@@ -97,6 +110,20 @@ interface CourseDetailsState {
   ) => void;
   getPOMappingsForCO: (courseOutcomeId: number) => CO_PO_Mapping[];
 
+  // Assessment task actions
+  addAssessmentTask: (courseOutcomeId: number) => void;
+  updateAssessmentTask: (
+    id: string,
+    courseOutcomeId: number,
+    code: string,
+    name: string,
+    tool: string,
+    weight: number
+  ) => void;
+  removeAssessmentTask: (id: string) => void;
+  getAssessmentTasksForCO: (courseOutcomeId: number) => AssessmentTask[];
+  getTotalAssessmentWeight: () => number;
+
   // Reset function
   resetStore: () => void;
 }
@@ -112,6 +139,7 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
   coAbcdMappings: [], // Start with empty mappings
   coCpaMappings: [], // Start with empty CPA mappings
   coPoMappings: [], // Start with empty CO-PO mappings
+  assessmentTasks: [],
 
   // Actions
   setCurrentStep: (step) => set({ currentStep: step }),
@@ -161,12 +189,17 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
       const updatedPOMappings = state.coPoMappings.filter(
         (mapping) => mapping.courseOutcomeId !== id
       );
+      // Also remove any assessment tasks for this outcome
+      const updatedAssessmentTasks = state.assessmentTasks.filter(
+        (task) => task.courseOutcomeId !== id
+      );
 
       return {
         courseOutcomes: updatedOutcomes,
         coAbcdMappings: updatedABCDMappings,
         coCpaMappings: updatedCPAMappings,
         coPoMappings: updatedPOMappings,
+        assessmentTasks: updatedAssessmentTasks,
       };
     }),
 
@@ -279,7 +312,7 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
         );
 
         // Only update if the contribution level is available for this PO
-        if (po && po.availableContributionLevels.includes(contributionLevel)) {
+        if (po && po.availableContributionLevels?.includes(contributionLevel)) {
           if (existingMappingIndex >= 0) {
             // Update existing mapping
             updatedMappings[existingMappingIndex] = {
@@ -307,6 +340,62 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
       (mapping) => mapping.courseOutcomeId === courseOutcomeId
     );
   },
+  // Assessment task actions
+  addAssessmentTask: (courseOutcomeId) =>
+    set((state) => {
+      // Generate a unique ID for the new task
+      const id = `task_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+      return {
+        assessmentTasks: [
+          ...state.assessmentTasks,
+          {
+            id,
+            courseOutcomeId,
+            code: "", // Empty by default
+            name: "", // Empty by default
+            tool: "Marking Scheme",
+            weight: 0, // Default weight
+          },
+        ],
+      };
+    }),
+
+  updateAssessmentTask: (id, courseOutcomeId, code, name, tool, weight) =>
+    set((state) => ({
+      assessmentTasks: state.assessmentTasks.map((task) =>
+        task.id === id
+          ? {
+              ...task,
+              courseOutcomeId,
+              code,
+              name,
+              tool,
+              weight,
+            }
+          : task
+      ),
+    })),
+
+  removeAssessmentTask: (id) =>
+    set((state) => ({
+      assessmentTasks: state.assessmentTasks.filter((task) => task.id !== id),
+    })),
+
+  getAssessmentTasksForCO: (courseOutcomeId) => {
+    const state = get();
+    return state.assessmentTasks.filter(
+      (task) => task.courseOutcomeId === courseOutcomeId
+    );
+  },
+
+  getTotalAssessmentWeight: () => {
+    const state = get();
+    return state.assessmentTasks.reduce(
+      (total, task) => total + task.weight,
+      0
+    );
+  },
 
   // Reset function to clear all state
   resetStore: () =>
@@ -316,5 +405,6 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
       coAbcdMappings: [],
       coCpaMappings: [],
       coPoMappings: [],
+      assessmentTasks: [],
     }),
 }));

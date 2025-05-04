@@ -15,6 +15,7 @@ import useCoursePO from "@/hooks/shared/useCoursePO";
 import { CourseOutcomesABCDStep } from "./form-steps/CourseOutcomeABCD";
 import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPA";
 import { CourseOutcomesPOStep } from "./form-steps/CourseOutcomeToPO";
+import { CourseOutcomesTLAStep } from "./form-steps/CourseOutcomeTLA";
 
 interface WizardFormCourseProps {
   courseId: string;
@@ -35,18 +36,24 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     coAbcdMappings,
     coCpaMappings,
     coPoMappings,
+    assessmentTasks,
     currentStep,
     setCourseInfo,
     setCurrentStep,
     addCourseOutcome,
+    addAssessmentTask,
     updateCourseOutcome,
     removeCourseOutcome,
+    removeAssessmentTask,
     updateCourseOutcomeABCD,
     updateCourseOutcomeCPA,
     updateCourseOutcomePO,
+    updateAssessmentTask,
     getABCDMappingForCO,
     getCPAMappingForCO,
     getPOMappingsForCO,
+    getAssessmentTasksForCO,
+    getTotalAssessmentWeight,
     setProgramOutcomes,
     resetStore,
   } = useCourseDetailsStore();
@@ -83,7 +90,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   }, [poLoading, coursePOs, setProgramOutcomes]);
 
   // Calculate progress percentage based on total steps
-  const totalSteps = 4; // Currently only one step, will expand later
+  const totalSteps = 5; // Currently only one step, will expand later
   const progressValue = (currentStep / totalSteps) * 100;
 
   // Validation function to check if B, C, and D are in the CO statement
@@ -152,6 +159,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       coAbcdMappings,
       coCpaMappings,
       coPoMappings,
+      assessmentTasks,
     });
 
     // Show success message
@@ -208,7 +216,19 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         // The outcome must have at least one PO mapping
         return mappings.length > 0;
       });
+    } else if (currentStep === 5) {
+      // Validate TLA plan - each CO must have at least one assessment task and total weight must be 100%
+      const allCOsHaveAssessmentTasks = courseOutcomes.every((outcome) => {
+        const tasks = getAssessmentTasksForCO(outcome.id);
+        return tasks.length > 0;
+      });
+
+      const totalWeight = getTotalAssessmentWeight();
+      const isTotalWeightValid = Math.abs(totalWeight - 100) < 0.01; // Allow for small floating point errors
+
+      return allCOsHaveAssessmentTasks && isTotalWeightValid;
     }
+
     return false;
   };
 
@@ -290,6 +310,17 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
           programOutcomes={programOutcomes}
           poMappings={coPoMappings}
           onUpdatePO={updateCourseOutcomePO}
+        />
+      )}
+      {/* Step 5: TLA Plan */}
+      {currentStep === 5 && (
+        <CourseOutcomesTLAStep
+          courseOutcomes={courseOutcomes}
+          assessmentTasks={assessmentTasks}
+          onAddAssessmentTask={addAssessmentTask}
+          onUpdateAssessmentTask={updateAssessmentTask}
+          onRemoveAssessmentTask={removeAssessmentTask}
+          getTotalAssessmentWeight={getTotalAssessmentWeight}
         />
       )}
 
