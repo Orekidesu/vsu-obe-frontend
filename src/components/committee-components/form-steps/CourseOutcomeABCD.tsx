@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle2, AlertCircle, InfoIcon } from "lucide-react";
 import { CourseOutcome, CO_ABCD_Mapping } from "@/store/course/course-store";
 // Define props interface
-import { ABCDMappingCard } from "@/components/committee-components/ABCDMappingCard";
+import { ABCDMappingCard } from "@/components/committee-components/form-steps/course-abcd-components/ABCDMappingCard";
 interface CourseOutcomesABCDStepProps {
   courseOutcomes: CourseOutcome[];
   coAbcdMappings: CO_ABCD_Mapping[];
