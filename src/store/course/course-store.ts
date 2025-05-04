@@ -344,7 +344,8 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
   addAssessmentTask: (courseOutcomeId) =>
     set((state) => {
       // Generate a unique ID for the new task
-      const id = `task_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      const id = `task_${state.assessmentTasks.length + 1}`;
+      // const id = `task_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
       return {
         assessmentTasks: [
