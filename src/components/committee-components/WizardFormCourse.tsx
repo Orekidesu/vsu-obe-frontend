@@ -12,6 +12,7 @@ import { CourseOutcomesStep } from "@/components/committee-components/form-steps
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 import { CourseOutcomesABCDStep } from "./form-steps/CourseOutcomeABCD";
 import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPA";
+import { CourseOutcomesPOStep } from "./form-steps/CourseOutcomeToPO";
 
 interface WizardFormCourseProps {
   courseId: string;
@@ -25,8 +26,10 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     courseCode,
     courseTitle,
     courseOutcomes,
+    programOutcomes,
     coAbcdMappings,
     coCpaMappings,
+    coPoMappings,
     currentStep,
     setCourseInfo,
     setCurrentStep,
@@ -35,8 +38,10 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     removeCourseOutcome,
     updateCourseOutcomeABCD,
     updateCourseOutcomeCPA,
+    updateCourseOutcomePO,
     getABCDMappingForCO,
     getCPAMappingForCO,
+    getPOMappingsForCO,
     resetStore,
   } = useCourseDetailsStore();
 
@@ -57,7 +62,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   }, [courseId, curriculumCourses, isLoading, setCourseInfo]);
 
   // Calculate progress percentage based on total steps
-  const totalSteps = 3; // Currently only one step, will expand later
+  const totalSteps = 4; // Currently only one step, will expand later
   const progressValue = (currentStep / totalSteps) * 100;
 
   // Validation function to check if B, C, and D are in the CO statement
@@ -125,6 +130,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       courseOutcomes,
       coAbcdMappings,
       coCpaMappings,
+      coPoMappings,
     });
 
     // Show success message
@@ -172,9 +178,49 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         // A domain must be selected
         return mapping.domain !== null;
       });
+    } else if (currentStep === 4) {
+      // Validate PO mapping - each CO must be mapped to at least one PO
+      return courseOutcomes.every((outcome) => {
+        // Get the mappings for this outcome
+        const mappings = getPOMappingsForCO(outcome.id);
+
+        // The outcome must have at least one PO mapping
+        return mappings.length > 0;
+      });
     }
     return false;
   };
+
+  if (programOutcomes.length === 0) {
+    // This would normally be loaded from an API
+    const samplePOs = [
+      {
+        id: 1,
+        name: "Engineering Knowledge",
+        statement:
+          "Apply knowledge of mathematics, science, engineering fundamentals, and specialization to solve complex engineering problems.",
+      },
+      {
+        id: 2,
+        name: "Problem Analysis",
+        statement:
+          "Identify, formulate, research literature, and analyze complex engineering problems reaching substantiated conclusions.",
+      },
+      {
+        id: 3,
+        name: "Design/Development of Solutions",
+        statement:
+          "Design solutions for complex engineering problems and design system components or processes that meet specified needs.",
+      },
+      {
+        id: 4,
+        name: "Investigation",
+        statement:
+          "Conduct investigations of complex problems using research-based knowledge and methods including design of experiments, analysis and interpretation of data.",
+      },
+    ];
+    useCourseDetailsStore.getState().setProgramOutcomes(samplePOs);
+  }
   // Show loading state while course data is being fetched
   if (isLoading) {
     return (
@@ -217,7 +263,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         </p>
       </div>
 
-      {/* Pass props to the step components */}
+      {/* Step 1: Course Outcomes */}
       {currentStep === 1 && (
         <CourseOutcomesStep
           courseOutcomes={courseOutcomes}
@@ -226,7 +272,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
           removeCourseOutcome={removeCourseOutcome}
         />
       )}
-
+      {/* Step 2: ABCD Mapping */}
       {currentStep === 2 && (
         <CourseOutcomesABCDStep
           courseOutcomes={courseOutcomes}
@@ -237,12 +283,23 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         />
       )}
 
+      {/* Step 3: CPA Classification */}
       {currentStep === 3 && (
         <CourseOutcomesCPAStep
           courseOutcomes={courseOutcomes}
           coCpaMappings={coCpaMappings}
           updateCourseOutcomeCPA={updateCourseOutcomeCPA}
           getCPAMappingForCO={getCPAMappingForCO}
+        />
+      )}
+
+      {/* Step 4: PO Mapping */}
+      {currentStep === 4 && (
+        <CourseOutcomesPOStep
+          courseOutcomes={courseOutcomes}
+          programOutcomes={programOutcomes}
+          poMappings={coPoMappings}
+          onUpdatePO={updateCourseOutcomePO}
         />
       )}
 

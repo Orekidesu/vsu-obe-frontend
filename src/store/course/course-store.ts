@@ -6,7 +6,12 @@ export interface CourseOutcome {
   name: string;
   statement: string;
 }
-
+// Define the Program Outcome interface
+export interface ProgramOutcome {
+  id: number;
+  name: string;
+  statement: string;
+}
 // Define the CO_ABCD mapping interface
 export interface CO_ABCD_Mapping {
   co_id: number;
@@ -20,6 +25,13 @@ export interface CO_ABCD_Mapping {
 export interface CO_CPA_Mapping {
   courseOutcomeId: number;
   domain: "cognitive" | "psychomotor" | "affective" | null;
+}
+
+// Define the CO_PO mapping interface with contribution levels
+export interface CO_PO_Mapping {
+  courseOutcomeId: number;
+  programOutcomeId: number;
+  contributionLevel: "I" | "E" | "D"; // Introductory, Enabling, Development
 }
 
 // Define the Course Details state
@@ -36,11 +48,17 @@ interface CourseDetailsState {
   // Course outcomes
   courseOutcomes: CourseOutcome[];
 
+  // Program outcomes (for CO-PO mapping)
+  programOutcomes: ProgramOutcome[];
+
   // ABCD mappings
   coAbcdMappings: CO_ABCD_Mapping[];
 
   // CPA mappings
   coCpaMappings: CO_CPA_Mapping[];
+
+  // CO-PO mappings
+  coPoMappings: CO_PO_Mapping[];
 
   // Actions
   setCourseInfo: (
@@ -51,6 +69,7 @@ interface CourseDetailsState {
   addCourseOutcome: () => void;
   updateCourseOutcome: (id: number, name: string, statement: string) => void;
   removeCourseOutcome: (id: number) => void;
+  setProgramOutcomes: (outcomes: ProgramOutcome[]) => void;
 
   // ABCD model actions
   updateCourseOutcomeABCD: (
@@ -69,6 +88,14 @@ interface CourseDetailsState {
   ) => void;
   getCPAMappingForCO: (courseOutcomeId: number) => CO_CPA_Mapping | undefined;
 
+  // CO-PO mapping actions
+  updateCourseOutcomePO: (
+    courseOutcomeId: number,
+    programOutcomeId: number,
+    contributionLevel: "I" | "E" | "D" | null
+  ) => void;
+  getPOMappingsForCO: (courseOutcomeId: number) => CO_PO_Mapping[];
+
   // Reset function
   resetStore: () => void;
 }
@@ -80,8 +107,10 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
   courseTitle: "",
   currentStep: 1,
   courseOutcomes: [{ id: 1, name: "", statement: "" }], // Start with one empty outcome
+  programOutcomes: [], // Will be populated from API or parent component
   coAbcdMappings: [], // Start with empty mappings
   coCpaMappings: [], // Start with empty CPA mappings
+  coPoMappings: [], // Start with empty CO-PO mappings
 
   // Actions
   setCurrentStep: (step) => set({ currentStep: step }),
@@ -127,12 +156,21 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
         (mapping) => mapping.courseOutcomeId !== id
       );
 
+      // Also remove any PO mappings for this outcome
+      const updatedPOMappings = state.coPoMappings.filter(
+        (mapping) => mapping.courseOutcomeId !== id
+      );
+
       return {
         courseOutcomes: updatedOutcomes,
         coAbcdMappings: updatedABCDMappings,
         coCpaMappings: updatedCPAMappings,
+        coPoMappings: updatedPOMappings,
       };
     }),
+
+  // Program Outcomes actions
+  setProgramOutcomes: (outcomes) => set({ programOutcomes: outcomes }),
 
   updateCourseOutcomeABCD: (co_id, audience, behavior, condition, degree) =>
     set((state) => {
@@ -212,6 +250,52 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
       (mapping) => mapping.courseOutcomeId === courseOutcomeId
     );
   },
+  // CO-PO mapping actions
+  updateCourseOutcomePO: (
+    courseOutcomeId,
+    programOutcomeId,
+    contributionLevel
+  ) =>
+    set((state) => {
+      // Check if a mapping already exists for this CO-PO pair
+      const existingMappingIndex = state.coPoMappings.findIndex(
+        (mapping) =>
+          mapping.courseOutcomeId === courseOutcomeId &&
+          mapping.programOutcomeId === programOutcomeId
+      );
+
+      const updatedMappings = [...state.coPoMappings];
+
+      if (contributionLevel === null) {
+        // If null, remove the mapping
+        if (existingMappingIndex >= 0) {
+          updatedMappings.splice(existingMappingIndex, 1);
+        }
+      } else if (existingMappingIndex >= 0) {
+        // Update existing mapping
+        updatedMappings[existingMappingIndex] = {
+          courseOutcomeId,
+          programOutcomeId,
+          contributionLevel,
+        };
+      } else {
+        // Create new mapping
+        updatedMappings.push({
+          courseOutcomeId,
+          programOutcomeId,
+          contributionLevel,
+        });
+      }
+
+      return { coPoMappings: updatedMappings };
+    }),
+
+  getPOMappingsForCO: (courseOutcomeId) => {
+    const state = get();
+    return state.coPoMappings.filter(
+      (mapping) => mapping.courseOutcomeId === courseOutcomeId
+    );
+  },
 
   // Reset function to clear all state
   resetStore: () =>
@@ -220,5 +304,6 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
       courseOutcomes: [{ id: 1, name: "", statement: "" }],
       coAbcdMappings: [],
       coCpaMappings: [],
+      coPoMappings: [],
     }),
 }));
