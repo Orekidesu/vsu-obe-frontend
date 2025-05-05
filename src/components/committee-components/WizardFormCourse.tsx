@@ -17,6 +17,7 @@ import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPA";
 import { CourseOutcomesPOStep } from "./form-steps/CourseOutcomeToPO";
 import { CourseOutcomesTLAStep } from "./form-steps/CourseOutcomeTLA";
 import { CourseOutcomesTLStep } from "./form-steps/CourseOutcomeTMLR";
+import { CourseOutcomesReviewStep } from "./form-steps/CourseOutcomeReviewStep";
 
 interface WizardFormCourseProps {
   courseId: string;
@@ -110,7 +111,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   }, [poLoading, coursePOs, setProgramOutcomes]);
 
   // Calculate progress percentage based on total steps
-  const totalSteps = 6; // Currently only one step, will expand later
+  const totalSteps = 7; // Currently only one step, will expand later
   const progressValue = (currentStep / totalSteps) * 100;
 
   // Validation function to check if B, C, and D are in the CO statement
@@ -256,6 +257,9 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         const learningResources = getCOLearningResources(outcome.id);
         return teachingMethods.length > 0 && learningResources.length > 0;
       });
+    } else if (currentStep === 7) {
+      // Review step is always valid
+      return true;
     }
 
     return false;
@@ -366,6 +370,23 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
           getCOLearningResources={getCOLearningResources}
           updateCOTeachingMethods={updateCOTeachingMethods}
           updateCOLearningResources={updateCOLearningResources}
+        />
+      )}
+
+      {/* Step 7: Review */}
+      {currentStep === 7 && (
+        <CourseOutcomesReviewStep
+          courseOutcomes={courseOutcomes}
+          programOutcomes={programOutcomes}
+          abcdMappings={coAbcdMappings}
+          cpaMappings={coCpaMappings}
+          poMappings={coPoMappings}
+          assessmentTasks={assessmentTasks}
+          teachingMethods={teachingMethods}
+          learningResources={learningResources}
+          getCOTeachingMethods={getCOTeachingMethods}
+          getCOLearningResources={getCOLearningResources}
+          onEditStep={setCurrentStep}
         />
       )}
 
