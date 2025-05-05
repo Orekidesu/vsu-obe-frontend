@@ -11,26 +11,27 @@ export function TLAInstructions({
   isTotalWeightValid,
 }: TLAInstructionsProps) {
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg p-4 mb-6">
+    // <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg p-4 mb-6">
+    <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-md">
       <div className="flex items-start space-x-4">
-        <div className="bg-blue-100 p-2 rounded-full">
-          <Info className="h-5 w-5 text-blue-600" />
+        <div className=" rounded-full">
+          <Info className="h-5 w-5 text-amber-600 mt-0.5" />
         </div>
         <div className="space-y-2">
-          <h3 className="font-medium text-blue-800">
+          <h3 className="font-medium text-amber-800">
             Teaching, Learning, and Assessment (TLA) Plan
           </h3>
-          <p className="text-sm text-blue-700">
+          <p className="text-sm text-amber-700">
             Define assessment tasks for each Course Outcome. Each CO must have
             at least one assessment task.
           </p>
-          <p className="text-sm text-blue-700">
+          <p className="text-sm text-amber-700">
             The total assessment weight across all tasks must equal exactly
             100%.
           </p>
           <div className="flex items-center gap-2 pt-1">
             <div className="flex items-center gap-1.5">
-              <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+              <Badge className="bg-amber-100 text-amber-800 border-amber-200">
                 <Calculator className="h-3 w-3 mr-1" />
                 Total Weight: {totalWeight.toFixed(1)}%
               </Badge>
