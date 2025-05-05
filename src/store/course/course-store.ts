@@ -45,6 +45,25 @@ export interface AssessmentTask {
   weight: number; // Weight in percentage (e.g., 10 for 10%)
 }
 
+// Define the Teaching Method interface
+export interface TeachingMethod {
+  id: string;
+  name: string;
+}
+
+// Define the Learning Resource interface
+export interface LearningResource {
+  id: string;
+  name: string;
+}
+
+// Define the CO Teaching Methods and Learning Resources mapping
+export interface CO_TL_Mapping {
+  courseOutcomeId: number;
+  teachingMethods: string[];
+  learningResources: string[];
+}
+
 // Define the Course Details state
 interface CourseDetailsState {
   // Course identification
@@ -73,6 +92,11 @@ interface CourseDetailsState {
 
   // Assessment tasks
   assessmentTasks: AssessmentTask[];
+
+  // Teaching methods and learning resources
+  teachingMethods: TeachingMethod[];
+  learningResources: LearningResource[];
+  coTLMappings: CO_TL_Mapping[];
 
   // Actions
   setCourseInfo: (
@@ -124,6 +148,22 @@ interface CourseDetailsState {
   getAssessmentTasksForCO: (courseOutcomeId: number) => AssessmentTask[];
   getTotalAssessmentWeight: () => number;
 
+  // Teaching methods and learning resources actions
+  addTeachingMethod: (name: string) => void;
+  removeTeachingMethod: (id: string) => void;
+  addLearningResource: (name: string) => void;
+  removeLearningResource: (id: string) => void;
+  updateCOTeachingMethods: (
+    courseOutcomeId: number,
+    methodIds: string[]
+  ) => void;
+  updateCOLearningResources: (
+    courseOutcomeId: number,
+    resourceIds: string[]
+  ) => void;
+  getCOTeachingMethods: (courseOutcomeId: number) => string[];
+  getCOLearningResources: (courseOutcomeId: number) => string[];
+
   // Reset function
   resetStore: () => void;
 }
@@ -140,6 +180,37 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
   coCpaMappings: [], // Start with empty CPA mappings
   coPoMappings: [], // Start with empty CO-PO mappings
   assessmentTasks: [],
+
+  // Teaching methods and learning resources
+  teachingMethods: [
+    { id: "tm_1", name: "Lecture" },
+    { id: "tm_2", name: "Discussion" },
+    { id: "tm_3", name: "Demonstration" },
+    { id: "tm_4", name: "Group Work" },
+    { id: "tm_5", name: "Problem-Based Learning" },
+    { id: "tm_6", name: "Case Study" },
+    { id: "tm_7", name: "Role Play" },
+    { id: "tm_8", name: "Simulation" },
+    { id: "tm_9", name: "Project" },
+    { id: "tm_10", name: "Laboratory" },
+    { id: "tm_11", name: "Field Trip" },
+    { id: "tm_12", name: "Flipped Classroom" },
+    { id: "tm_13", name: "Peer Teaching" },
+    { id: "tm_14", name: "Experiments" },
+  ],
+  learningResources: [
+    { id: "lr_1", name: "Textbooks" },
+    { id: "lr_2", name: "Reference Books" },
+    { id: "lr_3", name: "Lecture Notes" },
+    { id: "lr_4", name: "PPT Slides" },
+    { id: "lr_5", name: "Videos" },
+    { id: "lr_6", name: "Online Tutorials" },
+    { id: "lr_7", name: "Journal Articles" },
+    { id: "lr_8", name: "Software" },
+    { id: "lr_9", name: "Websites" },
+    { id: "lr_10", name: "Lab Manuals" },
+  ],
+  coTLMappings: [],
 
   // Actions
   setCurrentStep: (step) => set({ currentStep: step }),
@@ -194,12 +265,18 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
         (task) => task.courseOutcomeId !== id
       );
 
+      // Also remove any TL mappings for this outcome
+      const updatedTLMappings = state.coTLMappings.filter(
+        (mapping) => mapping.courseOutcomeId !== id
+      );
+
       return {
         courseOutcomes: updatedOutcomes,
         coAbcdMappings: updatedABCDMappings,
         coCpaMappings: updatedCPAMappings,
         coPoMappings: updatedPOMappings,
         assessmentTasks: updatedAssessmentTasks,
+        coTLMappings: updatedTLMappings,
       };
     }),
 
@@ -396,6 +473,135 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
       (total, task) => total + task.weight,
       0
     );
+  },
+
+  // Teaching methods and learning resources actions
+  addTeachingMethod: (name) =>
+    set((state) => {
+      const id = `tm_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      return {
+        teachingMethods: [...state.teachingMethods, { id, name }],
+      };
+    }),
+
+  removeTeachingMethod: (id) =>
+    set((state) => {
+      // Remove the teaching method
+      const updatedMethods = state.teachingMethods.filter(
+        (method) => method.id !== id
+      );
+
+      // Also remove this method from any CO mappings
+      const updatedMappings = state.coTLMappings.map((mapping) => ({
+        ...mapping,
+        teachingMethods: mapping.teachingMethods.filter(
+          (methodId) => methodId !== id
+        ),
+      }));
+
+      return {
+        teachingMethods: updatedMethods,
+        coTLMappings: updatedMappings,
+      };
+    }),
+
+  addLearningResource: (name) =>
+    set((state) => {
+      const id = `lr_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      return {
+        learningResources: [...state.learningResources, { id, name }],
+      };
+    }),
+
+  removeLearningResource: (id) =>
+    set((state) => {
+      // Remove the learning resource
+      const updatedResources = state.learningResources.filter(
+        (resource) => resource.id !== id
+      );
+
+      // Also remove this resource from any CO mappings
+      const updatedMappings = state.coTLMappings.map((mapping) => ({
+        ...mapping,
+        learningResources: mapping.learningResources.filter(
+          (resourceId) => resourceId !== id
+        ),
+      }));
+
+      return {
+        learningResources: updatedResources,
+        coTLMappings: updatedMappings,
+      };
+    }),
+
+  updateCOTeachingMethods: (courseOutcomeId, methodIds) =>
+    set((state) => {
+      // Check if a mapping already exists for this CO
+      const existingMappingIndex = state.coTLMappings.findIndex(
+        (mapping) => mapping.courseOutcomeId === courseOutcomeId
+      );
+
+      const updatedMappings = [...state.coTLMappings];
+
+      if (existingMappingIndex >= 0) {
+        // Update existing mapping
+        updatedMappings[existingMappingIndex] = {
+          ...updatedMappings[existingMappingIndex],
+          teachingMethods: methodIds,
+        };
+      } else {
+        // Create new mapping
+        updatedMappings.push({
+          courseOutcomeId,
+          teachingMethods: methodIds,
+          learningResources: [],
+        });
+      }
+
+      return { coTLMappings: updatedMappings };
+    }),
+
+  updateCOLearningResources: (courseOutcomeId, resourceIds) =>
+    set((state) => {
+      // Check if a mapping already exists for this CO
+      const existingMappingIndex = state.coTLMappings.findIndex(
+        (mapping) => mapping.courseOutcomeId === courseOutcomeId
+      );
+
+      const updatedMappings = [...state.coTLMappings];
+
+      if (existingMappingIndex >= 0) {
+        // Update existing mapping
+        updatedMappings[existingMappingIndex] = {
+          ...updatedMappings[existingMappingIndex],
+          learningResources: resourceIds,
+        };
+      } else {
+        // Create new mapping
+        updatedMappings.push({
+          courseOutcomeId,
+          teachingMethods: [],
+          learningResources: resourceIds,
+        });
+      }
+
+      return { coTLMappings: updatedMappings };
+    }),
+
+  getCOTeachingMethods: (courseOutcomeId) => {
+    const state = get();
+    const mapping = state.coTLMappings.find(
+      (mapping) => mapping.courseOutcomeId === courseOutcomeId
+    );
+    return mapping ? mapping.teachingMethods : [];
+  },
+
+  getCOLearningResources: (courseOutcomeId) => {
+    const state = get();
+    const mapping = state.coTLMappings.find(
+      (mapping) => mapping.courseOutcomeId === courseOutcomeId
+    );
+    return mapping ? mapping.learningResources : [];
   },
 
   // Reset function to clear all state
