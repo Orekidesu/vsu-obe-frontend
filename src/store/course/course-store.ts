@@ -612,6 +612,9 @@ export const useCourseDetailsStore = create<CourseDetailsState>((set, get) => ({
       coAbcdMappings: [],
       coCpaMappings: [],
       coPoMappings: [],
+      coTLMappings: [],
+      // learningResources: [],
+      // teachingMethods: [],
       assessmentTasks: [],
     }),
 }));
