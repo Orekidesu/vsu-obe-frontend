@@ -16,6 +16,7 @@ import { CourseOutcomesABCDStep } from "./form-steps/CourseOutcomeABCD";
 import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPA";
 import { CourseOutcomesPOStep } from "./form-steps/CourseOutcomeToPO";
 import { CourseOutcomesTLAStep } from "./form-steps/CourseOutcomeTLA";
+import { CourseOutcomesTLStep } from "./form-steps/CourseOutcomeTMLR";
 
 interface WizardFormCourseProps {
   courseId: string;
@@ -36,24 +37,43 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     coAbcdMappings,
     coCpaMappings,
     coPoMappings,
+    coTLMappings,
     assessmentTasks,
+    teachingMethods,
+    learningResources,
+
     currentStep,
+
     setCourseInfo,
     setCurrentStep,
+
     addCourseOutcome,
     addAssessmentTask,
+    addTeachingMethod,
+    addLearningResource,
+
     updateCourseOutcome,
+    updateCOTeachingMethods,
+    updateCOLearningResources,
+
     removeCourseOutcome,
     removeAssessmentTask,
+    removeTeachingMethod,
+    removeLearningResource,
+
     updateCourseOutcomeABCD,
     updateCourseOutcomeCPA,
     updateCourseOutcomePO,
     updateAssessmentTask,
+
     getABCDMappingForCO,
     getCPAMappingForCO,
     getPOMappingsForCO,
     getAssessmentTasksForCO,
     getTotalAssessmentWeight,
+    getCOTeachingMethods,
+    getCOLearningResources,
+
     setProgramOutcomes,
     resetStore,
   } = useCourseDetailsStore();
@@ -90,7 +110,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   }, [poLoading, coursePOs, setProgramOutcomes]);
 
   // Calculate progress percentage based on total steps
-  const totalSteps = 5; // Currently only one step, will expand later
+  const totalSteps = 6; // Currently only one step, will expand later
   const progressValue = (currentStep / totalSteps) * 100;
 
   // Validation function to check if B, C, and D are in the CO statement
@@ -159,14 +179,16 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       coAbcdMappings,
       coCpaMappings,
       coPoMappings,
+      coTLMappings,
       assessmentTasks,
+      teachingMethods,
+      learningResources,
     });
 
     // Show success message
     alert("Course details saved successfully!");
 
     resetStore();
-    // Navigate back to the courses page
     router.push("/faculty/courses");
   };
 
@@ -227,6 +249,13 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       const isTotalWeightValid = Math.abs(totalWeight - 100) < 0.01; // Allow for small floating point errors
 
       return allCOsHaveAssessmentTasks && isTotalWeightValid;
+    } else if (currentStep === 6) {
+      // Validate TL plan - each CO must have at least one teaching method and one learning resource
+      return courseOutcomes.every((outcome) => {
+        const teachingMethods = getCOTeachingMethods(outcome.id);
+        const learningResources = getCOLearningResources(outcome.id);
+        return teachingMethods.length > 0 && learningResources.length > 0;
+      });
     }
 
     return false;
@@ -321,6 +350,22 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
           onUpdateAssessmentTask={updateAssessmentTask}
           onRemoveAssessmentTask={removeAssessmentTask}
           getTotalAssessmentWeight={getTotalAssessmentWeight}
+        />
+      )}
+      {/* Step 6: Teaching Methods and Learning Resources */}
+      {currentStep === 6 && (
+        <CourseOutcomesTLStep
+          courseOutcomes={courseOutcomes}
+          teachingMethods={teachingMethods}
+          learningResources={learningResources}
+          addTeachingMethod={addTeachingMethod}
+          removeTeachingMethod={removeTeachingMethod}
+          addLearningResource={addLearningResource}
+          removeLearningResource={removeLearningResource}
+          getCOTeachingMethods={getCOTeachingMethods}
+          getCOLearningResources={getCOLearningResources}
+          updateCOTeachingMethods={updateCOTeachingMethods}
+          updateCOLearningResources={updateCOLearningResources}
         />
       )}
 
