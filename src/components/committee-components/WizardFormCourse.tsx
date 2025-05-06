@@ -182,8 +182,8 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       coPoMappings,
       coTLMappings,
       assessmentTasks,
-      teachingMethods,
-      learningResources,
+      // teachingMethods,
+      // learningResources,
     });
 
     // Show success message
