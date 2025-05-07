@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -8,9 +8,17 @@ import {
   CourseOutcome,
   useCourseDetailsStore,
 } from "@/store/course/course-store";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
+
 import { CourseOutcomesStep } from "@/components/committee-components/form-steps/CourseOutcome";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 import useCoursePO from "@/hooks/shared/useCoursePO";
+import {
+  createCurriculumCourseDetailsPayload,
+  submitCurriculumCourseDetailsHandler,
+} from "@/app/utils/faculty/handleCurriculumCourseDetails";
 
 import { CourseOutcomesABCDStep } from "./form-steps/CourseOutcomeABCD";
 import { CourseOutcomesCPAStep } from "./form-steps/CourseOutcomeCPA";
@@ -25,7 +33,13 @@ interface WizardFormCourseProps {
 
 export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   const router = useRouter();
+  const [formError, setFormError] = useState<
+    Record<string, string[]> | string | null
+  >(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const { curriculumCourses, isLoading } = useCurriculumCourses();
+  const { submitFullCurriculumCourseDetails } = useCurriculumCourses();
   const { coursePOs, isLoading: poLoading } = useCoursePO(
     parseInt(courseId, 10)
   );
@@ -38,7 +52,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     coAbcdMappings,
     coCpaMappings,
     coPoMappings,
-    coTLMappings,
+    // coTLMappings,
     assessmentTasks,
     teachingMethods,
     learningResources,
@@ -170,30 +184,96 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     }
   };
 
-  const handleSubmit = () => {
-    // In a real app, you would save the data to your backend
-    console.log("Submitting course details:", {
-      courseId,
-      courseCode,
-      courseTitle,
-      courseOutcomes,
-      coAbcdMappings,
-      coCpaMappings,
-      coPoMappings,
-      coTLMappings,
-      assessmentTasks,
-      // teachingMethods,
-      // learningResources,
-    });
+  // const handleSubmit = () => {
+  //   // In a real app, you would save the data to your backend
+  //   console.log("Submitting course details:", {
+  //     courseId,
+  //     courseCode,
+  //     courseTitle,
+  //     courseOutcomes,
+  //     coAbcdMappings,
+  //     coCpaMappings,
+  //     coPoMappings,
+  //     coTLMappings,
+  //     assessmentTasks,
+  //     teachingMethods,
+  //     learningResources,
+  //   });
 
-    // Show success message
-    alert("Course details saved successfully!");
+  //   // Show success message
+  //   alert("Course details saved successfully!");
 
-    resetStore();
-    router.push("/faculty/courses");
+  //   resetStore();
+  //   router.push("/faculty/courses");
+  // };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setFormError(null);
+
+    try {
+      // Make sure all necessary type conversions are handled:
+
+      // 1. Convert courseId to number
+      const numericCourseId = parseInt(courseId, 10);
+
+      // 2. Ensure no null values in coCpaMappings.domain
+      const sanitizedCpaMappings = coCpaMappings.map((mapping) => ({
+        courseOutcomeId: mapping.courseOutcomeId,
+        domain: mapping.domain || "cognitive", // Provide default value if null
+      }));
+
+      // 3. Create proper teaching methods and learning resources mappings
+      const teachingMethodMappings = courseOutcomes.map((co) => ({
+        courseOutcomeId: co.id,
+        methodIds: getCOTeachingMethods(co.id),
+      }));
+
+      const learningResourceMappings = courseOutcomes.map((co) => ({
+        courseOutcomeId: co.id,
+        resourceIds: getCOLearningResources(co.id),
+      }));
+
+      // Create the sanitized form data object
+      const safeFormData = {
+        courseId: numericCourseId,
+        courseCode,
+        courseTitle,
+        courseOutcomes,
+        coAbcdMappings,
+        coCpaMappings: sanitizedCpaMappings,
+        coPoMappings,
+        assessmentTasks,
+        teachingMethods,
+        learningResources,
+        coTeachingMethodMappings: teachingMethodMappings,
+        coLearningResourceMappings: learningResourceMappings,
+      };
+
+      // Transform the data to the expected API payload format
+      const payload = createCurriculumCourseDetailsPayload(safeFormData);
+
+      // Log the formatted payload for debugging
+      console.log("API Payload:", payload);
+
+      // Use the handler to submit the payload
+      await submitCurriculumCourseDetailsHandler(
+        submitFullCurriculumCourseDetails,
+        payload,
+        setFormError
+      );
+
+      // Reset store and navigate on success
+      resetStore();
+      router.push("/faculty/courses");
+    } catch (error) {
+      console.error("Error submitting course details:", error);
+      // Error is already handled by the submitCurriculumCourseDetailsHandler
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // Check if current step is valid to proceed
   const isStepValid = () => {
     if (currentStep === 1) {
       // Validate course outcomes
@@ -295,6 +375,21 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
 
   return (
     <div className="container py-10 max-w-3xl mx-auto">
+      {formError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {typeof formError === "string"
+              ? formError
+              : Object.entries(formError).map(([key, errors]) => (
+                  <div key={key} className="mt-1">
+                    <strong>{key}:</strong> {errors.join(", ")}
+                  </div>
+                ))}
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Course Details: {courseCode}</h1>
       </div>
@@ -403,10 +498,14 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
 
         <Button
           onClick={handleNext}
-          disabled={!isStepValid()}
+          disabled={!isStepValid() || isSubmitting}
           className="bg-green-600 hover:bg-green-700"
         >
-          {currentStep === totalSteps ? "Submit" : "Next"}
+          {currentStep === totalSteps
+            ? isSubmitting
+              ? "Submitting..."
+              : "Submit"
+            : "Next"}
         </Button>
       </div>
     </div>
