@@ -45,6 +45,7 @@ interface CommitteeAssignmentsProps {
   committees: Committee[];
   committeeAssignments: CommitteeAssignment[];
   courses: Course[];
+  programProposalStatus?: string;
 
   onSubmitForReview?: () => void; // New prop for submit handler
   showReadyForReviewButton?: boolean;
@@ -54,6 +55,7 @@ export function CommitteeAssignments({
   committees,
   committeeAssignments,
   courses,
+  programProposalStatus = "pending",
   onSubmitForReview,
   showReadyForReviewButton = true,
 }: CommitteeAssignmentsProps) {
@@ -382,6 +384,7 @@ export function CommitteeAssignments({
           )}
         </CardContent>
         {allCoursesCompleted &&
+          programProposalStatus === "pending" &&
           showReadyForReviewButton &&
           onSubmitForReview && (
             <CardFooter className="bg-green-50 border-t border-green-100">

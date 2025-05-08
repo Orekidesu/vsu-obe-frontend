@@ -113,7 +113,8 @@ export default function PendingProgramReviewPage() {
       programData &&
       programData.curriculum &&
       programData.peos &&
-      programData.pos
+      programData.pos &&
+      programData.committees
     ) {
       transformApiData(programData);
     }
