@@ -67,20 +67,9 @@ const useProgramProposals = () => {
     enabled: !!id,
   });
 
-  const checkForReviewProposal = (id: number) => ({
-    queryKey: ["program-proposal", id],
-    queryFn: async () => {
-      const response = await api.get<{ data: ProgramProposalResponse }>(
-        `department/program-proposals/${id}/check-ready-for-review`
-      );
-      return response.data.data;
-    },
-    enabled: !!id,
-  });
-
   const getProgramProposalFromCache = (id: number) => {
     return {
-      queryKey: ["program-proposal-review-check"],
+      queryKey: ["program-proposals"],
       select: (data: ProgramProposalResponse[] | undefined) =>
         data?.find((proposal) => proposal.id === id),
       enabled: !!id,
@@ -175,7 +164,6 @@ const useProgramProposals = () => {
     submitFullProgramProposal,
     error,
     getProgramProposal,
-    checkForReviewProposal,
     getProgramProposalFromCache,
     createProgramProposal,
     updateProgramProposal,

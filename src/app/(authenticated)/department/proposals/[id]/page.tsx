@@ -22,7 +22,10 @@ import { CommitteeAssignments } from "@/components/commons/program-details/commi
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { useAuth } from "@/hooks/useAuth";
 
-// Import custom hooks and types
+import { toast } from "@/hooks/use-toast"; // Import toast at the top
+import useApi from "@/hooks/useApi"; // Import useApi at the top
+import { useQueryClient } from "@tanstack/react-query";
+
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import type { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 
@@ -57,6 +60,9 @@ export default function PendingProgramReviewPage() {
   // Get program proposal hooks
   const { getProgramProposalFromCache, updateProgramProposal } =
     useProgramProposals();
+
+  const api = useApi();
+  const queryClient = useQueryClient();
 
   // Fetch program proposal data
   const {
@@ -539,10 +545,42 @@ export default function PendingProgramReviewPage() {
   const poToGAMapping = preparePOToGAMapping();
   // const courseToPOMapping = prepareCourseToPOMapping();
 
-  const handleSubmitForReview = () => {
-    alert(
-      "Program is ready for review! All courses have been completed by committee members."
-    );
+  // const handleSubmitForReview = () => {
+  //   alert(
+  //     "Program is ready for review! All courses have been completed by committee members."
+  //   );
+  // };
+  const handleSubmitForReview = async () => {
+    try {
+      // Call the API directly
+      await api.patch<{ data: ProgramProposalResponse }>(
+        `department/program-proposals/${proposalId}/check-ready-for-review`
+      );
+
+      // Handle success
+      toast({
+        title: "Success",
+        description: "Program has been submitted for review successfully.",
+        variant: "success",
+      });
+
+      // Refresh the page data
+      queryClient.invalidateQueries({ queryKey: ["program-proposals"] });
+      queryClient.invalidateQueries({
+        queryKey: ["program-proposal", proposalId],
+      });
+      setActionTaken("review");
+    } catch (error) {
+      console.error("Error submitting for review:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to submit program for review. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Show loading state
