@@ -499,6 +499,7 @@ export default function ActiveProgramReviewPage() {
         programAbbreviation={transformedData.program.abbreviation}
         curriculumName={transformedData.curriculum.name}
         totalCourses={transformedData.curriculum_courses.length}
+        status={programData?.status || ""}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
