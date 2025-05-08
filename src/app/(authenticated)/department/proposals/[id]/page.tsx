@@ -538,6 +538,12 @@ export default function PendingProgramReviewPage() {
   const poToGAMapping = preparePOToGAMapping();
   // const courseToPOMapping = prepareCourseToPOMapping();
 
+  const handleSubmitForReview = () => {
+    alert(
+      "Program is ready for review! All courses have been completed by committee members."
+    );
+  };
+
   // Show loading state
   if (isLoading) {
     return (
@@ -670,6 +676,11 @@ export default function PendingProgramReviewPage() {
                 committees={transformedData.committees}
                 committeeAssignments={transformedData.committeeAssignments}
                 courses={transformedData.courses}
+                onSubmitForReview={handleSubmitForReview}
+                showReadyForReviewButton={
+                  programData?.status === "pending" ||
+                  programData?.status === "revision"
+                }
               />
             </>
           ) : (
@@ -713,6 +724,8 @@ export default function PendingProgramReviewPage() {
         removeRevisionRequest={removeRevisionRequest}
         onConfirm={confirmRevise}
       />
+
+      {/* Submit for review Button Here */}
     </main>
   );
 }

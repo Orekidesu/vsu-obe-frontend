@@ -1,4 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+
+import { Button } from "@/components/ui";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -7,7 +15,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Mail, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Mail, CheckCircle2, Clock, AlertCircle, SendIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -37,12 +45,17 @@ interface CommitteeAssignmentsProps {
   committees: Committee[];
   committeeAssignments: CommitteeAssignment[];
   courses: Course[];
+
+  onSubmitForReview?: () => void; // New prop for submit handler
+  showReadyForReviewButton?: boolean;
 }
 
 export function CommitteeAssignments({
   committees,
   committeeAssignments,
   courses,
+  onSubmitForReview,
+  showReadyForReviewButton = true,
 }: CommitteeAssignmentsProps) {
   // Helper function to get course details by ID
   const getCourseById = (courseId: string) => {
@@ -93,6 +106,9 @@ export function CommitteeAssignments({
     courses.length > 0
       ? Math.round((totalAssignedCourses / courses.length) * 100)
       : 0;
+  // Check if all assigned courses are completed
+  const allCoursesCompleted =
+    totalAssignedCourses > 0 && completedCourses === totalAssignedCourses;
 
   return (
     <div className="space-y-6">
@@ -365,6 +381,30 @@ export function CommitteeAssignments({
             </>
           )}
         </CardContent>
+        {allCoursesCompleted &&
+          showReadyForReviewButton &&
+          onSubmitForReview && (
+            <CardFooter className="bg-green-50 border-t border-green-100">
+              <div className="w-full flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-green-800">
+                    All courses completed!
+                  </h3>
+                  <p className="text-green-700 text-sm">
+                    All {completedCourses} courses have been completed by
+                    committee members. This program is ready for review.
+                  </p>
+                </div>
+                <Button
+                  onClick={onSubmitForReview}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <SendIcon className="h-4 w-4 mr-2" />
+                  Ready for Review
+                </Button>
+              </div>
+            </CardFooter>
+          )}
       </Card>
 
       {committees.length > 0 && (
