@@ -99,6 +99,7 @@ export interface ProgramProposalResponse {
       curriculum_course_id: number;
       course_code: string;
       descriptive_title: string;
+      is_completed: boolean;
     }>;
   }>;
 }

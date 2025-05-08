@@ -18,6 +18,7 @@ import { ApproveDialog } from "@/components/commons/program-details/approve-dial
 import { RejectDialog } from "@/components/commons/program-details/reject-dialog";
 import { ReviseDialog } from "@/components/commons/program-details/revise-dialog";
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
+import { CommitteeAssignments } from "@/components/commons/program-details/committee-assignments";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -93,6 +94,17 @@ export default function PendingProgramReviewPage() {
       ied: string[];
     }[],
     missions: [] as { id: number; statement: string }[],
+    committees: [] as Array<{
+      id: string;
+      name: string;
+      email: string;
+      description: string;
+    }>,
+    committeeAssignments: [] as Array<{
+      committeeId: string;
+      courseId: string;
+      isCompleted: boolean;
+    }>,
   });
 
   // Transform API data when it's loaded
@@ -236,6 +248,31 @@ export default function PendingProgramReviewPage() {
       units: Number.parseFloat(course.units),
     }));
 
+    const committees =
+      data.committees?.map((committee) => ({
+        id: committee.id.toString(),
+        name: `${committee.user.first_name} ${committee.user.last_name}`,
+        email: committee.user.email,
+        description: `Assigned by ${committee.assigned_by.first_name} ${committee.assigned_by.last_name}`,
+      })) || [];
+
+    // Transform committee assignments
+    const committeeAssignments: Array<{
+      committeeId: string;
+      courseId: string;
+      isCompleted: boolean;
+    }> = [];
+
+    data.committees?.forEach((committee) => {
+      committee.assigned_courses.forEach((course) => {
+        committeeAssignments.push({
+          committeeId: committee.id.toString(),
+          courseId: course.course_code,
+          isCompleted: course.is_completed || false, // Default to false if not provided
+        });
+      });
+    });
+
     // Set the transformed data
     setTransformedData({
       program: {
@@ -258,6 +295,8 @@ export default function PendingProgramReviewPage() {
       po_ga_mappings: poGaMappings,
       course_po_mappings: coursePOMappings,
       missions: Array.from(uniqueMissions.values()),
+      committees,
+      committeeAssignments,
     });
   };
 
@@ -557,14 +596,16 @@ export default function PendingProgramReviewPage() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
           <TabsTrigger value="mappings">Mappings</TabsTrigger>
+          <TabsTrigger value="committees">Committees</TabsTrigger>
         </TabsList>
 
+        {/* Overview */}
         <TabsContent value="overview" className="space-y-6">
           <PEOSection peos={transformedData.peos} />
           <POSection pos={transformedData.pos} />
           <CourseCategories categories={transformedData.course_categories} />
         </TabsContent>
-
+        {/* Curriculum */}
         <TabsContent value="curriculum" className="space-y-6">
           <ProgramStructure
             semesters={transformedData.semesters}
@@ -577,6 +618,8 @@ export default function PendingProgramReviewPage() {
             getSemesterName={getSemesterName}
           />
         </TabsContent>
+
+        {/* Mappings */}
 
         <TabsContent value="mappings" className="space-y-6">
           <MappingTable
@@ -616,6 +659,30 @@ export default function PendingProgramReviewPage() {
             getSemesterName={getSemesterName}
             getLevelBadgeColor={getLevelBadgeColor}
           />
+        </TabsContent>
+
+        {/* Committees */}
+        <TabsContent value="committees" className="space-y-6">
+          {programData?.committees && programData.committees.length > 0 ? (
+            <>
+              {/* Add committee data transformation to transformApiData function */}
+              <CommitteeAssignments
+                committees={transformedData.committees}
+                committeeAssignments={transformedData.committeeAssignments}
+                courses={transformedData.courses}
+              />
+            </>
+          ) : (
+            <div className="text-center p-10 border rounded-lg bg-muted">
+              <h3 className="text-xl font-medium mb-2">
+                No Committee Assignments
+              </h3>
+              <p className="text-muted-foreground">
+                There are currently no committee members assigned to this
+                program proposal.
+              </p>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
