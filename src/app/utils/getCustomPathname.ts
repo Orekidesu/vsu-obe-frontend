@@ -13,6 +13,18 @@ const getCustomPathname = (path: string) => {
         return "Unknown Path";
     }
   }
+  if (path.startsWith("/dean")) {
+    switch (path) {
+      case "/dean":
+        return "Dashboard";
+      case "/dean/proposals":
+        return "Proposals";
+      case "/dean/settings":
+        return "Settings";
+      default:
+        return "Unknown Path";
+    }
+  }
 
   if (path.startsWith("/department")) {
     switch (path) {
