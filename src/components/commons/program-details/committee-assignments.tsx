@@ -15,7 +15,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Mail, CheckCircle2, Clock, AlertCircle, SendIcon } from "lucide-react";
+import { Mail, CheckCircle2, Clock, AlertCircle, Check } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -402,7 +402,7 @@ export function CommitteeAssignments({
                   onClick={onSubmitForReview}
                   className="bg-green-600 hover:bg-green-700"
                 >
-                  <SendIcon className="h-4 w-4 mr-2" />
+                  <Check className="h-4 w-4 mr-2" />
                   Ready for Review
                 </Button>
               </div>
