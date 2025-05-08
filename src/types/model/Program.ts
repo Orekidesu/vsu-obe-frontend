@@ -85,6 +85,26 @@ export interface ProgramResponse {
       }>;
     }>;
   };
+  committees: Array<{
+    id: number;
+    user: {
+      id: number;
+      first_name: string;
+      last_name: string;
+      email: string;
+    };
+    assigned_by: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    };
+    assigned_courses: Array<{
+      curriculum_course_id: number;
+      course_code: string;
+      descriptive_title: string;
+      is_completed: boolean;
+    }>;
+  }>;
   proposal: {
     id: number;
     status: string;
