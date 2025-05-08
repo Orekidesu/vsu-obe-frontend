@@ -61,6 +61,8 @@ export default function PendingProgramReviewPage() {
   const { getProgramProposalFromCache, updateProgramProposal } =
     useProgramProposals();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const api = useApi();
   const queryClient = useQueryClient();
 
@@ -552,6 +554,7 @@ export default function PendingProgramReviewPage() {
   // };
   const handleSubmitForReview = async () => {
     try {
+      setIsSubmitting(true);
       // Call the API directly
       await api.patch<{ data: ProgramProposalResponse }>(
         `department/program-proposals/${proposalId}/check-ready-for-review`
@@ -572,8 +575,9 @@ export default function PendingProgramReviewPage() {
       setActionTaken("review");
     } catch (error) {
       console.error("Error submitting for review:", error);
+      setIsSubmitting(false);
       toast({
-        title: "Error",
+        title: "Submission Error",
         description:
           error instanceof Error
             ? error.message
@@ -717,6 +721,7 @@ export default function PendingProgramReviewPage() {
                 committeeAssignments={transformedData.committeeAssignments}
                 courses={transformedData.courses}
                 onSubmitForReview={handleSubmitForReview}
+                isSubmitting={isSubmitting}
                 showReadyForReviewButton={
                   programData?.status === "pending" ||
                   programData?.status === "revision"

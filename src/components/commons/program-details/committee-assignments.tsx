@@ -15,7 +15,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Mail, CheckCircle2, Clock, AlertCircle, Check } from "lucide-react";
+import {
+  Mail,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Check,
+  Loader2,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -48,6 +55,7 @@ interface CommitteeAssignmentsProps {
   programProposalStatus?: string;
 
   onSubmitForReview?: () => void; // New prop for submit handler
+  isSubmitting?: boolean;
   showReadyForReviewButton?: boolean;
 }
 
@@ -56,6 +64,7 @@ export function CommitteeAssignments({
   committeeAssignments,
   courses,
   programProposalStatus = "pending",
+  isSubmitting,
   onSubmitForReview,
   showReadyForReviewButton = true,
 }: CommitteeAssignmentsProps) {
@@ -401,9 +410,19 @@ export function CommitteeAssignments({
                 <Button
                   onClick={onSubmitForReview}
                   className="bg-green-600 hover:bg-green-700"
+                  disabled={isSubmitting}
                 >
-                  <Check className="h-4 w-4 mr-2" />
-                  Ready for Review
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Submit for Review
+                    </>
+                  )}
                 </Button>
               </div>
             </CardFooter>
