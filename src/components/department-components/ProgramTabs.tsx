@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, Clock, FileEdit } from "lucide-react";
+import { CheckCircle, Clock, FileEdit, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -43,12 +43,17 @@ export default function ProgramTabs() {
   const pendingProposals = departmentProposals.filter(
     (proposal) => proposal?.status === "pending"
   );
+  // Get for review proposals
+  const forReviewProposals = departmentProposals.filter(
+    (proposal) => proposal?.status === "review"
+  );
 
   // Get revision proposals
   const revisionProposals = departmentProposals.filter(
     (proposal) => proposal?.status === "revision"
   );
 
+  console.log(departmentProposals);
   const handleViewDetails = (id: number, type: "program" | "proposal") => {
     if (type === "program") {
       router.push(`/department/programs/${id}`);
@@ -98,12 +103,14 @@ export default function ProgramTabs() {
         className="w-full"
         onValueChange={(value) => setActiveTab(value)}
       >
-        <TabsList className="grid w-full md:grid-cols-3 mb-10">
-          <TabsTrigger value="active">Active Programs</TabsTrigger>
-          <TabsTrigger value="pending">Pending Proposals</TabsTrigger>
-          <TabsTrigger value="revision">Revision Proposals</TabsTrigger>
+        <TabsList className="grid w-full md:grid-cols-4 mb-10">
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="pending">Pending </TabsTrigger>
+          <TabsTrigger value="review">For Review</TabsTrigger>
+          <TabsTrigger value="revision">Revision</TabsTrigger>
         </TabsList>
 
+        {/* Active */}
         <TabsContent value="active" className="space-y-4">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-500" />
@@ -135,7 +142,7 @@ export default function ProgramTabs() {
             </>
           )}
         </TabsContent>
-
+        {/* Pending */}
         <TabsContent value="pending" className="space-y-4">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <Clock className="h-5 w-5 text-amber-500" />
@@ -166,6 +173,39 @@ export default function ProgramTabs() {
           )}
         </TabsContent>
 
+        {/* For Review */}
+        <TabsContent value="review" className="space-y-4">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <Search className="h-5 w-5 text-green-500" />
+            For Review Programs
+          </h2>
+
+          {isLoading ? (
+            <>
+              <Skeleton className="w-full h-52" />
+              <Skeleton className="w-full h-52" />
+            </>
+          ) : (
+            <>
+              {forReviewProposals.length > 0 ? (
+                forReviewProposals.map((proposal) => (
+                  <ProgramCard
+                    key={`${proposal.id}`}
+                    programProposal={proposal}
+                    status="review"
+                    onViewDetails={handleViewDetails}
+                  />
+                ))
+              ) : (
+                <EmptyState
+                  message="No programs for review found"
+                  onClick={navigateToNewProposal}
+                />
+              )}
+            </>
+          )}
+        </TabsContent>
+        {/* Revision */}
         <TabsContent value="revision" className="space-y-4">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <FileEdit className="h-5 w-5 text-blue-500" />
