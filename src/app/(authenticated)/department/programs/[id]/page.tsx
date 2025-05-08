@@ -14,7 +14,7 @@ import { CourseCategories } from "@/components/commons/program-details/course-ca
 import { ProgramStructure } from "@/components/commons/program-details/program-structure";
 import { CurriculumCourses } from "@/components/commons/program-details/curriculum-courses";
 import { MappingTable } from "@/components/commons/program-details/mapping-table";
-// import { CommitteeAssignments } from "@/components/commons/program-details/committee-assignments";
+import { CommitteeAssignments } from "@/components/commons/program-details/committee-assignments";
 
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
@@ -81,6 +81,17 @@ export default function ActiveProgramReviewPage() {
       ied: string[];
     }[],
     missions: [] as { id: number; statement: string }[],
+    committees: [] as Array<{
+      id: string;
+      name: string;
+      email: string;
+      description: string;
+    }>,
+    committeeAssignments: [] as Array<{
+      committeeId: string;
+      courseId: string;
+      isCompleted: boolean;
+    }>,
   });
 
   // Transform API data when it's loaded
@@ -233,6 +244,31 @@ export default function ActiveProgramReviewPage() {
       units: parseFloat(course.units),
     }));
 
+    // Transform committees data
+    const committees =
+      data.committees?.map((committee) => ({
+        id: committee.id.toString(),
+        name: `${committee.user.first_name} ${committee.user.last_name}`,
+        email: committee.user.email,
+        description: `Assigned by ${committee.assigned_by.first_name} ${committee.assigned_by.last_name}`,
+      })) || [];
+
+    // Transform committee assignments
+    const committeeAssignments: Array<{
+      committeeId: string;
+      courseId: string;
+      isCompleted: boolean;
+    }> = [];
+    data.committees?.forEach((committee) => {
+      committee.assigned_courses.forEach((course) => {
+        committeeAssignments.push({
+          committeeId: committee.id.toString(),
+          courseId: course.course_code,
+          isCompleted: course.is_completed, // Include is_completed status
+        });
+      });
+    });
+
     // Set the transformed data
     setTransformedData({
       program: {
@@ -256,6 +292,8 @@ export default function ActiveProgramReviewPage() {
       po_ga_mappings: poGaMappings,
       course_po_mappings: coursePOMappings,
       missions: Array.from(uniqueMissions.values()),
+      committees,
+      committeeAssignments,
     });
   };
 
@@ -468,14 +506,17 @@ export default function ActiveProgramReviewPage() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
           <TabsTrigger value="mappings">Mappings</TabsTrigger>
+          <TabsTrigger value="committees">Committees</TabsTrigger>
         </TabsList>
 
+        {/* Overview */}
         <TabsContent value="overview" className="space-y-6">
           <PEOSection peos={transformedData.peos} />
           <POSection pos={transformedData.pos} />
           <CourseCategories categories={transformedData.course_categories} />
         </TabsContent>
 
+        {/* Curriculum */}
         <TabsContent value="curriculum" className="space-y-6">
           <ProgramStructure
             semesters={transformedData.semesters}
@@ -489,6 +530,7 @@ export default function ActiveProgramReviewPage() {
           />
         </TabsContent>
 
+        {/* mappings */}
         <TabsContent value="mappings" className="space-y-6">
           <MappingTable
             title="PEO to Mission Mapping"
@@ -525,6 +567,15 @@ export default function ActiveProgramReviewPage() {
             coursePOMappings={transformedData.course_po_mappings}
             getSemesterName={getSemesterName}
             getLevelBadgeColor={getLevelBadgeColor}
+          />
+        </TabsContent>
+
+        {/* Committees */}
+        <TabsContent value="committees" className="space-y-6">
+          <CommitteeAssignments
+            committees={transformedData.committees}
+            committeeAssignments={transformedData.committeeAssignments}
+            courses={transformedData.courses}
           />
         </TabsContent>
       </Tabs>
