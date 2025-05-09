@@ -113,4 +113,9 @@ export interface ProgramResponse {
     created_at: string;
     updated_at: string;
   };
+  // meta: {
+  //   total_pending: number;
+  //   total_active: number;
+  //   total_archived: number;
+  // };
 }
