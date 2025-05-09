@@ -17,8 +17,10 @@ const getCustomPathname = (path: string) => {
     switch (path) {
       case "/dean":
         return "Dashboard";
-      case "/dean/proposals":
-        return "Proposals";
+      case "/dean/proposals/all-programs":
+        return "Program Proposals";
+      case "/dean/proposals/all-syllabi":
+        return "Syllabi Proposals";
       case "/dean/settings":
         return "Settings";
       default:
