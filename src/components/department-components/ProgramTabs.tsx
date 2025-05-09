@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import ProgramCard from "../commons/card/ProgramCard";
-import usePrograms from "@/hooks/department/useProgram";
+import usePrograms from "@/hooks/shared/useProgram";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { useAuth } from "@/hooks/useAuth";
 import useProgramProposals from "@/hooks/department/useProgramProposal";

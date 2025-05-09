@@ -21,7 +21,7 @@ import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { useAuth } from "@/hooks/useAuth";
 
 // Import custom hooks and types
-import usePrograms from "@/hooks/department/useProgram";
+import usePrograms from "@/hooks/shared/useProgram";
 import { ProgramResponse } from "@/types/model/Program";
 
 interface CurriculumCourse {

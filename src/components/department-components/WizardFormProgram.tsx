@@ -5,7 +5,7 @@ import { useWizardStore } from "@/store/wizard-store";
 import { Button } from "@/components/ui/button";
 
 import { Progress } from "@/components/ui/progress";
-import usePrograms from "@/hooks/department/useProgram";
+import usePrograms from "@/hooks/shared/useProgram";
 import useMissions from "@/hooks/shared/useMission";
 import useGraduateAttributes from "@/hooks/shared/useGraduateAttribute";
 import useCourseCategories from "@/hooks/department/useCourseCategory";

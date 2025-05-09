@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import usePrograms from "@/hooks/department/useProgram";
+import usePrograms from "@/hooks/shared/useProgram";
 import { useAuth } from "@/hooks/useAuth";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,6 +30,8 @@ const DashboardPage = () => {
     return <div>failed to load programs</div>;
   }
 
+  console.log(programs);
+
   const departmentPrograms = programs?.filter(
     (program) => program.department.id === session?.Department?.id
   );
@@ -40,7 +42,6 @@ const DashboardPage = () => {
     (program) => program.status === "pending"
   );
 
-  console.log("pending programs: ", pendingPrograms);
   return (
     <div className="grid grid-rows-1 content-center">
       <div className="flex flex-col md:flex-row justify-evenly gap-2 ">
