@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import usePrograms from "@/hooks/shared/useProgram";
-import { useAuth } from "@/hooks/useAuth";
-import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { Skeleton } from "@/components/ui/skeleton";
 // import { Loader2 } from "lucide-react";
 
@@ -14,23 +12,20 @@ const DashboardPage = () => {
     isLoading: isProgramLoading,
     error: programError,
   } = usePrograms();
-  const { session } = useAuth() as { session: Session | null };
+  // const { session } = useAuth() as { session: Session | null };
+
+  const activePrograms = programs?.filter(
+    (program) => program.status === "active"
+  );
+  const pendingPrograms = programs?.filter(
+    (program) => program.status === "pending"
+  );
 
   if (programError) {
     return <div>failed to load programs</div>;
   }
 
   console.log(programs);
-
-  const departmentPrograms = programs?.filter(
-    (program) => program.department.id === session?.Department?.id
-  );
-  const activePrograms = departmentPrograms?.filter(
-    (program) => program.status === "active"
-  );
-  const pendingPrograms = departmentPrograms?.filter(
-    (program) => program.status === "pending"
-  );
 
   return (
     <div className="grid grid-rows-1 content-center">
@@ -56,12 +51,12 @@ const DashboardPage = () => {
             />
             <CustomCard2
               title="All Syllabi"
-              value={activePrograms?.length || 0}
+              value={5}
               description="Total number of approved Syllabi"
             />
             <CustomCard2
               title="Pending Syllabi"
-              value={pendingPrograms?.length || 0}
+              value={10}
               description="Total number of Syllabi that is yet to be approved"
             />
           </>
