@@ -18,11 +18,19 @@ export interface ProgramProposalResponse {
   version: number;
   created_at: string;
   updated_at: string;
+  proposed_by: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
   program: {
     id: number;
     name: string;
     abbreviation: string;
     department_id: number;
+    department_name: string;
+    department_abbreviation: string;
     version: number;
     status: string;
   };
