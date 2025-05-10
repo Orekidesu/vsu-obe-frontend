@@ -150,7 +150,10 @@ export default function ProgramTabs() {
           </h2>
 
           {isLoading ? (
-            <div>Loading...</div>
+            <>
+              <Skeleton className="w-full h-52" />
+              <Skeleton className="w-full h-52" />
+            </>
           ) : (
             <>
               {pendingProposals.length > 0 ? (
@@ -213,7 +216,10 @@ export default function ProgramTabs() {
           </h2>
 
           {isLoading ? (
-            <div>Loading...</div>
+            <>
+              <Skeleton className="w-full h-52" />
+              <Skeleton className="w-full h-52" />
+            </>
           ) : (
             <>
               {revisionProposals.length > 0 ? (
