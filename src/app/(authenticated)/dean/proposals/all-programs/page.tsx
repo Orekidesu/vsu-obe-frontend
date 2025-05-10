@@ -1,7 +1,5 @@
-import React from "react";
+import ProgramProposalsPage from "@/components/dean-components/program-proposals-page";
 
-const page = () => {
-  return <div>This is the All programs Page</div>;
-};
-
-export default page;
+export default function ProposalsPage() {
+  return <ProgramProposalsPage />;
+}
