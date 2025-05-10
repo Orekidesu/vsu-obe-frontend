@@ -10,11 +10,13 @@ import useApi from "../useApi";
 interface UseCourseCurriculumOptions {
   onSuccess?: (data: CourseDetailsResponse) => void;
   onError?: (error: unknown) => void;
+  includeOutcomes?: boolean;
 }
 
 const useCurriculumCourses = (options?: UseCourseCurriculumOptions) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const includeOutcomes = options?.includeOutcomes || false;
 
   const getErrorMessage = (error: APIError, defaultMessage: string): string => {
     return error?.response?.data?.message || error?.message || defaultMessage;
@@ -26,23 +28,29 @@ const useCurriculumCourses = (options?: UseCourseCurriculumOptions) => {
     error,
     isLoading,
   } = useQuery({
-    queryKey: ["curriculum-courses"],
+    queryKey: ["curriculum-courses", { includeOutcomes }],
     queryFn: async () => {
-      const response = await api.get<{ data: CurriculumCourseResponse[] }>(
-        "faculty/curriculum-courses"
-      );
+      const url = includeOutcomes
+        ? "faculty/curriculum-courses?include_outcomes=true"
+        : "faculty/curriculum-courses";
 
+      const response = await api.get<{ data: CurriculumCourseResponse[] }>(url);
       return response.data.data;
     },
   });
 
   // Get a single curriculum course by ID
-  const getCurriculumCourse = (id: number) => ({
-    queryKey: ["curriculum-course", id],
+  const getCurriculumCourse = (
+    id: number,
+    includeOutcomes: boolean = false
+  ) => ({
+    queryKey: ["curriculum-course", id, { includeOutcomes }],
     queryFn: async () => {
-      const response = await api.get<{ data: CurriculumCourseResponse }>(
-        `faculty/curriculum-courses/${id}`
-      );
+      const url = includeOutcomes
+        ? `faculty/curriculum-courses/${id}?include_outcomes=true`
+        : `faculty/curriculum-courses/${id}`;
+
+      const response = await api.get<{ data: CurriculumCourseResponse }>(url);
       return response.data.data;
     },
     enabled: !!id,
