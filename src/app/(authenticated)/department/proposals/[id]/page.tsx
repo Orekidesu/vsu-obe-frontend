@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 
 import { ProgramHeader } from "@/components/commons/program-details/program-header";
 import { ProgramSummary } from "@/components/commons/program-details/program-summary";
@@ -58,8 +57,7 @@ export default function PendingProgramReviewPage() {
   const [actionTaken, setActionTaken] = useState<string | null>(null);
 
   // Get program proposal hooks
-  const { getProgramProposalFromCache, updateProgramProposal } =
-    useProgramProposals();
+  const { updateProgramProposal } = useProgramProposals();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -67,14 +65,11 @@ export default function PendingProgramReviewPage() {
   const queryClient = useQueryClient();
 
   // Fetch program proposal data
-  const {
-    data: programData,
-    error,
-    isLoading,
-  } = useQuery({
-    ...getProgramProposalFromCache(proposalId),
-    enabled: !!proposalId,
-  });
+  const { programProposals, isLoading, error } = useProgramProposals();
+
+  const programData = programProposals?.find(
+    (proposal) => proposal.id === proposalId
+  );
 
   // Transformed data for components
   const [transformedData, setTransformedData] = useState({

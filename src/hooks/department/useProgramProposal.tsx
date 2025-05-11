@@ -81,7 +81,14 @@ const useProgramProposals = (options: useProgramOptions = {}) => {
 
   const getProgramProposalFromCache = (id: number) => {
     return {
-      queryKey: ["program-proposals"],
+      queryKey: ["program-proposals", role], // Match the exact key used in the main query
+      queryFn: async () => {
+        // We need to provide a query function even when reading from cache
+        const response = await api.get<{ data: ProgramProposalResponse[] }>(
+          endpoint
+        );
+        return response.data.data;
+      },
       select: (data: ProgramProposalResponse[] | undefined) =>
         data?.find((proposal) => proposal.id === id),
       enabled: !!id,
