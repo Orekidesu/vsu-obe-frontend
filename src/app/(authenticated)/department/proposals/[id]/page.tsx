@@ -13,9 +13,7 @@ import { CourseCategories } from "@/components/commons/program-details/course-ca
 import { ProgramStructure } from "@/components/commons/program-details/program-structure";
 import { CurriculumCourses } from "@/components/commons/program-details/curriculum-courses";
 import { MappingTable } from "@/components/commons/program-details/mapping-table";
-import { ApproveDialog } from "@/components/commons/program-details/approve-dialog";
-import { RejectDialog } from "@/components/commons/program-details/reject-dialog";
-import { ReviseDialog } from "@/components/commons/program-details/revise-dialog";
+
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
 import { CommitteeAssignments } from "@/components/commons/program-details/committee-assignments";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
@@ -45,19 +43,8 @@ export default function PendingProgramReviewPage() {
   const role = (session as Session)?.Role;
 
   const [activeTab, setActiveTab] = useState("overview");
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [reviseDialogOpen, setReviseDialogOpen] = useState(false);
-  const [feedback, setFeedback] = useState("");
-  const [revisionRequests, setRevisionRequests] = useState<
-    { section: string; details: string }[]
-  >([]);
-  const [currentSection, setCurrentSection] = useState("");
-  const [currentDetails, setCurrentDetails] = useState("");
-  const [actionTaken, setActionTaken] = useState<string | null>(null);
 
-  // Get program proposal hooks
-  const { updateProgramProposal } = useProgramProposals();
+  const [actionTaken, setActionTaken] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -357,87 +344,6 @@ export default function PendingProgramReviewPage() {
       });
   });
 
-  // Handle approve action
-  const handleApprove = () => {
-    setConfirmDialogOpen(true);
-  };
-
-  // Confirm approval
-  const confirmApprove = async () => {
-    try {
-      await updateProgramProposal.mutateAsync({
-        id: proposalId,
-        updatedData: { status: "approved" },
-      });
-      setConfirmDialogOpen(false);
-      setActionTaken("approved");
-    } catch (error) {
-      console.error("Error approving program:", error);
-    }
-  };
-
-  // Handle reject action
-  const handleReject = () => {
-    setRejectDialogOpen(true);
-  };
-
-  // Confirm rejection
-  const confirmReject = async () => {
-    try {
-      await updateProgramProposal.mutateAsync({
-        id: proposalId,
-        updatedData: { status: "rejected", comment: feedback },
-      });
-      setRejectDialogOpen(false);
-      setActionTaken("rejected");
-    } catch (error) {
-      console.error("Error rejecting program:", error);
-    }
-  };
-
-  // Handle revise action
-  const handleRevise = () => {
-    setReviseDialogOpen(true);
-  };
-
-  // Add revision request
-  const addRevisionRequest = () => {
-    if (currentSection && currentDetails) {
-      setRevisionRequests([
-        ...revisionRequests,
-        { section: currentSection, details: currentDetails },
-      ]);
-      setCurrentSection("");
-      setCurrentDetails("");
-    }
-  };
-
-  // Remove revision request
-  const removeRevisionRequest = (index: number) => {
-    const updatedRequests = [...revisionRequests];
-    updatedRequests.splice(index, 1);
-    setRevisionRequests(updatedRequests);
-  };
-
-  // Confirm revision request
-  const confirmRevise = async () => {
-    try {
-      // Format the revision requests into a comment
-      const revisionComment = revisionRequests
-        .map((req) => `${req.section}: ${req.details}`)
-        .join("\n\n");
-
-      await updateProgramProposal.mutateAsync({
-        id: proposalId,
-        updatedData: { status: "revision", comment: revisionComment },
-      });
-      setReviseDialogOpen(false);
-      setActionTaken("revision");
-    } catch (error) {
-      console.error("Error requesting revisions:", error);
-    }
-  };
-
   // Prepare data for mapping tables
   const preparePEOToMissionMapping = () => {
     const rowHeaders = transformedData.peos.map((peo, index) => ({
@@ -622,9 +528,6 @@ export default function PendingProgramReviewPage() {
         programName={transformedData.program.name}
         programAbbreviation={transformedData.program.abbreviation}
         actionTaken={actionTaken || programData?.status || null}
-        onApprove={handleApprove}
-        onRevise={handleRevise}
-        onReject={handleReject}
         role={role}
       />
 
@@ -738,32 +641,6 @@ export default function PendingProgramReviewPage() {
       </Tabs>
 
       {/* Dialogs */}
-      <ApproveDialog
-        open={confirmDialogOpen}
-        onOpenChange={setConfirmDialogOpen}
-        onConfirm={confirmApprove}
-      />
-
-      <RejectDialog
-        open={rejectDialogOpen}
-        onOpenChange={setRejectDialogOpen}
-        feedback={feedback}
-        setFeedback={setFeedback}
-        onConfirm={confirmReject}
-      />
-
-      <ReviseDialog
-        open={reviseDialogOpen}
-        onOpenChange={setReviseDialogOpen}
-        currentSection={currentSection}
-        setCurrentSection={setCurrentSection}
-        currentDetails={currentDetails}
-        setCurrentDetails={setCurrentDetails}
-        revisionRequests={revisionRequests}
-        addRevisionRequest={addRevisionRequest}
-        removeRevisionRequest={removeRevisionRequest}
-        onConfirm={confirmRevise}
-      />
 
       {/* Submit for review Button Here */}
     </main>
