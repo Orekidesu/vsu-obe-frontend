@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import { Loader2 } from "lucide-react";
-import { ProposalFilterBar } from "./program-proposal-components/proposal-filter-bar";
-import { ProposalCard } from "./program-proposal-components/proposal-card";
-import { EmptyProposalState } from "./program-proposal-components/empty-proposal-state";
+import { ProposalFilterBar } from "./program-proposal-components/ProposalFilterBar";
+import { ProposalCard } from "./program-proposal-components/ProposalCard";
+import { EmptyProposalState } from "./program-proposal-components/EmptyProposalState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
@@ -83,7 +83,7 @@ export default function ProgramProposals() {
   };
 
   const handleViewDetails = (proposal: ProgramProposal) => {
-    router.push(`/dean/proposals/details/${proposal.id}`);
+    router.push(`/dean/proposals/all-programs/${proposal.id}`);
   };
 
   // Get unique departments for filtering
