@@ -53,7 +53,7 @@ export function ReviseDialog({
   currentDetails,
   setCurrentDetails,
   revisionRequests,
-  addRevisionRequest,
+  // addRevisionRequest,
   removeRevisionRequest,
   onConfirm,
   // Add default values for new props
@@ -246,50 +246,54 @@ export function ReviseDialog({
         </Tabs>
 
         {revisionRequests.length > 0 && (
-          <div className="space-y-6 mt-6">
-            <h3 className="font-medium text-lg">Current Revision Requests</h3>
+          <div className="mt-6">
+            <h3 className="font-medium text-lg sticky top-0 bg-white">
+              Current Revision Requests
+            </h3>
 
-            {programRevisions.length > 0 && (
-              <div className="space-y-4">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
-                  Program-Level Revisions
-                </h4>
-                <div className="space-y-3">
-                  {programRevisions.map((request) => {
-                    const originalIndex = revisionRequests.findIndex(
-                      (r) => r === request
-                    );
-                    return (
-                      <div
-                        key={originalIndex}
-                        className="flex items-start gap-2 p-3 border rounded-md bg-gray-50"
-                      >
-                        <div className="flex-1">
-                          <h4 className="font-medium">
-                            {getSectionDisplayName(request.section)}
-                          </h4>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {request.details}
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeRevisionRequest(originalIndex)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            <div className="overflow-y-auto max-h-[250px] pr-2 mt-4">
+              {programRevisions.length > 0 && (
+                <div className="space-y-4">
+                  <h4 className="font-medium text-sm text-gray-700 border-b pb-1 sticky top-0 bg-white">
+                    Program-Level Revisions
+                  </h4>
+                  <div className="space-y-3">
+                    {programRevisions.map((request) => {
+                      const originalIndex = revisionRequests.findIndex(
+                        (r) => r === request
+                      );
+                      return (
+                        <div
+                          key={originalIndex}
+                          className="flex items-start gap-2 p-3 border rounded-md bg-gray-50"
                         >
-                          <XCircle className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    );
-                  })}
+                          <div className="flex-1">
+                            <h4 className="font-medium">
+                              {getSectionDisplayName(request.section)}
+                            </h4>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {request.details}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeRevisionRequest(originalIndex)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {courseRevisions.length > 0 && (
               <div className="space-y-4">
-                <h4 className="font-medium text-sm text-gray-700 border-b pb-1">
+                <h4 className="font-medium text-sm text-gray-700 border-b pb-1 sticky top-0 bg-white">
                   Course-Level Revisions
                 </h4>
                 <div className="space-y-3">
@@ -325,7 +329,7 @@ export function ReviseDialog({
           </div>
         )}
 
-        <DialogFooter>
+        <DialogFooter className="mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
