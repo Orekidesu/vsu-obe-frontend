@@ -20,18 +20,19 @@ interface ProgramHeaderProps {
 }
 
 export function ProgramHeader({
-  // programName,
-  // programAbbreviation,
+  programName,
+  programAbbreviation,
   actionTaken,
   onApprove,
   onRevise,
   onReject,
   role,
 }: ProgramHeaderProps) {
+  // Show actions for Dean role
   const showActions = role === "Dean";
 
-  // Show alert for Department role when there's an action taken
-  const showAlert = role === "Department" && actionTaken;
+  // Changed this to show alert when role is Dean and there's an action taken
+  const showAlert = role === "Dean" && actionTaken;
 
   return (
     <>
@@ -85,7 +86,11 @@ export function ProgramHeader({
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">Program Details</h1>
+          <h1 className="text-xl font-bold text-gray-800">
+            {programName && programAbbreviation
+              ? `${programName} (${programAbbreviation})`
+              : "Program Details"}
+          </h1>
           {role === "Department" ? (
             <p className="text-gray-600 mt-1">Review Program Details</p>
           ) : (
