@@ -28,8 +28,10 @@ export function ProgramHeader({
   onReject,
   role,
 }: ProgramHeaderProps) {
-  const showActions = role === "department";
-  const showAlert = role === "department" && actionTaken;
+  const showActions = role === "Dean";
+
+  // Show alert for Department role when there's an action taken
+  const showAlert = role === "Department" && actionTaken;
 
   return (
     <>
