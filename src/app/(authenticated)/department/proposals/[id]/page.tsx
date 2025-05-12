@@ -321,6 +321,7 @@ export default function PendingProgramReviewPage() {
 
   // Group curriculum courses by year-semester
   const groupedCourses: Record<string, CurriculumCourse[]> = {};
+
   transformedData.semesters.forEach((sem) => {
     const key = `${sem.year}-${sem.sem}`;
 
@@ -568,7 +569,6 @@ export default function PendingProgramReviewPage() {
         </TabsContent>
 
         {/* Mappings */}
-
         <TabsContent value="mappings" className="space-y-6">
           <MappingTable
             title="PEO to Mission Mapping"
