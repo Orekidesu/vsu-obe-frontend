@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  sampleProgramProposal,
-  courseDetailsMap,
-} from "./program-review-components/data/SamplePayload";
+import { CourseDetails } from "./program-review-components/types/CourseDetails";
 
 import { Loader2 } from "lucide-react";
 
@@ -26,6 +23,7 @@ import { CourseDetailsTabs } from "./program-review-components/CourseDetailsTabs
 
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import type { ProgramProposalResponse } from "@/types/model/ProgramProposal";
+import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 
 interface RevisionRequest {
   section: string;
@@ -64,6 +62,37 @@ export default function ProgramReviewPage({
   const [currentDetails, setCurrentDetails] = useState("");
   const [currentCourse, setCurrentCourse] = useState("");
   const [actionTaken, setActionTaken] = useState<string | null>(null);
+
+  const [dynamicCourseDetailsMap, setDynamicCourseDetailsMap] = useState<
+    Record<number, CourseDetails>
+  >({});
+
+  const {
+    curriculumCourses,
+    isLoading: isCoursesLoading,
+    // error: courseError,
+  } = useCurriculumCourses({ role: "dean", includeOutcomes: true });
+
+  useEffect(() => {
+    if (curriculumCourses) {
+      const newMap: Record<number, CourseDetails> = {};
+
+      curriculumCourses.forEach((course) => {
+        // Transform API response to match the expected structure in CourseDetailsTabs
+        newMap[course.id] = {
+          id: course.id,
+          curriculum: course.curriculum,
+          course: course.course,
+          course_category: course.course_category,
+          semester: course.semester,
+          units: course.units,
+          course_outcomes: course.course_outcomes || [],
+        };
+      });
+
+      setDynamicCourseDetailsMap(newMap);
+    }
+  }, [curriculumCourses]);
 
   const {
     programProposals,
@@ -305,9 +334,6 @@ export default function ProgramReviewPage({
     });
   };
 
-  // Extract data from the payload
-  const { curriculum } = sampleProgramProposal;
-
   // Get semester display name
   const getSemesterName = (semesterCode: string) => {
     switch (semesterCode) {
@@ -527,11 +553,12 @@ export default function ProgramReviewPage({
   };
 
   // Prepare courses for the ReviseDialog
-  const coursesForRevision = curriculum.courses.map((course) => ({
-    id: course.id.toString(),
-    code: course.course.code,
-    descriptive_title: course.course.descriptive_title,
-  }));
+  const coursesForRevision =
+    programData?.curriculum.courses.map((course) => ({
+      id: course.id.toString(),
+      code: course.course.code,
+      descriptive_title: course.course.descriptive_title,
+    })) || [];
 
   // Show loading state
   if (proposalLoading) {
@@ -657,10 +684,19 @@ export default function ProgramReviewPage({
         </TabsContent>
 
         <TabsContent value="courses" className="space-y-6">
-          <CourseDetailsTabs
-            courses={curriculum.courses}
-            courseDetailsMap={courseDetailsMap}
-          />
+          {isCoursesLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2">Loading course details...</span>
+            </div>
+          ) : (
+            <CourseDetailsTabs
+              courses={programData?.curriculum?.courses || []}
+              courseDetailsMap={
+                dynamicCourseDetailsMap // Fallback to sample data if API data not available
+              }
+            />
+          )}
         </TabsContent>
       </Tabs>
 
