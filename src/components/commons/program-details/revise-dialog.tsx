@@ -196,8 +196,7 @@ export function ReviseDialog({
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent>
-                    {/* Replace hardcoded items with filtered list */}
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
                     {availableSections.map((section) => (
                       <SelectItem key={section.value} value={section.value}>
                         {section.label}
@@ -254,7 +253,7 @@ export function ReviseDialog({
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
                     {availableCourses.map((course) => (
                       <SelectItem key={course.id} value={course.id}>
                         {course.code} - {course.descriptive_title}
