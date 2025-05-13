@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CourseDetails } from "./program-review-components/types/CourseDetails";
+import { CourseDetailsFormat } from "./program-review-components/types/CourseDetails";
 
 import { Loader2 } from "lucide-react";
 
@@ -64,7 +64,7 @@ export default function ProgramReviewPage({
   const [actionTaken, setActionTaken] = useState<string | null>(null);
 
   const [dynamicCourseDetailsMap, setDynamicCourseDetailsMap] = useState<
-    Record<number, CourseDetails>
+    Record<number, CourseDetailsFormat>
   >({});
 
   const {
@@ -75,7 +75,7 @@ export default function ProgramReviewPage({
 
   useEffect(() => {
     if (curriculumCourses) {
-      const newMap: Record<number, CourseDetails> = {};
+      const newMap: Record<number, CourseDetailsFormat> = {};
 
       curriculumCourses.forEach((course) => {
         // Transform API response to match the expected structure in CourseDetailsTabs

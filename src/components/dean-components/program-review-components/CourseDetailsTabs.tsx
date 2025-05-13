@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CourseDetails } from "./CourseDetails";
 import { CourseOutcomes } from "./CourseOutcomes";
 import { CourseAssessments } from "./CourseAssessments";
+import { CourseDetailsFormat } from "./types/CourseDetails";
 
 interface CourseDetailsCourse {
   id: number;
@@ -28,13 +29,13 @@ interface CourseDetailsCourse {
   po_mappings: Array<{
     po_id: number;
     po_name: string;
-    ird: string;
+    ied: string;
   }>;
 }
 
 interface CourseDetailsTabsProps {
   courses: CourseDetailsCourse[];
-  courseDetailsMap: Record<number, any>;
+  courseDetailsMap: Record<number, CourseDetailsFormat>;
 }
 
 export function CourseDetailsTabs({
@@ -105,7 +106,7 @@ export function CourseDetailsTabs({
                         course={courseDetails.course}
                         course_category={courseDetails.course_category}
                         semester={courseDetails.semester}
-                        units={courseDetails.units}
+                        units={String(courseDetails.units)}
                       />
                     ) : (
                       <div className="p-6 text-center">

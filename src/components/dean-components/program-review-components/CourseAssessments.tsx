@@ -6,14 +6,14 @@ interface CourseOutcome {
   id: number;
   name: string;
   statement: string;
-  tla_tasks: Array<{
+  tla_tasks?: Array<{
     id: number;
     at_code: string;
     at_name: string;
     at_tool: string;
     weight: string;
   }>;
-  tla_assessment_method: {
+  tla_assessment_method?: {
     teaching_methods: string[];
     learning_resources: string[];
   };
@@ -36,7 +36,7 @@ export function CourseAssessments({ outcomes }: CourseAssessmentsProps) {
 
   // Calculate total weight for each outcome
   const outcomesWithTotalWeight = outcomes.map((outcome) => {
-    const totalWeight = outcome.tla_tasks.reduce(
+    const totalWeight = (outcome.tla_tasks || []).reduce(
       (sum, task) => sum + Number.parseFloat(task.weight || "0"),
       0
     );
@@ -233,16 +233,16 @@ export function CourseAssessments({ outcomes }: CourseAssessmentsProps) {
                   <h4 className="text-sm font-medium text-muted-foreground mb-2">
                     Teaching Methods
                   </h4>
-                  {outcome.tla_assessment_method?.teaching_methods?.length >
-                  0 ? (
+                  {(outcome.tla_assessment_method?.teaching_methods || [])
+                    .length > 0 ? (
                     <ul className="list-disc pl-5 space-y-1">
-                      {outcome.tla_assessment_method.teaching_methods.map(
-                        (method, index) => (
-                          <li key={index} className="text-sm">
-                            {method}
-                          </li>
-                        )
-                      )}
+                      {(
+                        outcome.tla_assessment_method?.teaching_methods || []
+                      ).map((method, index) => (
+                        <li key={index} className="text-sm">
+                          {method}
+                        </li>
+                      ))}
                     </ul>
                   ) : (
                     <p className="text-sm italic text-muted-foreground">
@@ -255,16 +255,16 @@ export function CourseAssessments({ outcomes }: CourseAssessmentsProps) {
                   <h4 className="text-sm font-medium text-muted-foreground mb-2">
                     Learning Resources
                   </h4>
-                  {outcome.tla_assessment_method?.learning_resources?.length >
-                  0 ? (
+                  {(outcome.tla_assessment_method?.learning_resources || [])
+                    .length > 0 ? (
                     <ul className="list-disc pl-5 space-y-1">
-                      {outcome.tla_assessment_method.learning_resources.map(
-                        (resource, index) => (
-                          <li key={index} className="text-sm">
-                            {resource}
-                          </li>
-                        )
-                      )}
+                      {(
+                        outcome.tla_assessment_method?.learning_resources || []
+                      ).map((resource, index) => (
+                        <li key={index} className="text-sm">
+                          {resource}
+                        </li>
+                      ))}
                     </ul>
                   ) : (
                     <p className="text-sm italic text-muted-foreground">

@@ -5,27 +5,27 @@ interface CourseOutcome {
   id: number;
   name: string;
   statement: string;
-  abcd: {
+  abcd?: {
     audience: string;
     behavior: string;
     condition: string;
     degree: string;
   };
-  cpa: string; // Changed from object to string
-  po_mappings: Array<{
+  cpa?: string; // Changed from object to string
+  po_mappings?: Array<{
     po_id: number;
     po_name: string;
     po_statement: string;
     ied: string; // Changed from string array to string
   }>;
-  tla_tasks: Array<{
+  tla_tasks?: Array<{
     id: number;
     at_code: string;
     at_name: string;
     at_tool: string;
     weight: string; // Changed from number to string
   }>;
-  tla_assessment_method: {
+  tla_assessment_method?: {
     teaching_methods: string[];
     learning_resources: string[];
   };
@@ -64,7 +64,7 @@ const getIEDLevelName = (ied: string) => {
 };
 
 // Helper function to get badge color for CPA domain
-const getCPABadgeColor = (cpa: string) => {
+const getCPABadgeColor = (cpa?: string) => {
   switch (cpa) {
     case "C":
       return "bg-blue-100 text-blue-800";
@@ -108,7 +108,7 @@ export function CourseOutcomes({ outcomes }: CourseOutcomesProps) {
             <div className="flex items-center justify-between">
               <CardTitle>{outcome.name}</CardTitle>
               <Badge className={getCPABadgeColor(outcome.cpa)}>
-                {getCPADomainName(outcome.cpa)}
+                {getCPADomainName(outcome.cpa ?? "")}
               </Badge>
             </div>
           </CardHeader>
@@ -129,25 +129,25 @@ export function CourseOutcomes({ outcomes }: CourseOutcomesProps) {
                   <span className="text-xs font-medium uppercase text-muted-foreground">
                     Audience
                   </span>
-                  <p className="mt-1">{outcome.abcd.audience}</p>
+                  <p className="mt-1">{outcome.abcd?.audience}</p>
                 </div>
                 <div className="p-3 bg-muted rounded-md">
                   <span className="text-xs font-medium uppercase text-muted-foreground">
                     Behavior
                   </span>
-                  <p className="mt-1">{outcome.abcd.behavior}</p>
+                  <p className="mt-1">{outcome.abcd?.behavior}</p>
                 </div>
                 <div className="p-3 bg-muted rounded-md">
                   <span className="text-xs font-medium uppercase text-muted-foreground">
                     Condition
                   </span>
-                  <p className="mt-1">{outcome.abcd.condition}</p>
+                  <p className="mt-1">{outcome.abcd?.condition}</p>
                 </div>
                 <div className="p-3 bg-muted rounded-md">
                   <span className="text-xs font-medium uppercase text-muted-foreground">
                     Degree
                   </span>
-                  <p className="mt-1">{outcome.abcd.degree}</p>
+                  <p className="mt-1">{outcome.abcd?.degree}</p>
                 </div>
               </div>
             </div>

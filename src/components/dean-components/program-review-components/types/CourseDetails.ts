@@ -1,4 +1,4 @@
-export interface CourseDetails {
+export interface CourseDetailsFormat {
   id: number;
   curriculum: {
     id: number;
