@@ -16,11 +16,10 @@ import { ProgramStructure } from "@/components/commons/program-details/program-s
 import { CurriculumCourses } from "@/components/commons/program-details/curriculum-courses";
 import { MappingTable } from "@/components/commons/program-details/mapping-table";
 import { ApproveDialog } from "@/components/commons/program-details/approve-dialog";
-import { RejectDialog } from "@/components/commons/program-details/reject-dialog";
+// import { RejectDialog } from "@/components/commons/program-details/reject-dialog";
 import { ReviseDialog } from "@/components/commons/program-details/revise-dialog";
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
 import { CourseDetailsTabs } from "./program-review-components/CourseDetailsTabs";
-
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import type { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
@@ -52,9 +51,9 @@ export default function ProgramReviewPage({
 }: ProgramReviewPageProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  // const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [reviseDialogOpen, setReviseDialogOpen] = useState(false);
-  const [feedback, setFeedback] = useState("");
+  // const [feedback, setFeedback] = useState("");
   const [revisionRequests, setRevisionRequests] = useState<RevisionRequest[]>(
     []
   );
@@ -504,17 +503,17 @@ export default function ProgramReviewPage({
   };
 
   // Handle reject action
-  const handleReject = () => {
-    setRejectDialogOpen(true);
-  };
+  // const handleReject = () => {
+  //   setRejectDialogOpen(true);
+  // };
 
   // Confirm rejection
-  const confirmReject = () => {
-    // Here you would typically send an API request to reject the program with feedback
-    console.log("Program rejected with feedback:", feedback);
-    setRejectDialogOpen(false);
-    setActionTaken("rejected");
-  };
+  // const confirmReject = () => {
+  //   // Here you would typically send an API request to reject the program with feedback
+  //   console.log("Program rejected with feedback:", feedback);
+  //   setRejectDialogOpen(false);
+  //   setActionTaken("rejected");
+  // };
 
   // Handle revise action
   const handleRevise = () => {
@@ -604,7 +603,7 @@ export default function ProgramReviewPage({
         actionTaken={actionTaken}
         onApprove={handleApprove}
         onRevise={handleRevise}
-        onReject={handleReject}
+        // onReject={handleReject}
         role="Dean"
       />
 
@@ -707,13 +706,13 @@ export default function ProgramReviewPage({
         onConfirm={confirmApprove}
       />
 
-      <RejectDialog
+      {/* <RejectDialog
         open={rejectDialogOpen}
         onOpenChange={setRejectDialogOpen}
         feedback={feedback}
         setFeedback={setFeedback}
         onConfirm={confirmReject}
-      />
+      /> */}
 
       <ReviseDialog
         open={reviseDialogOpen}

@@ -5,7 +5,7 @@ import {
   XCircle,
   AlertCircle,
   CheckCheck,
-  ThumbsDown,
+  // ThumbsDown,
   FileEdit,
 } from "lucide-react";
 
@@ -25,7 +25,7 @@ export function ProgramHeader({
   actionTaken,
   onApprove,
   onRevise,
-  onReject,
+  // onReject,
   role,
 }: ProgramHeaderProps) {
   // Show actions for Dean role
@@ -117,14 +117,14 @@ export function ProgramHeader({
             >
               <FileEdit className="h-4 w-4" /> Request Revisions
             </Button>
-            <Button
+            {/* <Button
               onClick={onReject}
               variant="outline"
               className="border-red-500 text-red-600 hover:bg-red-50 flex items-center gap-2"
               disabled={!!actionTaken}
             >
               <ThumbsDown className="h-4 w-4" /> Reject
-            </Button>
+            </Button> */}
           </div>
         )}
       </div>
