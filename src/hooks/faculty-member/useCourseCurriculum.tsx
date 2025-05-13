@@ -7,16 +7,32 @@ import {
 import { APIError } from "@/app/utils/errorHandler";
 import useApi from "../useApi";
 
+import { useAuth } from "@/hooks/useAuth";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
+
 interface UseCourseCurriculumOptions {
   onSuccess?: (data: CourseDetailsResponse) => void;
   onError?: (error: unknown) => void;
   includeOutcomes?: boolean;
+  role?: "faculty" | "department" | "dean";
 }
 
 const useCurriculumCourses = (options?: UseCourseCurriculumOptions) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { session } = useAuth();
   const includeOutcomes = options?.includeOutcomes || false;
+
+  const role =
+    options?.role ||
+    ((session as Session)?.Role === "Faculty_Member"
+      ? "faculty"
+      : (session as Session)?.Role === "Department"
+        ? "department"
+        : "dean");
+
+  // Base endpoint
+  const endpoint = `${role}/curriculum-courses`;
 
   const getErrorMessage = (error: APIError, defaultMessage: string): string => {
     return error?.response?.data?.message || error?.message || defaultMessage;
@@ -28,11 +44,11 @@ const useCurriculumCourses = (options?: UseCourseCurriculumOptions) => {
     error,
     isLoading,
   } = useQuery({
-    queryKey: ["curriculum-courses", { includeOutcomes }],
+    queryKey: ["curriculum-courses", role, { includeOutcomes }],
     queryFn: async () => {
       const url = includeOutcomes
-        ? "faculty/curriculum-courses?include_outcomes=true"
-        : "faculty/curriculum-courses";
+        ? `${endpoint}?include_outcomes=true`
+        : endpoint;
 
       const response = await api.get<{ data: CurriculumCourseResponse[] }>(url);
       return response.data.data;
@@ -44,17 +60,35 @@ const useCurriculumCourses = (options?: UseCourseCurriculumOptions) => {
     id: number,
     includeOutcomes: boolean = false
   ) => ({
-    queryKey: ["curriculum-course", id, { includeOutcomes }],
+    queryKey: ["curriculum-course", role, id, { includeOutcomes }],
     queryFn: async () => {
       const url = includeOutcomes
-        ? `faculty/curriculum-courses/${id}?include_outcomes=true`
-        : `faculty/curriculum-courses/${id}`;
+        ? `${endpoint}/${id}?include_outcomes=true`
+        : `${endpoint}/${id}`;
 
       const response = await api.get<{ data: CurriculumCourseResponse }>(url);
       return response.data.data;
     },
     enabled: !!id,
   });
+
+  const getCurriculumCourseFromCache = (id: number) => {
+    return {
+      queryKey: ["curriculum-courses", role, { includeOutcomes }],
+      queryFn: async () => {
+        const url = includeOutcomes
+          ? `${endpoint}?include_outcomes=true`
+          : endpoint;
+        const response = await api.get<{ data: CurriculumCourseResponse[] }>(
+          url
+        );
+        return response.data.data;
+      },
+      select: (data: CurriculumCourseResponse[] | undefined) =>
+        data?.find((course) => course.id === id),
+      enabled: !!id,
+    };
+  };
 
   // Submit full curriculum course details
   const submitFullCurriculumCourseDetails = useMutation<
@@ -71,7 +105,7 @@ const useCurriculumCourses = (options?: UseCourseCurriculumOptions) => {
     },
     onSuccess: (responseData) => {
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["curriculum-courses"] });
+      queryClient.invalidateQueries({ queryKey: ["curriculum-courses"], role });
 
       // Call the optional success callback if provided
       if (options?.onSuccess) {
@@ -94,6 +128,7 @@ const useCurriculumCourses = (options?: UseCourseCurriculumOptions) => {
 
   return {
     curriculumCourses,
+    getCurriculumCourseFromCache,
     isLoading,
     error,
     getCurriculumCourse,
