@@ -159,7 +159,14 @@ export function ReviseDialog({
     if (currentCourse && existingCourseIds.includes(currentCourse)) {
       setCurrentCourse("");
     }
-  }, [currentSection, currentCourse, existingSections, existingCourseIds]);
+  }, [
+    currentSection,
+    currentCourse,
+    existingSections,
+    existingCourseIds,
+    setCurrentSection,
+    setCurrentCourse,
+  ]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
