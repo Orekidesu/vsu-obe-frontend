@@ -85,45 +85,64 @@ export default function ProgramProposals() {
   const handleApproveConfirm = async () => {
     if (!pendingApprovalProposal) return;
 
-    const proposalId = parseInt(pendingApprovalProposal.id);
+    try {
+      const proposalId = parseInt(pendingApprovalProposal.id);
 
-    const reviewData = {
-      status: "approved",
-    };
-
-    submitProposalReview.mutate(
-      {
-        proposalId,
-        reviewData,
-      },
-      {
-        onSuccess: () => {
-          // Show success toast
-          toast({
-            title: "Proposal Approved",
-            description: `"${pendingApprovalProposal.name}" has been approved successfully.`,
-            variant: "success",
-          });
-
-          // Close dialog and reset state
-          setConfirmDialogOpen(false);
-          setPendingApprovalProposal(null);
-        },
-        onError: (error) => {
-          console.error("Failed to submit review:", error);
-
-          // Show error toast
-          toast({
-            title: "Error",
-            description: "Failed to approve the proposal. Please try again.",
-            variant: "destructive",
-          });
-
-          // Close dialog but don't reset proposal in case they want to try again
-          setConfirmDialogOpen(false);
-        },
+      // Handle case where ID doesn't parse to a valid number
+      if (isNaN(proposalId)) {
+        throw new Error("Invalid proposal ID");
       }
-    );
+
+      const reviewData = {
+        status: "approved",
+      };
+
+      submitProposalReview.mutate(
+        {
+          proposalId,
+          reviewData,
+        },
+        {
+          onSuccess: () => {
+            // Show success toast
+            toast({
+              title: "Proposal Approved",
+              description: `"${pendingApprovalProposal.name}" has been approved successfully.`,
+              variant: "success",
+            });
+
+            // Close dialog and reset state
+            setConfirmDialogOpen(false);
+            setPendingApprovalProposal(null);
+          },
+          onError: (error) => {
+            console.error("Failed to submit review:", error);
+
+            // Show error toast
+            toast({
+              title: "Error",
+              description: "Failed to approve the proposal. Please try again.",
+              variant: "destructive",
+            });
+
+            // Close dialog but don't reset proposal in case they want to try again
+            setConfirmDialogOpen(false);
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error processing approval:", error);
+
+      // Show error toast
+      toast({
+        title: "Error",
+        description:
+          "An unexpected error occurred while processing your request.",
+        variant: "destructive",
+      });
+
+      setConfirmDialogOpen(false);
+    }
   };
 
   const handleViewDetails = (proposal: ProgramProposal) => {
