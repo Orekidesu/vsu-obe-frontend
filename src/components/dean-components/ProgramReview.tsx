@@ -543,10 +543,54 @@ export default function ProgramReviewPage({
     setRevisionRequests(updatedRequests);
   };
 
+  // Transform revision requests to match the API format
+  const transformRevisionData = (requests: RevisionRequest[]) => {
+    // Add explicit type definition for the result object
+    const result: {
+      status: string;
+      department_level: Array<{ section: string; details: string }>;
+      committee_level: Array<{ curriculum_course_id: number; details: string }>;
+    } = {
+      status: "revision",
+      department_level: [],
+      committee_level: [],
+    };
+
+    requests.forEach((request) => {
+      if (request.type === "section") {
+        // Convert kebab-case to snake_case and handle pluralization
+        let sectionName = request.section.replace(/-/g, "_");
+
+        // Add 's' to the end if it doesn't already have one
+        if (
+          !sectionName.endsWith("s") &&
+          !["curriculum", "program_details"].includes(sectionName)
+        ) {
+          sectionName += "s";
+        }
+
+        result.department_level.push({
+          section: sectionName,
+          details: request.details,
+        });
+      } else if (request.type === "course") {
+        result.committee_level.push({
+          curriculum_course_id: parseInt(request.courseId || "0"),
+          details: request.details,
+        });
+      }
+    });
+
+    return result;
+  };
+
   // Confirm revision request
   const confirmRevise = () => {
-    // Here you would typically send an API request with the revision requests
-    console.log("Revision requested:", revisionRequests);
+    // Transform the data before sending to the API
+    const apiData = transformRevisionData(revisionRequests);
+
+    // Here you would typically send an API request with the transformed data
+    console.log("Revision requested:", apiData);
     setReviseDialogOpen(false);
     setActionTaken("revision");
   };
