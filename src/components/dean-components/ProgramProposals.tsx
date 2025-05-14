@@ -29,7 +29,7 @@ type TabType = "pending" | "revision";
 export default function ProgramProposals() {
   const router = useRouter();
   const { toast } = useToast();
-  const { programProposals, isLoading, error, updateProgramProposal } =
+  const { programProposals, isLoading, error, submitProposalReview } =
     useProgramProposals();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
@@ -63,23 +63,40 @@ export default function ProgramProposals() {
     activeTab === "pending" ? pendingProposals : revisionProposals;
 
   const handleApprove = async (proposal: ProgramProposal) => {
-    try {
-      await updateProgramProposal.mutateAsync({
-        id: parseInt(proposal.id),
-        updatedData: { status: "approved" },
-      });
+    const proposalId = parseInt(proposal.id);
 
-      toast({
-        title: "Proposal Approved",
-        description: `"${proposal.name}" has been approved successfully.`,
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to approve the proposal. Please try again.",
-        variant: "destructive",
-      });
-    }
+    const reviewData = {
+      status: "approved",
+    };
+
+    submitProposalReview.mutate(
+      {
+        proposalId,
+        reviewData,
+      },
+      {
+        onSuccess: () => {
+          // Update UI state
+
+          // Show success toast
+          toast({
+            title: "Proposal Approved",
+            description: `"${proposal.name}" has been approved successfully.`,
+            variant: "success",
+          });
+        },
+        onError: (error) => {
+          console.error("Failed to submit review:", error);
+
+          // Show error toast
+          toast({
+            title: "Error",
+            description: "Failed to approve the proposal. Please try again.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   const handleViewDetails = (proposal: ProgramProposal) => {
