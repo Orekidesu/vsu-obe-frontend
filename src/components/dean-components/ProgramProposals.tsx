@@ -10,6 +10,17 @@ import { EmptyProposalState } from "./program-proposal-components/EmptyProposalS
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 type Program = {
   id: string;
   name: string;
@@ -34,6 +45,10 @@ export default function ProgramProposals() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<TabType>("pending");
+
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingApprovalProposal, setPendingApprovalProposal] =
+    useState<ProgramProposal | null>(null);
 
   // Map API data structure to component's expected format
   const formattedProposals: ProgramProposal[] =
@@ -62,8 +77,15 @@ export default function ProgramProposals() {
   const activeProposals =
     activeTab === "pending" ? pendingProposals : revisionProposals;
 
-  const handleApprove = async (proposal: ProgramProposal) => {
-    const proposalId = parseInt(proposal.id);
+  const handleApproveClick = (proposal: ProgramProposal) => {
+    setPendingApprovalProposal(proposal);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleApproveConfirm = async () => {
+    if (!pendingApprovalProposal) return;
+
+    const proposalId = parseInt(pendingApprovalProposal.id);
 
     const reviewData = {
       status: "approved",
@@ -76,14 +98,16 @@ export default function ProgramProposals() {
       },
       {
         onSuccess: () => {
-          // Update UI state
-
           // Show success toast
           toast({
             title: "Proposal Approved",
-            description: `"${proposal.name}" has been approved successfully.`,
+            description: `"${pendingApprovalProposal.name}" has been approved successfully.`,
             variant: "success",
           });
+
+          // Close dialog and reset state
+          setConfirmDialogOpen(false);
+          setPendingApprovalProposal(null);
         },
         onError: (error) => {
           console.error("Failed to submit review:", error);
@@ -94,6 +118,9 @@ export default function ProgramProposals() {
             description: "Failed to approve the proposal. Please try again.",
             variant: "destructive",
           });
+
+          // Close dialog but don't reset proposal in case they want to try again
+          setConfirmDialogOpen(false);
         },
       }
     );
@@ -194,7 +221,7 @@ export default function ProgramProposals() {
                   <ProposalCard
                     key={proposal.id}
                     proposal={proposal}
-                    onApprove={handleApprove}
+                    onApprove={handleApproveClick}
                     onViewDetails={handleViewDetails}
                     status="pending"
                   />
@@ -229,7 +256,7 @@ export default function ProgramProposals() {
                   <ProposalCard
                     key={proposal.id}
                     proposal={proposal}
-                    onApprove={handleApprove}
+                    onApprove={handleApproveClick}
                     onViewDetails={handleViewDetails}
                     status="review"
                   />
@@ -248,6 +275,27 @@ export default function ProgramProposals() {
           </TabsContent>
         </Tabs>
       </div>
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Approval</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to approve &quot;
+              {pendingApprovalProposal?.name}&quot;? This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleApproveConfirm}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              Approve
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
