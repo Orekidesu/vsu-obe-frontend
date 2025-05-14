@@ -51,7 +51,7 @@ export default function ProgramProposals() {
 
   // Filter proposals by status
   const pendingProposals = formattedProposals.filter(
-    (proposal) => proposal.status === "pending"
+    (proposal) => proposal.status === "review"
   );
 
   const revisionProposals = formattedProposals.filter(
