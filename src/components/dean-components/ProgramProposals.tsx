@@ -137,7 +137,7 @@ export default function ProgramProposals() {
   return (
     <div className="min-h-screen">
       <div className="container mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6">Program Proposals</h1>
+        <h1 className="text-xl font-bold mb-6">All Proposals</h1>
 
         <Tabs
           defaultValue="pending"
