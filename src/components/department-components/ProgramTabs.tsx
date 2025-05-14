@@ -15,6 +15,7 @@ import {
   filterActivePrograms,
   getDepartmentProgramIds,
 } from "@/app/utils/department/programFilter";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProgramTabs() {
   const { programs = [], isLoading: programsLoading } = usePrograms();
@@ -104,10 +105,22 @@ export default function ProgramTabs() {
         onValueChange={(value) => setActiveTab(value)}
       >
         <TabsList className="grid w-full md:grid-cols-4 mb-10">
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="pending">Pending </TabsTrigger>
-          <TabsTrigger value="review">For Review</TabsTrigger>
-          <TabsTrigger value="revision">Revision</TabsTrigger>
+          <TabsTrigger className="flex items-center gap-2" value="active">
+            Active
+            <Badge variant="outline">{activePrograms.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger className="flex items-center gap-2" value="pending">
+            Pending
+            <Badge variant="outline">{pendingProposals.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger className="flex items-center gap-2" value="review">
+            For Review
+            <Badge variant="outline">{forReviewProposals.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger className="flex items-center gap-2" value="revision">
+            Revision
+            <Badge variant="outline">{revisionProposals.length}</Badge>
+          </TabsTrigger>
         </TabsList>
 
         {/* Active */}
