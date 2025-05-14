@@ -69,7 +69,7 @@ const usePrograms = (options: useProgramOptions = {}) => {
 
   const getProgramFromCache = (id: number) => {
     return {
-      queryKey: ["programs"],
+      queryKey: ["programs", role],
       select: (data: ProgramResponse[] | undefined) =>
         data?.find((program) => program.id === id),
       enabled: !!id,
