@@ -95,6 +95,7 @@ export default function ProgramReviewPage({
 
   const {
     programProposals,
+    submitProposalReview,
     isLoading: proposalLoading,
     error: proposalError,
   } = useProgramProposals();
@@ -497,9 +498,29 @@ export default function ProgramReviewPage({
   // Confirm approval
   const confirmApprove = () => {
     // Here you would typically send an API request to approve the program
-    console.log("Program approved");
-    setConfirmDialogOpen(false);
-    setActionTaken("approved");
+
+    const result: {
+      status: string;
+    } = {
+      status: "approved",
+    };
+    console.log("Program approved", result);
+
+    submitProposalReview.mutate(
+      {
+        proposalId,
+        reviewData: result,
+      },
+      {
+        onSuccess: () => {
+          setConfirmDialogOpen(false);
+          setActionTaken("approved");
+        },
+        onError: (error) => {
+          console.error("Failed to submit review:", error);
+        },
+      }
+    );
   };
 
   // Handle reject action
@@ -588,11 +609,25 @@ export default function ProgramReviewPage({
   const confirmRevise = () => {
     // Transform the data before sending to the API
     const apiData = transformRevisionData(revisionRequests);
-
-    // Here you would typically send an API request with the transformed data
     console.log("Revision requested:", apiData);
-    setReviseDialogOpen(false);
-    setActionTaken("revision");
+    submitProposalReview.mutate(
+      {
+        proposalId,
+        reviewData: apiData,
+      },
+      {
+        onSuccess: () => {
+          setReviseDialogOpen(false);
+          setActionTaken("revision");
+          // You could also show a success toast/notification here
+        },
+        onError: (error) => {
+          // Handle error (e.g., show error message)
+          console.error("Failed to submit review:", error);
+          // You could show an error toast/notification here
+        },
+      }
+    );
   };
 
   // Prepare courses for the ReviseDialog

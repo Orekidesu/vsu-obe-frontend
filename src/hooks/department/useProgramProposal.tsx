@@ -8,6 +8,7 @@ import useApi from "../useApi";
 import { FullProgramProposalPayload } from "@/app/utils/department/programProposalPayload";
 import { useAuth } from "@/hooks/useAuth";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
+import { ReviewProposalPayload } from "@/app/utils/dean/reviewProgramProposalPayload";
 
 interface DeleteProgramProposalContext {
   previousProgramProposals?: ProgramProposal[];
@@ -174,10 +175,33 @@ const useProgramProposals = (options: useProgramOptions = {}) => {
     },
   });
 
+  const submitProposalReview = useMutation<
+    void,
+    APIError,
+    { proposalId: number; reviewData: ReviewProposalPayload }
+  >({
+    mutationFn: async ({ proposalId, reviewData }) => {
+      const response = await api.post(
+        `${role}/program-proposals/${proposalId}/review`,
+        reviewData
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["program-proposals"] });
+    },
+    onError: (error) => {
+      throw new Error(
+        getErrorMessage(error, "Failed to submit proposal review")
+      );
+    },
+  });
+
   return {
     programProposals,
     isLoading,
     submitFullProgramProposal,
+    submitProposalReview,
     error,
     getProgramProposal,
     getProgramProposalFromCache,
