@@ -23,7 +23,7 @@ import { CourseDetailsTabs } from "./program-review-components/CourseDetailsTabs
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import type { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
-
+import { useToast } from "@/hooks/use-toast";
 interface RevisionRequest {
   section: string;
   details: string;
@@ -49,6 +49,7 @@ interface ProgramReviewPageProps {
 export default function ProgramReviewPage({
   proposalId,
 }: ProgramReviewPageProps) {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   // const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
@@ -497,30 +498,55 @@ export default function ProgramReviewPage({
 
   // Confirm approval
   const confirmApprove = () => {
-    // Here you would typically send an API request to approve the program
+    try {
+      const result: {
+        status: string;
+      } = {
+        status: "approved",
+      };
 
-    const result: {
-      status: string;
-    } = {
-      status: "approved",
-    };
-    console.log("Program approved", result);
+      submitProposalReview.mutate(
+        {
+          proposalId,
+          reviewData: result,
+        },
+        {
+          onSuccess: () => {
+            // Show success toast
+            toast({
+              title: "Program Approved",
+              description: `The program "${transformedData.program.name}" has been approved successfully.`,
+              variant: "success",
+            });
 
-    submitProposalReview.mutate(
-      {
-        proposalId,
-        reviewData: result,
-      },
-      {
-        onSuccess: () => {
-          setConfirmDialogOpen(false);
-          setActionTaken("approved");
-        },
-        onError: (error) => {
-          console.error("Failed to submit review:", error);
-        },
-      }
-    );
+            setConfirmDialogOpen(false);
+            setActionTaken("approved");
+          },
+          onError: (error) => {
+            console.error("Failed to submit review:", error);
+
+            // Show error toast
+            toast({
+              title: "Approval Failed",
+              description: "Failed to approve the program. Please try again.",
+              variant: "destructive",
+            });
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error processing approval:", error);
+
+      // Show error toast for unexpected errors
+      toast({
+        title: "Unexpected Error",
+        description:
+          "An unexpected error occurred while processing your request.",
+        variant: "destructive",
+      });
+
+      setConfirmDialogOpen(false);
+    }
   };
 
   // Handle reject action
@@ -607,27 +633,53 @@ export default function ProgramReviewPage({
 
   // Confirm revision request
   const confirmRevise = () => {
-    // Transform the data before sending to the API
-    const apiData = transformRevisionData(revisionRequests);
-    console.log("Revision requested:", apiData);
-    submitProposalReview.mutate(
-      {
-        proposalId,
-        reviewData: apiData,
-      },
-      {
-        onSuccess: () => {
-          setReviseDialogOpen(false);
-          setActionTaken("revision");
-          // You could also show a success toast/notification here
+    try {
+      // Transform the data before sending to the API
+      const apiData = transformRevisionData(revisionRequests);
+
+      submitProposalReview.mutate(
+        {
+          proposalId,
+          reviewData: apiData,
         },
-        onError: (error) => {
-          // Handle error (e.g., show error message)
-          console.error("Failed to submit review:", error);
-          // You could show an error toast/notification here
-        },
-      }
-    );
+        {
+          onSuccess: () => {
+            // Show success toast
+            toast({
+              title: "Revision Requested",
+              description: `Revision requests for "${transformedData.program.name}" have been submitted successfully.`,
+              variant: "success",
+            });
+
+            setReviseDialogOpen(false);
+            setActionTaken("revision");
+          },
+          onError: (error) => {
+            console.error("Failed to submit revision:", error);
+
+            // Show error toast
+            toast({
+              title: "Revision Request Failed",
+              description:
+                "Failed to submit revision requests. Please try again.",
+              variant: "destructive",
+            });
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error processing revision request:", error);
+
+      // Show error toast for unexpected errors
+      toast({
+        title: "Unexpected Error",
+        description:
+          "An unexpected error occurred while processing your revision request.",
+        variant: "destructive",
+      });
+
+      setReviseDialogOpen(false);
+    }
   };
 
   // Prepare courses for the ReviseDialog
