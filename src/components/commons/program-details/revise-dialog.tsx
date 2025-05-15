@@ -88,7 +88,7 @@ export function ReviseDialog({
   // Helper function to get section display name
   const getSectionDisplayName = (sectionKey: string) => {
     const sectionNames: Record<string, string> = {
-      "program-details": "Program Details",
+      program: "Program Details",
       peos: "Program Educational Objectives",
       "peo-mission-mapping": "PEO to Mission Mapping",
       "ga-peo-mapping": "GA to PEO Mapping",
@@ -153,7 +153,7 @@ export function ReviseDialog({
 
   // Create array of available sections (excluding ones already in requests)
   const availableSections = [
-    { value: "program-details", label: "Program Details" },
+    { value: "program", label: "Program Details" },
     { value: "peos", label: "Program Educational Objectives" },
     { value: "peo-mission-mapping", label: "PEO to Mission Mapping" },
     { value: "ga-peo-mapping", label: "GA to PEO Mapping" },
