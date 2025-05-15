@@ -30,6 +30,7 @@ interface RevisionRequest {
   type: "section" | "course";
   courseId?: string;
   courseName?: string;
+  courseSection?: string;
 }
 
 interface CurriculumCourse {
@@ -61,6 +62,7 @@ export default function ProgramReviewPage({
   const [currentSection, setCurrentSection] = useState("");
   const [currentDetails, setCurrentDetails] = useState("");
   const [currentCourse, setCurrentCourse] = useState("");
+  const [currentCourseSection, setCurrentCourseSection] = useState("");
   const [actionTaken, setActionTaken] = useState<string | null>(null);
 
   const [dynamicCourseDetailsMap, setDynamicCourseDetailsMap] = useState<
@@ -596,7 +598,11 @@ export default function ProgramReviewPage({
     const result: {
       status: string;
       department_level: Array<{ section: string; details: string }>;
-      committee_level: Array<{ curriculum_course_id: number; details: string }>;
+      committee_level: Array<{
+        curriculum_course_id: number;
+        section: string;
+        details: string;
+      }>;
     } = {
       status: "revision",
       department_level: [],
@@ -623,6 +629,7 @@ export default function ProgramReviewPage({
       } else if (request.type === "course") {
         result.committee_level.push({
           curriculum_course_id: parseInt(request.courseId || "0"),
+          section: request.courseSection || "",
           details: request.details,
         });
       }
@@ -860,6 +867,8 @@ export default function ProgramReviewPage({
         courses={coursesForRevision}
         currentCourse={currentCourse}
         setCurrentCourse={setCurrentCourse}
+        currentCourseSection={currentCourseSection}
+        setCurrentCourseSection={setCurrentCourseSection}
       />
     </main>
   );

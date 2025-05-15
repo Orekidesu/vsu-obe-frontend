@@ -40,6 +40,7 @@ interface RevisionRequest {
   type: "section" | "course";
   courseId?: string;
   courseName?: string;
+  courseSection?: string;
 }
 
 interface ReviseDialogProps {
@@ -57,6 +58,8 @@ interface ReviseDialogProps {
   courses?: { id: string; code: string; descriptive_title: string }[];
   currentCourse?: string;
   setCurrentCourse?: (courseId: string) => void;
+  currentCourseSection?: string;
+  setCurrentCourseSection?: (section: string) => void;
 }
 
 export function ReviseDialog({
@@ -74,6 +77,8 @@ export function ReviseDialog({
   courses = [],
   currentCourse = "",
   setCurrentCourse = () => {},
+  currentCourseSection = "", // Add default value
+  setCurrentCourseSection = () => {}, // Add default function
 }: ReviseDialogProps) {
   // Add state for active tab
   const [activeTab, setActiveTab] = useState("section");
@@ -112,7 +117,7 @@ export function ReviseDialog({
         setCurrentDetails("");
       }
     } else if (activeTab === "course") {
-      if (currentCourse && currentDetails.trim()) {
+      if (currentCourse && currentCourseSection && currentDetails.trim()) {
         const selectedCourse = courses.find((c) => c.id === currentCourse);
         if (selectedCourse) {
           const newRequest: RevisionRequest = {
@@ -121,9 +126,11 @@ export function ReviseDialog({
             type: "course",
             courseId: currentCourse,
             courseName: `${selectedCourse.code} - ${selectedCourse.descriptive_title}`,
+            courseSection: currentCourseSection, // Include the course section
           };
           revisionRequests.push(newRequest);
           setCurrentCourse("");
+          setCurrentCourseSection(""); // Reset the course section
           setCurrentDetails("");
         }
       }
@@ -278,7 +285,11 @@ export function ReviseDialog({
                   <Label htmlFor="course">Course</Label>
                   <Select
                     value={currentCourse}
-                    onValueChange={setCurrentCourse}
+                    onValueChange={(value) => {
+                      setCurrentCourse(value);
+                      // Reset the course section when a new course is selected
+                      setCurrentCourseSection("");
+                    }}
                     disabled={availableCourses.length === 0}
                   >
                     <SelectTrigger id="course">
@@ -304,23 +315,53 @@ export function ReviseDialog({
                     </SelectContent>
                   </Select>
                 </div>
+                {/* New Course Section Selection */}
                 <div className="space-y-2">
+                  <Label htmlFor="course-section">Course Section</Label>
+                  <Select
+                    value={currentCourseSection}
+                    onValueChange={setCurrentCourseSection}
+                    disabled={!currentCourse}
+                  >
+                    <SelectTrigger id="course-section">
+                      <SelectValue placeholder="Select section to revise" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="course_outcomes">
+                        Course Outcomes
+                      </SelectItem>
+                      <SelectItem value="abcd_model">ABCD Model</SelectItem>
+                      <SelectItem value="cpa">CPA Classification</SelectItem>
+                      <SelectItem value="po_mappings">
+                        CO to PO Mapping
+                      </SelectItem>
+                      <SelectItem value="tla_tasks">TLA Task</SelectItem>
+                      <SelectItem value="tla_assessment_methods">
+                        Assessment Methods
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {/* Revision Details */}
+                <div className="space-y-2 col-span-1 md:col-span-2">
                   <Label htmlFor="course-details">Revision Details</Label>
                   <Textarea
                     id="course-details"
-                    placeholder="Describe what needs to be revised in this course..."
+                    placeholder="Describe what needs to be revised in this course section..."
                     value={currentDetails}
                     onChange={(e) => setCurrentDetails(e.target.value)}
                     className="min-h-[80px]"
-                    disabled={availableCourses.length === 0}
+                    disabled={!currentCourse || !currentCourseSection}
                   />
                 </div>
               </div>
+              {/* Update the button to require course section */}
               <Button
                 onClick={handleAddRevisionRequest}
                 className="w-full"
                 disabled={
                   !currentCourse ||
+                  !currentCourseSection ||
                   !currentDetails.trim() ||
                   availableCourses.length === 0
                 }
@@ -403,6 +444,14 @@ export function ReviseDialog({
                               <h4 className="font-medium break-words">
                                 {request.courseName}
                               </h4>
+                              {/* Add course section label */}
+                              {request.courseSection && (
+                                <div className="text-xs font-medium bg-blue-200 text-blue-800 px-2 py-0.5 rounded mt-1 inline-block">
+                                  {request.courseSection
+                                    .replace(/_/g, " ")
+                                    .replace(/\b\w/g, (c) => c.toUpperCase())}
+                                </div>
+                              )}
                               <p
                                 className="text-sm text-gray-600 mt-1 whitespace-pre-wrap break-all"
                                 style={{
