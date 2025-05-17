@@ -49,5 +49,7 @@ export interface CurriculumCourseResponse {
   course_category: CourseCategory;
   semester: Semester;
   units: number;
+  is_in_revision: boolean;
+  is_completed: boolean;
   course_outcomes?: CourseOutcome[]; // Optional field that only appears with include_outcomes=true
 }
