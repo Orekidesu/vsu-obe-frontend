@@ -18,7 +18,7 @@ const DashboardPage = () => {
     (program) => program.status === "active"
   );
   const pendingPrograms = programs?.filter(
-    (program) => program.status === "pending"
+    (program) => program.status === "review"
   );
 
   if (programError) {
