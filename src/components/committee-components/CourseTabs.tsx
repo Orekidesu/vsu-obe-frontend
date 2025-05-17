@@ -91,7 +91,9 @@ export function CourseTabs() {
                 There was a problem loading your courses. Please try again.
               </p>
             </div>
-          ) : !curriculumCourses || curriculumCourses.length === 0 ? (
+          ) : !curriculumCourses ||
+            curriculumCourses.filter((course) => !course.is_completed)
+              .length === 0 ? (
             <div className="text-center p-10 border rounded-lg bg-muted/50">
               <BookOpen className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-lg font-medium mb-2">No Pending Courses</h3>
@@ -101,23 +103,25 @@ export function CourseTabs() {
             </div>
           ) : (
             <div className="space-y-4">
-              {curriculumCourses.map((course) => (
-                <CourseCard
-                  key={course.id.toString()}
-                  id={course.id.toString()}
-                  code={course.course.code}
-                  title={course.course.descriptive_title}
-                  category={course.course_category.name}
-                  yearSemester={formatSemester(
-                    course.semester.year,
-                    course.semester.sem
-                  )}
-                  units={Number(course.units)}
-                  status="pending"
-                  actionText="Add Details"
-                  onAction={() => handleAddDetails(course.id.toString())}
-                />
-              ))}
+              {curriculumCourses
+                .filter((course) => !course.is_completed)
+                .map((course) => (
+                  <CourseCard
+                    key={course.id.toString()}
+                    id={course.id.toString()}
+                    code={course.course.code}
+                    title={course.course.descriptive_title}
+                    category={course.course_category.name}
+                    yearSemester={formatSemester(
+                      course.semester.year,
+                      course.semester.sem
+                    )}
+                    units={Number(course.units)}
+                    status="pending"
+                    actionText="Add Details"
+                    onAction={() => handleAddDetails(course.id.toString())}
+                  />
+                ))}
             </div>
           )}
         </TabsContent>
