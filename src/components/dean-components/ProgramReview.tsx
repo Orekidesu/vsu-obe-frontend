@@ -617,7 +617,7 @@ export default function ProgramReviewPage({
         // Add 's' to the end if it doesn't already have one
         if (
           !sectionName.endsWith("s") &&
-          !["curriculum", "program_details"].includes(sectionName)
+          !["curriculum", "program"].includes(sectionName.toLowerCase())
         ) {
           sectionName += "s";
         }

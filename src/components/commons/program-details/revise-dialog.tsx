@@ -90,15 +90,15 @@ export function ReviseDialog({
     const sectionNames: Record<string, string> = {
       program: "Program Details",
       peos: "Program Educational Objectives",
-      "peo-mission-mapping": "PEO to Mission Mapping",
-      "ga-peo-mapping": "GA to PEO Mapping",
+      "peo-mission-mappings": "PEO to Mission Mapping",
+      "ga-peo-mappings": "GA to PEO Mapping",
       "program-outcomes": "Program Outcomes",
-      "po-peo-mapping": "PO to PEO Mapping",
-      "po-ga-mapping": "PO to GA Mapping",
+      "po-peo-mappings": "PO to PEO Mapping",
+      "po-ga-mappings": "PO to GA Mapping",
       curriculum: "Curriculum Structure",
       "course-categories": "Course Categories",
       "curriculum-courses": "Curriculum Courses",
-      "course-po-mapping": "Course to PO Mapping",
+      "course-po-mappings": "Course to PO Mapping",
     };
     return sectionNames[sectionKey] || sectionKey;
   };
@@ -155,15 +155,15 @@ export function ReviseDialog({
   const availableSections = [
     { value: "program", label: "Program Details" },
     { value: "peos", label: "Program Educational Objectives" },
-    { value: "peo-mission-mapping", label: "PEO to Mission Mapping" },
-    { value: "ga-peo-mapping", label: "GA to PEO Mapping" },
+    { value: "peo-mission-mappings", label: "PEO to Mission Mapping" },
+    { value: "ga-peo-mappings", label: "GA to PEO Mapping" },
     { value: "program-outcomes", label: "Program Outcomes" },
-    { value: "po-peo-mapping", label: "PO to PEO Mapping" },
-    { value: "po-ga-mapping", label: "PO to GA Mapping" },
+    { value: "po-peo-mappings", label: "PO to PEO Mapping" },
+    { value: "po-ga-mappings", label: "PO to GA Mapping" },
     { value: "curriculum", label: "Curriculum Structure" },
     { value: "course-categories", label: "Course Categories" },
     { value: "curriculum-courses", label: "Curriculum Courses" },
-    { value: "course-po-mapping", label: "Course to PO Mapping" },
+    { value: "course-po-mappings", label: "Course to PO Mapping" },
   ].filter((section) => !existingSections.includes(section.value));
 
   // Filter available courses (excluding ones already in requests)
