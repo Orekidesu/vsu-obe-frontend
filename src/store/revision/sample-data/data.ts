@@ -144,6 +144,14 @@ export const sampleRevisionData = {
       created_at: "2025-05-19T06:45:28.000000Z",
       version: 3,
     },
+    {
+      id: 51,
+      section: "peos",
+      details:
+        "PEOs need to be more specific and aligned with industry standards. Consider adding a PEO related to ethical practice.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
   ],
   message: "Department-level revisions fetched successfully.",
 };

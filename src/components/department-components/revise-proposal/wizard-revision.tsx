@@ -35,6 +35,7 @@ import {
 
 // Import revision components
 import { ProgramRevision } from "./program-revision";
+import { PEOsRevision } from "./peos-revision";
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 
 interface RevisionWizardProps {
@@ -72,8 +73,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   const handleStartRevision = () => {
     setIsRevising(true);
   };
-  console.log(proposalId);
-  console.log("proposal id number", proposalIdNumber);
+
   // Go back to the dashboard
   const handleBackToDashboard = () => {
     router.push("/");
@@ -109,10 +109,10 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
       if (success) {
         setSubmitSuccess(true);
 
+        console.log("Revisions:", modifiedSections);
+
         // Redirect after a delay
-        setTimeout(() => {
-          router.push("/");
-        }, 3000);
+        setTimeout(() => {}, 3000);
       } else {
         // Handle submission error
         setIsSubmitting(false);
@@ -131,7 +131,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
     switch (section) {
       case "program":
         return <ProgramRevision />;
-
+      case "peos":
+        return <PEOsRevision />;
       default:
         return (
           <div className="text-center">
