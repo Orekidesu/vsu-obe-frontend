@@ -86,7 +86,7 @@ export interface ProgramProposalResponse {
       po_mappings: Array<{
         po_id: number;
         po_name: string;
-        ied: string;
+        ied: string[]; // since this is json in database
       }>;
     }>;
   };
