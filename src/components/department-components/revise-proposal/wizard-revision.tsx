@@ -1,7 +1,7 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,13 +18,13 @@ import {
   ClipboardList,
   AlertCircle,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Import data and store
 import {
-  sampleProposalData,
   sampleRevisionData,
   getSectionDisplayName,
 } from "@/store/revision/sample-data/data";
@@ -35,6 +35,7 @@ import {
 
 // Import revision components
 import { ProgramRevision } from "./program-revision";
+import useProgramProposals from "@/hooks/department/useProgramProposal";
 
 interface RevisionWizardProps {
   proposalId: string;
@@ -47,14 +48,23 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  // Get the proposal from API using cache
+  const { getProgramProposalFromCache } = useProgramProposals();
+  const proposalIdNumber = parseInt(proposalId, 10);
+
+  const { data: proposalData, isLoading: isLoadingProposal } = useQuery(
+    getProgramProposalFromCache(proposalIdNumber)
+  );
+
   // Initialize the store with sample data
   const { initializeData, submitRevisions, modifiedSections } =
     useRevisionStore();
 
   useEffect(() => {
-    // In a real app, this would fetch data from an API based on proposalId
-    initializeData(sampleProposalData);
-  }, [initializeData, proposalId]);
+    if (proposalData) {
+      initializeData(proposalData);
+    }
+  }, [initializeData, proposalData]);
 
   const { revisions } = sampleRevisionData;
 
@@ -62,7 +72,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   const handleStartRevision = () => {
     setIsRevising(true);
   };
-
+  console.log(proposalId);
+  console.log("proposal id number", proposalIdNumber);
   // Go back to the dashboard
   const handleBackToDashboard = () => {
     router.push("/");
@@ -123,7 +134,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
 
       default:
         return (
-          <div className="p-8 text-center">
+          <div className="text-center">
             <AlertCircle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
             <h3 className="text-lg font-medium">Unknown Revision Section</h3>
             <p className="text-gray-600 mt-2">
@@ -141,11 +152,20 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
     return modifiedSections.has(currentRevision.section as RevisionSection);
   };
 
+  if (isLoadingProposal) {
+    return (
+      <div className="container mx-auto  text-center">
+        <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary mb-4" />
+        <h2 className="text-xl font-medium">Loading proposal data...</h2>
+      </div>
+    );
+  }
+
   return (
     <TooltipProvider>
-      <div className="container mx-auto py-8 px-4">
+      <div className="container ">
         {submitSuccess ? (
-          <Card className="max-w-3xl mx-auto">
+          <Card className="">
             <CardContent className="pt-6 text-center">
               <CheckCircle2 className="mx-auto h-16 w-16 text-green-500 mb-4" />
               <h2 className="text-2xl font-bold mb-2">
@@ -161,7 +181,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
             </CardContent>
           </Card>
         ) : isRevising ? (
-          <div className="max-w-4xl mx-auto">
+          <div className=" mx-auto">
             <div className="flex items-center mb-6">
               <Button
                 variant="outline"
@@ -255,7 +275,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
             </div>
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto">
+          <div className="mx-auto">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Program Revision Requests</h1>
               <Button variant="outline" onClick={handleBackToDashboard}>
@@ -267,14 +287,14 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle>{sampleProposalData.program.name}</CardTitle>
+                    <CardTitle>{proposalData?.program.name}</CardTitle>
                     <CardDescription>
-                      {sampleProposalData.program.abbreviation} -{" "}
-                      {sampleProposalData.program.department_name}
+                      {proposalData?.program.abbreviation} -{" "}
+                      {proposalData?.program.department_name}
                     </CardDescription>
                   </div>
                   <Badge className="bg-amber-500">
-                    {sampleProposalData.program.status.toUpperCase()}
+                    {proposalData?.program.status.toUpperCase()}
                   </Badge>
                 </div>
               </CardHeader>
@@ -283,28 +303,28 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
                   <div>
                     <p className="text-sm text-gray-500">Proposed by</p>
                     <p className="font-medium">
-                      {sampleProposalData.proposed_by.first_name}{" "}
-                      {sampleProposalData.proposed_by.last_name}
+                      {proposalData?.proposed_by.first_name}{" "}
+                      {proposalData?.proposed_by.last_name}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Date Submitted</p>
                     <p className="font-medium">
                       {format(
-                        new Date(sampleProposalData.created_at),
+                        new Date(proposalData?.created_at || new Date()),
                         "MMMM d, yyyy"
                       )}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Current Version</p>
-                    <p className="font-medium">{sampleProposalData.version}</p>
+                    <p className="font-medium">{proposalData?.version}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Last Updated</p>
                     <p className="font-medium">
                       {format(
-                        new Date(sampleProposalData.updated_at),
+                        new Date(proposalData?.updated_at || new Date()),
                         "MMMM d, yyyy"
                       )}
                     </p>
@@ -337,7 +357,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {revisions.map((revision, index) => (
+                  {revisions.map((revision) => (
                     <div
                       key={revision.id}
                       className="p-4 border rounded-lg bg-gray-50"

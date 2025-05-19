@@ -1,11 +1,11 @@
 "use client";
 
 import { RevisionWizard } from "@/components/department-components/revise-proposal/wizard-revision";
+import { useParams } from "next/navigation";
 
-export default function RevisionPage({
-  params,
-}: {
-  params: { proposalId: string };
-}) {
-  return <RevisionWizard proposalId={params.proposalId} />;
+export default function RevisionPage() {
+  const params = useParams();
+  const proposalId = params.id as string;
+
+  return <RevisionWizard proposalId={proposalId} />;
 }

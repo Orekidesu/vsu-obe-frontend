@@ -1,3 +1,5 @@
+import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
+
 // Sample program proposal data
 export const sampleProposalData = {
   id: 17,
@@ -147,7 +149,7 @@ export const sampleRevisionData = {
 };
 
 // Function to transform the proposal data into a normalized format
-export const transformProposalData = (data: typeof sampleProposalData) => {
+export const transformProposalData = (data: ProgramProposalResponse) => {
   // Extract basic program info
   const program = {
     id: data.program.id,

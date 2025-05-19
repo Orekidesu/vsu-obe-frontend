@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { transformProposalData } from "./sample-data/data";
+import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 
 // Define the sections that can be revised
 export type RevisionSection =
@@ -18,7 +19,7 @@ export type RevisionSection =
 // Define the store state
 interface RevisionState {
   // Original data
-  originalData: any;
+  originalData: ProgramProposalResponse | null;
 
   // Transformed data
   program: {
@@ -69,6 +70,7 @@ interface RevisionState {
   course_po_mappings: Array<{
     curriculum_course_id: number;
     po_id: number;
+    // ied: string[];
     ied: string[];
   }>;
 
@@ -76,7 +78,7 @@ interface RevisionState {
   modifiedSections: Set<RevisionSection>;
 
   // Actions
-  initializeData: (data: any) => void;
+  initializeData: (data: ProgramProposalResponse) => void;
   updateProgram: (program: { name: string; abbreviation: string }) => void;
   resetSection: (section: RevisionSection) => void;
   submitRevisions: () => Promise<boolean>;
@@ -100,7 +102,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
   modifiedSections: new Set<RevisionSection>(),
 
   // Initialize data from API response
-  initializeData: (data) => {
+  initializeData: (data: ProgramProposalResponse) => {
     const transformedData = transformProposalData(data);
     set({
       originalData: data,
@@ -150,7 +152,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
     }
 
     // Prepare the data to submit
-    const dataToSubmit: Record<string, any> = {};
+    const dataToSubmit: Record<string, unknown> = {};
     modifiedSections.forEach((section) => {
       dataToSubmit[section] = state[section];
     });
