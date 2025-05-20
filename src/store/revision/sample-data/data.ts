@@ -256,6 +256,14 @@ export const sampleRevisionData = {
       created_at: "2025-05-19T06:45:28.000000Z",
       version: 3,
     },
+    {
+      id: 55,
+      section: "po_peo_mappings",
+      details:
+        "The Program Outcome to PEO mappings need to be revised to ensure all POs are properly aligned with the program's educational objectives. Ensure each PO contributes to at least one PEO.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
   ],
   message: "Department-level revisions fetched successfully.",
 };

@@ -53,6 +53,12 @@ export interface PO {
   statement: string;
 }
 
+// Define the PO to PEO mapping type
+export interface POPEOMapping {
+  po_id: number;
+  peo_id: number;
+}
+
 // Define the store state
 interface RevisionState {
   // Original data
@@ -69,11 +75,11 @@ interface RevisionState {
   peo_mission_mappings: PEOMissionMapping[];
 
   ga_peo_mappings: GAPEOMapping[];
+
   pos: PO[];
-  po_peo_mappings: Array<{
-    po_id: number;
-    peo_id: number;
-  }>;
+
+  po_peo_mappings: POPEOMapping[];
+
   po_ga_mappings: Array<{
     po_id: number;
     ga_id: number;
@@ -127,6 +133,10 @@ interface RevisionState {
   updatePO: (id: number, po: { name: string; statement: string }) => void;
   addPO: (po: { name: string; statement: string }) => void;
   removePO: (id: number) => void;
+
+  // PO to PEO mapping actions
+  togglePOPEOMapping: (po_id: number, peo_id: number) => void;
+  updatePOPEOMappings: (mappings: POPEOMapping[]) => void;
 
   resetSection: (section: RevisionSection) => void;
   submitRevisions: () => Promise<boolean>;
@@ -422,6 +432,48 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       };
     });
   },
+  // Toggle a PO to PEO mapping
+  togglePOPEOMapping: (po_id, peo_id) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("po_peo_mappings");
+
+      // Check if the mapping already exists
+      const existingMapping = state.po_peo_mappings.find(
+        (mapping) => mapping.po_id === po_id && mapping.peo_id === peo_id
+      );
+
+      let updatedMappings;
+
+      if (existingMapping) {
+        // Remove the mapping if it exists
+        updatedMappings = state.po_peo_mappings.filter(
+          (mapping) => !(mapping.po_id === po_id && mapping.peo_id === peo_id)
+        );
+      } else {
+        // Add the mapping if it doesn't exist
+        updatedMappings = [...state.po_peo_mappings, { po_id, peo_id }];
+      }
+
+      return {
+        po_peo_mappings: updatedMappings,
+        modifiedSections,
+      };
+    });
+  },
+
+  // Update all PO to PEO mappings at once
+  updatePOPEOMappings: (mappings) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("po_peo_mappings");
+
+      return {
+        po_peo_mappings: mappings,
+        modifiedSections,
+      };
+    });
+  },
 
   // Reset a section to its original state
   resetSection: (section) => {
@@ -478,10 +530,12 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       if (section === "peos") {
         newState.peo_mission_mappings = transformedData.peo_mission_mappings;
         newState.ga_peo_mappings = transformedData.ga_peo_mappings;
+        newState.po_peo_mappings = transformedData.po_peo_mappings;
 
         // Remove these sections from modified sections
         modifiedSections.delete("peo_mission_mappings");
         modifiedSections.delete("ga_peo_mappings");
+        modifiedSections.delete("po_peo_mappings");
       }
       // If resetting POs, also reset related mappings
       if (section === "pos") {
