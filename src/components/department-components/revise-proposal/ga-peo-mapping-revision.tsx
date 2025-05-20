@@ -1,6 +1,7 @@
 "use client";
 import { useRevisionStore } from "@/store/revision/revision-store";
-import { sampleGraduateAttributes } from "@/store/revision/sample-data/data";
+import { useEffect } from "react";
+import useGraduateAttributes from "@/hooks/shared/useGraduateAttribute";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,7 +11,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { AlertCircle, RotateCcw, Info } from "lucide-react";
+import { AlertCircle, RotateCcw, Info, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,16 @@ export function GAPEOMappingRevision() {
     resetSection,
     isModified,
   } = useRevisionStore();
-  const graduateAttributes = sampleGraduateAttributes;
+
+  // Fetch graduate attributes from API instead of using sample data
+  const { graduateAttributes, getGraduateAttributes, isFetching, error } =
+    useGraduateAttributes();
+
+  // Fetch graduate attributes on component mount
+  useEffect(() => {
+    getGraduateAttributes();
+  }, [getGraduateAttributes]);
+
   const sectionModified = isModified("ga_peo_mappings");
 
   // Check if a GA is mapped to a PEO
@@ -48,6 +58,28 @@ export function GAPEOMappingRevision() {
       resetSection("ga_peo_mappings");
     }
   };
+
+  // Loading state
+  if (isFetching) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+        <p>Loading graduate attributes...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Alert variant="destructive" className="my-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          {error}. Please try refreshing the page.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -85,6 +117,11 @@ export function GAPEOMappingRevision() {
               <p className="text-gray-500 mt-2">
                 Please define PEOs before creating mappings.
               </p>
+            </div>
+          ) : !graduateAttributes || graduateAttributes.length === 0 ? (
+            <div className="text-center py-8">
+              <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+              <p className="text-gray-500">No graduate attributes found.</p>
             </div>
           ) : (
             <>
