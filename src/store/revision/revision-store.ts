@@ -26,11 +26,24 @@ export interface Mission {
   mission_no: number;
   description: string;
 }
+// Define the Graduate Attribute type
+export interface GraduateAttribute {
+  id: number;
+  ga_no: number;
+  name: string;
+  description: string;
+}
 
 // Define the PEO to Mission mapping type
 export interface PEOMissionMapping {
   peo_id: number;
   mission_id: number;
+}
+
+// Define the GA to PEO mapping type
+export interface GAPEOMapping {
+  ga_id: number;
+  peo_id: number;
 }
 
 // Define the store state
@@ -48,10 +61,7 @@ interface RevisionState {
 
   peo_mission_mappings: PEOMissionMapping[];
 
-  ga_peo_mappings: Array<{
-    peo_id: number;
-    ga_id: number;
-  }>;
+  ga_peo_mappings: GAPEOMapping[];
   pos: Array<{
     id: number;
     name: string;
@@ -105,6 +115,10 @@ interface RevisionState {
   // PEO to Mission mapping actions
   togglePEOMissionMapping: (peo_id: number, mission_id: number) => void;
   updatePEOMissionMappings: (mappings: PEOMissionMapping[]) => void;
+
+  // GA to PEO mapping actions
+  toggleGAPEOMapping: (ga_id: number, peo_id: number) => void;
+  updateGAPEOMappings: (mappings: GAPEOMapping[]) => void;
 
   resetSection: (section: RevisionSection) => void;
   submitRevisions: () => Promise<boolean>;
@@ -277,6 +291,49 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
       return {
         peo_mission_mappings: mappings,
+        modifiedSections,
+      };
+    });
+  },
+
+  // Toggle a GA to PEO mapping
+  toggleGAPEOMapping: (ga_id, peo_id) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("ga_peo_mappings");
+
+      // Check if the mapping already exists
+      const existingMapping = state.ga_peo_mappings.find(
+        (mapping) => mapping.ga_id === ga_id && mapping.peo_id === peo_id
+      );
+
+      let updatedMappings;
+
+      if (existingMapping) {
+        // Remove the mapping if it exists
+        updatedMappings = state.ga_peo_mappings.filter(
+          (mapping) => !(mapping.ga_id === ga_id && mapping.peo_id === peo_id)
+        );
+      } else {
+        // Add the mapping if it doesn't exist
+        updatedMappings = [...state.ga_peo_mappings, { ga_id, peo_id }];
+      }
+
+      return {
+        ga_peo_mappings: updatedMappings,
+        modifiedSections,
+      };
+    });
+  },
+
+  // Update all GA to PEO mappings at once
+  updateGAPEOMappings: (mappings) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("ga_peo_mappings");
+
+      return {
+        ga_peo_mappings: mappings,
         modifiedSections,
       };
     });

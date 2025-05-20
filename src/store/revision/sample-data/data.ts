@@ -151,6 +151,66 @@ export const sampleMissions = [
   },
 ];
 
+// Sample graduate attributes data
+export const sampleGraduateAttributes = [
+  {
+    id: 1,
+    ga_no: 1,
+    name: "Knowledge Competence",
+    description:
+      "Demonstrate a mastery of the fundamental knowledge and skills required for functioning effectively as a professional in the discipline, and an ability to integrate and apply them effectively to practice in the workplace.",
+  },
+  {
+    id: 2,
+    ga_no: 2,
+    name: "Creativity and Innovation",
+    description:
+      "Experiment with new approaches, challenge existing knowledge boundaries and design novel solutions to solve problems.",
+  },
+  {
+    id: 3,
+    ga_no: 3,
+    name: "Critical and Systems Thinking",
+    description:
+      "Identify, define, and deal with complex problems pertinent to the future professional practice or daily life through logical, analytical and critical thinking.",
+  },
+  {
+    id: 4,
+    ga_no: 4,
+    name: "Communication",
+    description:
+      "Communicate effectively (both orally and in writing) with a wide range of audiences, across a range of professional and personal contexts, in English and Pilipino.",
+  },
+  {
+    id: 5,
+    ga_no: 5,
+    name: "Lifelong Learning",
+    description:
+      "Identify own learning needs for professional or personal development; demonstrate an eagerness to take up opportunities for learning new things as well as the ability to learn effectively on their own.",
+  },
+  {
+    id: 6,
+    ga_no: 6,
+    name: "Leadership, teamwork, and Interpersonal Skills",
+    description:
+      "Function effectively both as a leader and as a member of a team; motivate and lead a team to work towards goal; work collaboratively with other team members; as well as connect and interact socially and effectively with diverse culture.",
+  },
+  {
+    id: 7,
+    ga_no: 7,
+    name: "Global Outlook",
+    description:
+      "Demonstrate an awareness and understanding of global issues and willingness to work, interact effectively and show sensitivity to cultural diversity.",
+  },
+  {
+    id: 8,
+    ga_no: 8,
+    name: "Social and National Responsibility",
+    description:
+      "Demonstrate an awareness of their social and national responsibility; engage in activities that contribute to the betterment of the society; and behave ethically and responsibly in social, professional and work environments.",
+  },
+];
+
 // Sample revision data
 export const sampleRevisionData = {
   program_proposal_id: 17,
@@ -177,6 +237,14 @@ export const sampleRevisionData = {
       section: "peo_mission_mappings",
       details:
         "The PEO to Mission mappings need to be revised to ensure all PEOs are properly aligned with the university's mission statements. Consider mapping to Mission 3 as well.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
+    {
+      id: 53,
+      section: "ga_peo_mappings",
+      details:
+        "The Graduate Attribute to PEO mappings need to be revised to ensure comprehensive coverage of all relevant graduate attributes. Consider mapping to additional GAs such as 'Knowledge Competence' and 'Lifelong Learning'.",
       created_at: "2025-05-19T06:45:28.000000Z",
       version: 3,
     },
