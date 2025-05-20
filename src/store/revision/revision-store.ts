@@ -20,6 +20,18 @@ export interface PEO {
   id: number;
   statement: string;
 }
+// Define the Mission type
+export interface Mission {
+  id: number;
+  mission_no: number;
+  description: string;
+}
+
+// Define the PEO to Mission mapping type
+export interface PEOMissionMapping {
+  peo_id: number;
+  mission_id: number;
+}
 
 // Define the store state
 interface RevisionState {
@@ -31,11 +43,11 @@ interface RevisionState {
     name: string;
     abbreviation: string;
   };
+
   peos: PEO[];
-  peo_mission_mappings: Array<{
-    peo_id: number;
-    mission_id: number;
-  }>;
+
+  peo_mission_mappings: PEOMissionMapping[];
+
   ga_peo_mappings: Array<{
     peo_id: number;
     ga_id: number;
@@ -78,6 +90,8 @@ interface RevisionState {
 
   // Track which sections have been modified
   modifiedSections: Set<RevisionSection>;
+  // Check if a section is modified
+  isModified: (section: RevisionSection) => boolean;
 
   // Actions
   initializeData: (data: ProgramProposalResponse) => void;
@@ -87,6 +101,10 @@ interface RevisionState {
   updatePEO: (id: number, statement: string) => void;
   addPEO: (statement: string) => void;
   removePEO: (id: number) => void;
+
+  // PEO to Mission mapping actions
+  togglePEOMissionMapping: (peo_id: number, mission_id: number) => void;
+  updatePEOMissionMappings: (mappings: PEOMissionMapping[]) => void;
 
   resetSection: (section: RevisionSection) => void;
   submitRevisions: () => Promise<boolean>;
@@ -108,6 +126,10 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
   curriculum_courses: [],
   course_po_mappings: [],
   modifiedSections: new Set<RevisionSection>(),
+  // Check if a section is modified
+  isModified: (section) => {
+    return get().modifiedSections.has(section);
+  },
 
   // Initialize data from API response
   initializeData: (data: ProgramProposalResponse) => {
@@ -208,6 +230,53 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
         peo_mission_mappings: updatedPEOMissionMappings,
         ga_peo_mappings: updatedGAPEOMappings,
         po_peo_mappings: updatedPOPEOMappings,
+        modifiedSections,
+      };
+    });
+  },
+  // Toggle a PEO to Mission mapping
+  togglePEOMissionMapping: (peo_id, mission_id) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("peo_mission_mappings");
+
+      // Check if the mapping already exists
+      const existingMapping = state.peo_mission_mappings.find(
+        (mapping) =>
+          mapping.peo_id === peo_id && mapping.mission_id === mission_id
+      );
+
+      let updatedMappings;
+
+      if (existingMapping) {
+        // Remove the mapping if it exists
+        updatedMappings = state.peo_mission_mappings.filter(
+          (mapping) =>
+            !(mapping.peo_id === peo_id && mapping.mission_id === mission_id)
+        );
+      } else {
+        // Add the mapping if it doesn't exist
+        updatedMappings = [
+          ...state.peo_mission_mappings,
+          { peo_id, mission_id },
+        ];
+      }
+
+      return {
+        peo_mission_mappings: updatedMappings,
+        modifiedSections,
+      };
+    });
+  },
+
+  // Update all PEO to Mission mappings at once
+  updatePEOMissionMappings: (mappings) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("peo_mission_mappings");
+
+      return {
+        peo_mission_mappings: mappings,
         modifiedSections,
       };
     });

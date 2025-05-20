@@ -36,6 +36,7 @@ import {
 // Import revision components
 import { ProgramRevision } from "./program-revision";
 import { PEOsRevision } from "./peos-revision";
+import { PEOMissionMappingRevision } from "./peo-mission-mapping-revision";
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 
 interface RevisionWizardProps {
@@ -133,6 +134,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         return <ProgramRevision />;
       case "peos":
         return <PEOsRevision />;
+      case "peo_mission_mappings":
+        return <PEOMissionMappingRevision />;
       default:
         return (
           <div className="text-center">

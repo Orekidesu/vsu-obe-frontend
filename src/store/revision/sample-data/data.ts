@@ -131,6 +131,26 @@ export const sampleProposalData = {
   },
 };
 
+// Sample missions data
+export const sampleMissions = [
+  {
+    id: 1,
+    mission_no: 1,
+    description:
+      "To produce graduates equipped with advanced knowledge and lifelong learning skills with ethical standards through high quality instruction",
+  },
+  {
+    id: 2,
+    mission_no: 2,
+    description: "innovative research",
+  },
+  {
+    id: 3,
+    mission_no: 3,
+    description: "and impactful community engagements.",
+  },
+];
+
 // Sample revision data
 export const sampleRevisionData = {
   program_proposal_id: 17,
@@ -149,6 +169,14 @@ export const sampleRevisionData = {
       section: "peos",
       details:
         "PEOs need to be more specific and aligned with industry standards. Consider adding a PEO related to ethical practice.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
+    {
+      id: 52,
+      section: "peo_mission_mappings",
+      details:
+        "The PEO to Mission mappings need to be revised to ensure all PEOs are properly aligned with the university's mission statements. Consider mapping to Mission 3 as well.",
       created_at: "2025-05-19T06:45:28.000000Z",
       version: 3,
     },
@@ -281,6 +309,7 @@ export const getSectionDisplayName = (sectionKey: string) => {
     program: "Program Details",
     peos: "Program Educational Objectives",
     "peo-mission-mapping": "PEO to Mission Mapping",
+    peo_mission_mappings: "PEO to Mission Mapping",
     "ga-peo-mapping": "GA to PEO Mapping",
     ga_peo_mappings: "GA to PEO Mapping",
     "program-outcomes": "Program Outcomes",
