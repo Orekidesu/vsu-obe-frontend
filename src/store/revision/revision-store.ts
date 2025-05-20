@@ -59,6 +59,13 @@ export interface POPEOMapping {
   peo_id: number;
 }
 
+// Define the PO to GA Mapping type
+
+export interface POGAMapping {
+  po_id: number;
+  ga_id: number;
+}
+
 // Define the store state
 interface RevisionState {
   // Original data
@@ -80,10 +87,8 @@ interface RevisionState {
 
   po_peo_mappings: POPEOMapping[];
 
-  po_ga_mappings: Array<{
-    po_id: number;
-    ga_id: number;
-  }>;
+  po_ga_mappings: POGAMapping[];
+
   curriculum: {
     name: string;
   };
@@ -137,6 +142,10 @@ interface RevisionState {
   // PO to PEO mapping actions
   togglePOPEOMapping: (po_id: number, peo_id: number) => void;
   updatePOPEOMappings: (mappings: POPEOMapping[]) => void;
+
+  // PO to GA mapping  actions
+  togglePOGAMapping: (po_id: number, ga_id: number) => void;
+  updatePOGAMappings: (mappings: POGAMapping[]) => void;
 
   resetSection: (section: RevisionSection) => void;
   submitRevisions: () => Promise<boolean>;
@@ -470,6 +479,48 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
       return {
         po_peo_mappings: mappings,
+        modifiedSections,
+      };
+    });
+  },
+  // Toggle a PO to GA mapping
+  togglePOGAMapping: (po_id, ga_id) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("po_ga_mappings");
+
+      // Check if the mapping already exists
+      const existingMapping = state.po_ga_mappings.find(
+        (mapping) => mapping.po_id === po_id && mapping.ga_id === ga_id
+      );
+
+      let updatedMappings;
+
+      if (existingMapping) {
+        // Remove the mapping if it exists
+        updatedMappings = state.po_ga_mappings.filter(
+          (mapping) => !(mapping.po_id === po_id && mapping.ga_id === ga_id)
+        );
+      } else {
+        // Add the mapping if it doesn't exist
+        updatedMappings = [...state.po_ga_mappings, { po_id, ga_id }];
+      }
+
+      return {
+        po_ga_mappings: updatedMappings,
+        modifiedSections,
+      };
+    });
+  },
+
+  // Update all PO to GA mappings at once
+  updatePOGAMappings: (mappings) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("po_ga_mappings");
+
+      return {
+        po_ga_mappings: mappings,
         modifiedSections,
       };
     });

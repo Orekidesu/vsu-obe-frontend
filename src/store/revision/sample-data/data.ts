@@ -264,6 +264,14 @@ export const sampleRevisionData = {
       created_at: "2025-05-19T06:45:28.000000Z",
       version: 3,
     },
+    {
+      id: 56,
+      section: "po_ga_mappings",
+      details:
+        "The Program Outcome to Graduate Attribute mappings need to be reviewed for comprehensive coverage. Ensure each PO is appropriately mapped to relevant Graduate Attributes, particularly focusing on 'Knowledge Competence' and 'Lifelong Learning' attributes which appear underrepresented in current mappings.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
   ],
   message: "Department-level revisions fetched successfully.",
 };
