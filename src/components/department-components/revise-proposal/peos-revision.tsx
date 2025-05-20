@@ -17,8 +17,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function PEOsRevision() {
-  const { peos, updatePEO, addPEO, removePEO, resetSection } =
+  const { peos, updatePEO, addPEO, removePEO, resetSection, isModified } =
     useRevisionStore();
+
+  const sectionModified = isModified("peos");
 
   // State for new PEO form
   const [newPEOStatement, setNewPEOStatement] = useState("");
@@ -121,6 +123,7 @@ export function PEOsRevision() {
                 variant="outline"
                 size="sm"
                 onClick={handleReset}
+                disabled={!sectionModified}
                 className="flex items-center"
               >
                 <RotateCcw className="h-4 w-4 mr-1" /> Reset
