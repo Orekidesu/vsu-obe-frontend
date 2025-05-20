@@ -46,6 +46,13 @@ export interface GAPEOMapping {
   peo_id: number;
 }
 
+// Define the Program Outcome type
+export interface PO {
+  id: number;
+  name: string;
+  statement: string;
+}
+
 // Define the store state
 interface RevisionState {
   // Original data
@@ -62,11 +69,7 @@ interface RevisionState {
   peo_mission_mappings: PEOMissionMapping[];
 
   ga_peo_mappings: GAPEOMapping[];
-  pos: Array<{
-    id: number;
-    name: string;
-    statement: string;
-  }>;
+  pos: PO[];
   po_peo_mappings: Array<{
     po_id: number;
     peo_id: number;
@@ -119,6 +122,11 @@ interface RevisionState {
   // GA to PEO mapping actions
   toggleGAPEOMapping: (ga_id: number, peo_id: number) => void;
   updateGAPEOMappings: (mappings: GAPEOMapping[]) => void;
+
+  // PO actions
+  updatePO: (id: number, po: { name: string; statement: string }) => void;
+  addPO: (po: { name: string; statement: string }) => void;
+  removePO: (id: number) => void;
 
   resetSection: (section: RevisionSection) => void;
   submitRevisions: () => Promise<boolean>;
@@ -338,6 +346,82 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       };
     });
   },
+  // Update a PO
+  updatePO: (id, po) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("pos");
+
+      const updatedPOs = state.pos.map((existingPO) =>
+        existingPO.id === id ? { ...existingPO, ...po } : existingPO
+      );
+
+      return {
+        pos: updatedPOs,
+        modifiedSections,
+      };
+    });
+  },
+
+  // Add a new PO
+  addPO: (po) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("pos");
+
+      // Generate a temporary ID for the new PO
+      // In a real app, the server would assign a permanent ID
+      const newId = Math.max(0, ...state.pos.map((po) => po.id)) + 1;
+
+      return {
+        pos: [...state.pos, { id: newId, ...po }],
+        modifiedSections,
+      };
+    });
+  },
+
+  // Remove a PO
+  removePO: (id) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("pos");
+
+      // Remove the PO
+      const updatedPOs = state.pos.filter((po) => po.id !== id);
+
+      // Also remove any mappings that reference this PO
+      const updatedPOPEOMappings = state.po_peo_mappings.filter(
+        (mapping) => mapping.po_id !== id
+      );
+      const updatedPOGAMappings = state.po_ga_mappings.filter(
+        (mapping) => mapping.po_id !== id
+      );
+      const updatedCoursePOMappings = state.course_po_mappings.filter(
+        (mapping) => mapping.po_id !== id
+      );
+
+      // Update related sections if they've been modified
+      if (state.po_peo_mappings.length !== updatedPOPEOMappings.length) {
+        modifiedSections.add("po_peo_mappings");
+      }
+
+      if (state.po_ga_mappings.length !== updatedPOGAMappings.length) {
+        modifiedSections.add("po_ga_mappings");
+      }
+
+      if (state.course_po_mappings.length !== updatedCoursePOMappings.length) {
+        modifiedSections.add("course_po_mappings");
+      }
+
+      return {
+        pos: updatedPOs,
+        po_peo_mappings: updatedPOPEOMappings,
+        po_ga_mappings: updatedPOGAMappings,
+        course_po_mappings: updatedCoursePOMappings,
+        modifiedSections,
+      };
+    });
+  },
 
   // Reset a section to its original state
   resetSection: (section) => {
@@ -398,6 +482,17 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
         // Remove these sections from modified sections
         modifiedSections.delete("peo_mission_mappings");
         modifiedSections.delete("ga_peo_mappings");
+      }
+      // If resetting POs, also reset related mappings
+      if (section === "pos") {
+        newState.po_peo_mappings = transformedData.po_peo_mappings;
+        newState.po_ga_mappings = transformedData.po_ga_mappings;
+        newState.course_po_mappings = transformedData.course_po_mappings;
+
+        // Remove these sections from modified sections
+        modifiedSections.delete("po_peo_mappings");
+        modifiedSections.delete("po_ga_mappings");
+        modifiedSections.delete("course_po_mappings");
       }
 
       return newState as RevisionState;

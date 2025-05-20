@@ -248,6 +248,14 @@ export const sampleRevisionData = {
       created_at: "2025-05-19T06:45:28.000000Z",
       version: 3,
     },
+    {
+      id: 54,
+      section: "pos",
+      details:
+        "Program Outcomes need to be expanded and refined to better align with current industry needs and ABET criteria. Consider adding outcomes related to teamwork and ethical considerations in engineering.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
   ],
   message: "Department-level revisions fetched successfully.",
 };
@@ -381,9 +389,11 @@ export const getSectionDisplayName = (sectionKey: string) => {
     "ga-peo-mapping": "GA to PEO Mapping",
     ga_peo_mappings: "GA to PEO Mapping",
     "program-outcomes": "Program Outcomes",
+    pos: "Program Outcomes",
     "po-peo-mapping": "PO to PEO Mapping",
     po_peo_mappings: "PO to PEO Mapping",
     "po-ga-mapping": "PO to GA Mapping",
+    po_ga_mappings: "PO to GA Mapping",
     curriculum: "Curriculum Structure",
     "course-categories": "Course Categories",
     "curriculum-courses": "Curriculum Courses",

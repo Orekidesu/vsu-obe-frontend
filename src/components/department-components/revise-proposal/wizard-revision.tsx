@@ -38,6 +38,8 @@ import { ProgramRevision } from "./program-revision";
 import { PEOsRevision } from "./peos-revision";
 import { PEOMissionMappingRevision } from "./peo-mission-mapping-revision";
 import { GAPEOMappingRevision } from "./ga-peo-mapping-revision";
+import { POsRevision } from "./pos-revision";
+
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 
 interface RevisionWizardProps {
@@ -139,6 +141,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         return <PEOMissionMappingRevision />;
       case "ga_peo_mappings":
         return <GAPEOMappingRevision />;
+      case "pos":
+        return <POsRevision />;
       default:
         return (
           <div className="text-center">
