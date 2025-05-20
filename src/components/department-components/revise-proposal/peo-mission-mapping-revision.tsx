@@ -1,4 +1,3 @@
-"use client";
 import { useEffect } from "react";
 import { useRevisionStore } from "@/store/revision/revision-store";
 import { Button } from "@/components/ui/button";
