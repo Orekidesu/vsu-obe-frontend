@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRevisionStore, type PEO } from "@/store/revision/revision-store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -108,6 +109,14 @@ export function PEOsRevision() {
         <CardContent className="pt-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">
+              {sectionModified && (
+                <Badge
+                  variant="outline"
+                  className="ml-2 bg-yellow-50 text-yellow-700 border-yellow-200"
+                >
+                  Modified
+                </Badge>
+              )}
               Program Educational Objectives (PEOs)
             </h3>
             <div className="flex space-x-2">
