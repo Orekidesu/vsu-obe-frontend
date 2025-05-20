@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRevisionStore } from "@/store/revision/revision-store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,13 +9,23 @@ import { Label } from "@/components/ui/label";
 import { RotateCcw } from "lucide-react";
 
 export function ProgramRevision() {
-  const { program, updateProgram, resetSection } = useRevisionStore();
+  const { program, updateProgram, resetSection, isModified } =
+    useRevisionStore();
 
   // Local state for form values
   const [formValues, setFormValues] = useState({
     name: program.name,
     abbreviation: program.abbreviation,
   });
+
+  useEffect(() => {
+    setFormValues({
+      name: program.name,
+      abbreviation: program.abbreviation,
+    });
+  }, [program]);
+
+  const sectionModified = isModified("program");
 
   // Local state for validation errors
   const [errors, setErrors] = useState({
@@ -122,6 +132,7 @@ export function ProgramRevision() {
                 type="button"
                 variant="outline"
                 onClick={handleReset}
+                disabled={!sectionModified}
                 className="flex items-center"
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
