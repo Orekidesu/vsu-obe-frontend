@@ -1,6 +1,8 @@
-import { useState } from "react";
+"use client";
+import { useRevisionStore } from "@/store/revision/revision-store";
+import { sampleGraduateAttributes } from "@/store/revision/sample-data/data";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
@@ -8,145 +10,190 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { Info, RotateCcw } from "lucide-react";
-import { sampleGraduateAttributes } from "@/store/revision/sample-data/data";
-import { useRevisionStore } from "@/store/revision/revision-store";
+import { AlertCircle, RotateCcw, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
 export function POGAMappingRevision() {
   const { pos, po_ga_mappings, togglePOGAMapping, resetSection, isModified } =
     useRevisionStore();
-  const [expandedPO, setExpandedPO] = useState<number | null>(null);
+  const graduateAttributes = sampleGraduateAttributes;
+  const sectionModified = isModified("po_ga_mappings");
 
-  // Function to toggle a mapping between a PO and a GA
-  const handleToggleMapping = (po_id: number, ga_id: number) => {
-    togglePOGAMapping(po_id, ga_id);
-  };
-
-  // Function to check if a mapping exists
-  const isMapped = (po_id: number, ga_id: number) => {
+  // Check if a PO is mapped to a GA
+  const isMapped = (poId: number, gaId: number) => {
     return po_ga_mappings.some(
-      (mapping) => mapping.po_id === po_id && mapping.ga_id === ga_id
+      (mapping) => mapping.po_id === poId && mapping.ga_id === gaId
     );
   };
 
-  // Function to toggle expanded state for a PO
-  const toggleExpanded = (po_id: number) => {
-    setExpandedPO(expandedPO === po_id ? null : po_id);
+  // Handle toggling a mapping
+  const handleToggleMapping = (poId: number, gaId: number) => {
+    togglePOGAMapping(poId, gaId);
   };
 
-  // Function to reset changes
+  // Reset all mappings to original state
   const handleReset = () => {
-    resetSection("po_ga_mappings");
+    if (
+      confirm(
+        "Are you sure you want to reset all mappings to their original state? All changes will be lost."
+      )
+    ) {
+      resetSection("po_ga_mappings");
+    }
   };
 
   return (
-    <TooltipProvider>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">
-            Program Outcome to Graduate Attribute Mapping
-          </h2>
-          {isModified("po_ga_mappings") && (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl font-semibold">
+              Program Outcome to Graduate Attribute Mapping
+              {sectionModified && (
+                <Badge
+                  variant="outline"
+                  className="ml-2 bg-yellow-50 text-yellow-700 border-yellow-200"
+                >
+                  Modified
+                </Badge>
+              )}
+            </CardTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={handleReset}
-              className="flex items-center"
+              disabled={!sectionModified}
             >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Reset Changes
+              <RotateCcw className="h-4 w-4 mr-1" /> Reset Changes
             </Button>
-          )}
-        </div>
-
-        <div className="text-sm text-gray-500 mb-4">
-          <p>
-            Map each Program Outcome (PO) to the relevant Graduate Attributes
-            (GAs) that it contributes to. This mapping helps ensure that all
-            program outcomes are aligned with the university&apos;s graduate
-            attributes.
-          </p>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2 text-left w-1/3">Program Outcome</th>
-                {sampleGraduateAttributes.map((ga) => (
-                  <th key={ga.id} className="border p-2 text-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex flex-col items-center cursor-help">
-                          <span>GA {ga.ga_no}</span>
-                          <Info className="h-4 w-4 text-gray-400 mt-1" />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-sm">
-                        <p className="font-semibold">{ga.name}</p>
-                        <p className="text-xs mt-1">{ga.description}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {pos.map((po) => (
-                <tr key={po.id} className="hover:bg-gray-50">
-                  <td className="border p-2">
-                    <div className="flex flex-col">
-                      <button
-                        onClick={() => toggleExpanded(po.id)}
-                        className="text-left font-medium text-blue-600 hover:text-blue-800"
-                      >
-                        {po.name}
-                      </button>
-                      {expandedPO === po.id && (
-                        <div className="mt-2 text-sm text-gray-600">
-                          {po.statement}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  {sampleGraduateAttributes.map((ga) => (
-                    <td key={ga.id} className="border p-2 text-center">
-                      <Checkbox
-                        checked={isMapped(po.id, ga.id)}
-                        onCheckedChange={() =>
-                          handleToggleMapping(po.id, ga.id)
-                        }
-                        className="mx-auto"
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <Card className="mt-6">
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-medium mb-2">
-              Graduate Attributes Legend
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {sampleGraduateAttributes.map((ga) => (
-                <div key={ga.id} className="flex items-start">
-                  <div className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center mr-2 flex-shrink-0">
-                    {ga.ga_no}
-                  </div>
-                  <div>
-                    <p className="font-medium">{ga.name}</p>
-                    <p className="text-sm text-gray-600">{ga.description}</p>
-                  </div>
-                </div>
-              ))}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {pos.length === 0 ? (
+            <div className="text-center py-8">
+              <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+              <p className="text-gray-500">No Program Outcomes defined yet.</p>
+              <p className="text-gray-500 mt-2">
+                Please define Program Outcomes before creating mappings.
+              </p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </TooltipProvider>
+          ) : (
+            <>
+              <Alert className="mb-6">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Map each Program Outcome (PO) to the Graduate Attributes (GAs)
+                  it supports.
+                </AlertDescription>
+              </Alert>
+
+              <ScrollArea className="max-h-[500px]">
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="bg-gray-100 p-3 text-left font-medium text-gray-700 border-b">
+                          Program Outcomes
+                        </th>
+                        {graduateAttributes.map((ga) => (
+                          <th
+                            key={ga.id}
+                            className="bg-gray-100 p-3 text-center font-medium text-gray-700 border-b border-l"
+                          >
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="cursor-help">
+                                    GA {ga.ga_no}
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <p className="font-medium">{ga.name}</p>
+                                  <p className="text-sm">{ga.description}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pos.map((po) => (
+                        <tr key={po.id} className="hover:bg-gray-50">
+                          <td className="p-3 border-b">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="cursor-help">
+                                    <span className="font-medium">
+                                      {po.name}
+                                    </span>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                  side="right"
+                                  className="max-w-xs"
+                                >
+                                  <p>{po.statement}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </td>
+                          {graduateAttributes.map((ga) => (
+                            <td
+                              key={`${po.id}-${ga.id}`}
+                              className="p-3 border-b border-l text-center"
+                            >
+                              <div className="flex justify-center">
+                                <Checkbox
+                                  id={`po-ga-${po.id}-${ga.id}`}
+                                  checked={isMapped(po.id, ga.id)}
+                                  onCheckedChange={() =>
+                                    handleToggleMapping(po.id, ga.id)
+                                  }
+                                  className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                                />
+                              </div>
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </ScrollArea>
+
+              <div className="mt-6 space-y-4">
+                <h4 className="font-medium text-gray-700">
+                  Graduate Attributes Reference
+                </h4>
+                <div className="grid gap-3">
+                  {graduateAttributes.map((ga) => (
+                    <div
+                      key={ga.id}
+                      className="p-3 border rounded-md bg-gray-50"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="font-semibold text-gray-700">
+                          GA {ga.ga_no}:
+                        </div>
+                        <div className="font-medium text-gray-700">
+                          {ga.name}
+                        </div>
+                      </div>
+                      <div className="text-gray-700 text-sm">
+                        {ga.description}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
