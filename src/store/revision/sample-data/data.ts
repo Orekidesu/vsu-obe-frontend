@@ -272,9 +272,80 @@ export const sampleRevisionData = {
       created_at: "2025-05-19T06:45:28.000000Z",
       version: 3,
     },
+    {
+      id: 57,
+      section: "curriculum",
+      details:
+        "The curriculum name and structure need to be updated to reflect the current academic year and program focus. Consider renaming to include the full academic year range.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
+    {
+      id: 58,
+      section: "course_categories",
+      details:
+        "The course categories need to be reviewed and updated to align with current academic standards. Consider adding specialized categories for technical electives and capstone courses.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
+    {
+      id: 59,
+      section: "curriculum_courses",
+      details:
+        "The curriculum courses need to be reviewed and updated to ensure proper sequencing and credit allocation. Consider redistributing courses across semesters for better workload balance.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
   ],
   message: "Department-level revisions fetched successfully.",
 };
+
+// Sample semesters data
+export const sampleSemesters = [
+  { id: 1, year: 1, sem: "first", display: "Year 1 - First Semester" },
+  { id: 2, year: 1, sem: "second", display: "Year 1 - Second Semester" },
+  { id: 3, year: 2, sem: "first", display: "Year 2 - First Semester" },
+  { id: 4, year: 2, sem: "second", display: "Year 2 - Second Semester" },
+  { id: 5, year: 2, sem: "summer", display: "Year 2 - Summer" },
+  { id: 6, year: 3, sem: "summer", display: "Year 3 - Summer" },
+  { id: 7, year: 3, sem: "first", display: "Year 3 - First Semester" },
+  { id: 8, year: 3, sem: "second", display: "Year 3 - Second Semester" },
+  { id: 9, year: 4, sem: "summer", display: "Year 4 - Summer" },
+  { id: 10, year: 4, sem: "first", display: "Year 4 - First Semester" },
+  { id: 11, year: 4, sem: "second", display: "Year 4 - Second Semester" },
+];
+
+// Sample courses data
+export const sampleCourses = [
+  {
+    id: 1,
+    code: "EE 101",
+    descriptive_title: "Fundamentals of Electrical Engineering",
+  },
+  { id: 2, code: "EE 102", descriptive_title: "DC and AC Circuits" },
+  {
+    id: 3,
+    code: "EE 201",
+    descriptive_title: "Electrical Machines and Devices",
+  },
+  { id: 4, code: "EE 202", descriptive_title: "Power Systems" },
+  { id: 5, code: "ENG 101", descriptive_title: "Technical Communication" },
+  { id: 6, code: "CSci 103", descriptive_title: "Introduction to Programming" },
+  { id: 7, code: "AGRI 101", descriptive_title: "Introduction to Agriculture" },
+  { id: 8, code: "AGRI 102", descriptive_title: "Introduction to Agriculture" },
+  { id: 9, code: "MATH 101", descriptive_title: "Calculus I" },
+  { id: 10, code: "MATH 102", descriptive_title: "Calculus II" },
+  { id: 11, code: "PHYS 101", descriptive_title: "Physics I" },
+  { id: 12, code: "PHYS 102", descriptive_title: "Physics II" },
+  { id: 13, code: "CHEM 101", descriptive_title: "Chemistry for Engineers" },
+  { id: 14, code: "EE 301", descriptive_title: "Digital Electronics" },
+  { id: 15, code: "EE 302", descriptive_title: "Microprocessors" },
+  { id: 16, code: "EE 401", descriptive_title: "Capstone Project I" },
+  { id: 17, code: "EE 402", descriptive_title: "Capstone Project II" },
+  { id: 18, code: "EE 403", descriptive_title: "Professional Ethics" },
+  { id: 19, code: "EE 404", descriptive_title: "Engineering Economics" },
+  { id: 20, code: "EE 405", descriptive_title: "Technical Elective I" },
+];
 
 // Function to transform the proposal data into a normalized format
 export const transformProposalData = (data: ProgramProposalResponse) => {
@@ -410,10 +481,13 @@ export const getSectionDisplayName = (sectionKey: string) => {
     po_peo_mappings: "PO to PEO Mapping",
     "po-ga-mapping": "PO to GA Mapping",
     po_ga_mappings: "PO to GA Mapping",
-    curriculum: "Curriculum Structure",
+    curriculum: "Curriculum Name",
+    course_categories: "Course Categories",
     "course-categories": "Course Categories",
+    curriculum_courses: "Curriculum Courses",
     "curriculum-courses": "Curriculum Courses",
     "course-po-mapping": "Course to PO Mapping",
+    course_po_mappings: "Course to PO Mapping",
   };
   return sectionNames[sectionKey] || sectionKey;
 };

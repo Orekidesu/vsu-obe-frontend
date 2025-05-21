@@ -43,6 +43,9 @@ import { POGAMappingRevision } from "./po-ga-mapping-revision";
 
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import { POPEOMappingRevision } from "./po-peo-mapping-revision";
+import { CurriculumRevision } from "./curriculum-revision";
+import { CourseCategoriesRevision } from "./course-category-revision";
+import { CurriculumCoursesRevision } from "./curriculum-course-revision";
 
 interface RevisionWizardProps {
   proposalId: string;
@@ -149,6 +152,12 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         return <POPEOMappingRevision />;
       case "po_ga_mappings":
         return <POGAMappingRevision />;
+      case "curriculum":
+        return <CurriculumRevision />;
+      case "course_categories":
+        return <CourseCategoriesRevision />;
+      case "curriculum_courses":
+        return <CurriculumCoursesRevision />;
       default:
         return (
           <div className="text-center">
