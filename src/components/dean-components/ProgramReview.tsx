@@ -270,7 +270,7 @@ export default function ProgramReviewPage({
           coursePOMappings.push({
             course_code: course.course.code,
             po_code: po.name,
-            ied: [mapping.ied], // Convert single IED to array format
+            ied: mapping.ied, // Convert single IED to array format
           });
         }
       });
