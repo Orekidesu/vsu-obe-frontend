@@ -16,6 +16,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import useCourseCategories from "@/hooks/department/useCourseCategory";
+import { Loader2 } from "lucide-react";
 
 export function CourseCategoriesRevision() {
   // Get course categories and related functions from the store
@@ -23,6 +25,15 @@ export function CourseCategoriesRevision() {
   const curriculumCourses = useRevisionStore(
     (state) => state.curriculum_courses
   );
+  // Add the API hook to fetch categories
+  const {
+    courseCategories: apiCategories,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useCourseCategories();
+
+  const [selectedApiCategoryId, setSelectedApiCategoryId] =
+    useState<string>("");
 
   const isModified = useRevisionStore((state) =>
     state.isModified("course_categories")
@@ -157,6 +168,33 @@ export function CourseCategoriesRevision() {
       removeCourseCategory(categoryToDelete);
       setCategoryToDelete(null);
       setIsDeleteDialogOpen(false);
+    }
+  };
+
+  const handleAddExistingCategory = () => {
+    if (!selectedApiCategoryId) return;
+
+    const categoryToAdd = apiCategories?.find(
+      (cat) => cat.id.toString() === selectedApiCategoryId
+    );
+
+    if (categoryToAdd) {
+      // Check if this category already exists
+      const exists = courseCategories.some(
+        (cat) => cat.code.toLowerCase() === categoryToAdd.code.toLowerCase()
+      );
+
+      if (exists) {
+        setErrors({
+          ...errors,
+          code: "This category code already exists in your curriculum",
+        });
+        return;
+      }
+
+      // Add the category
+      addCourseCategory(categoryToAdd.name, categoryToAdd.code);
+      setSelectedApiCategoryId("");
     }
   };
 
@@ -367,14 +405,51 @@ export function CourseCategoriesRevision() {
                     <label className="block text-sm font-medium mb-1">
                       Select Category
                     </label>
-                    <select className="w-full p-2 border rounded-md">
-                      <option value="">Select a category</option>
-                      {/* This would be populated from a list of available categories */}
-                      <option value="example">Example Category</option>
-                    </select>
+                    {categoriesLoading && (
+                      <div className="flex items-center space-x-2 py-2">
+                        <Loader2 className="h-4 w-4 animate-spin text-green-600" />
+                        <span className="text-sm text-gray-500">
+                          Loading categories...
+                        </span>
+                      </div>
+                    )}
+
+                    {categoriesError && (
+                      <div className="text-sm text-red-500 py-2">
+                        Failed to load categories. Please try again.
+                      </div>
+                    )}
+                    {!categoriesLoading && !categoriesError && (
+                      <select
+                        className="w-full p-2 border rounded-md"
+                        value={selectedApiCategoryId}
+                        onChange={(e) =>
+                          setSelectedApiCategoryId(e.target.value)
+                        }
+                      >
+                        <option value="">Select a category</option>
+                        {apiCategories &&
+                          apiCategories.map((category) => (
+                            <option
+                              key={category.id}
+                              value={category.id.toString()}
+                            >
+                              {category.name} ({category.code})
+                            </option>
+                          ))}
+                      </select>
+                    )}
+
+                    {errors.code && selectedApiCategoryId && (
+                      <p className="text-sm text-red-500 mt-1">{errors.code}</p>
+                    )}
                   </div>
 
-                  <Button className="bg-green-600 hover:bg-green-700">
+                  <Button
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={handleAddExistingCategory}
+                    disabled={!selectedApiCategoryId || categoriesLoading}
+                  >
                     <Plus className="h-4 w-4 mr-2" /> Add Selected Category
                   </Button>
                 </div>
