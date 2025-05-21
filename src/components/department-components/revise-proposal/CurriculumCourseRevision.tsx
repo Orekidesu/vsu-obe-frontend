@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRevisionStore } from "@/store/revision/revision-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Search } from "lucide-react";
+
 import {
   Table,
   TableBody,
@@ -40,14 +42,23 @@ import {
   Info,
   Check,
   X,
+  Loader2,
 } from "lucide-react";
-import {
-  sampleSemesters,
-  sampleCourses,
-} from "@/store/revision/sample-data/data";
+import { sampleSemesters } from "@/store/revision/sample-data/data";
+
+import useCourses from "@/hooks/department/useCourse";
+import { Course } from "@/types/model/Course";
 
 export function CurriculumCoursesRevision() {
   // Get curriculum courses and related functions from the store
+
+  // Fetch real courses from API
+  const {
+    courses,
+    isLoading: isLoadingCourses,
+    error: coursesError,
+  } = useCourses();
+
   const curriculumCourses = useRevisionStore(
     (state) => state.curriculum_courses
   );
@@ -77,6 +88,22 @@ export function CurriculumCoursesRevision() {
     course_category_id: "",
     semester_id: "",
     unit: "",
+  });
+  const [courseSearchQuery, setCourseSearchQuery] = useState("");
+
+  // Reset search when tab changes
+  useEffect(() => {
+    setCourseSearchQuery("");
+  }, [activeTab]);
+
+  const filteredCourses = courses?.filter((course) => {
+    if (!courseSearchQuery.trim()) return true;
+
+    const query = courseSearchQuery.toLowerCase();
+    return (
+      course.code.toLowerCase().includes(query) ||
+      course.descriptive_title.toLowerCase().includes(query)
+    );
   });
 
   // New course form state
@@ -109,8 +136,9 @@ export function CurriculumCoursesRevision() {
   });
 
   // Get course details by ID
-  const getCourseDetails = (courseId: number) => {
-    return sampleCourses.find((course) => course.id === courseId);
+  const getCourseDetails = (courseId: number): Course | undefined => {
+    // Use API courses instead of sample data
+    return courses?.find((course) => course.id === courseId);
   };
 
   // Get category details by ID
@@ -206,7 +234,7 @@ export function CurriculumCoursesRevision() {
   };
 
   // Handle adding a new manual course
-  const handleAddManualCourse = () => {
+  const handleAddManualCourse = async () => {
     // Validate inputs
     const newErrors = {
       course_id: "",
@@ -250,9 +278,11 @@ export function CurriculumCoursesRevision() {
     setErrors(newErrors);
 
     if (isValid) {
-      // In a real app, we would first create the course and then add it to the curriculum
-      // For now, we'll simulate this by using a high ID number
-      const newCourseId = Math.max(...sampleCourses.map((c) => c.id)) + 1;
+      // In a real app, we would create a new course, but for now we'll just use a high ID
+      const newCourseId =
+        courses && courses.length > 0
+          ? Math.max(...courses.map((c) => c.id)) + 1
+          : 1000;
 
       addCurriculumCourse({
         course_id: newCourseId,
@@ -401,26 +431,75 @@ export function CurriculumCoursesRevision() {
                       >
                         Select Course
                       </label>
-                      <Select
-                        value={newCourse.course_id}
-                        onValueChange={(value) =>
-                          setNewCourse({ ...newCourse, course_id: value })
-                        }
-                      >
-                        <SelectTrigger id="course" className="w-full">
-                          <SelectValue placeholder="Select a course" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {sampleCourses.map((course) => (
-                            <SelectItem
-                              key={course.id}
-                              value={course.id.toString()}
-                            >
-                              {course.code} - {course.descriptive_title}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      {isLoadingCourses ? (
+                        <div className="flex items-center space-x-2 py-2">
+                          <Loader2 className="h-4 w-4 animate-spin text-green-600" />
+                          <span className="text-sm text-gray-500">
+                            Loading courses...
+                          </span>
+                        </div>
+                      ) : coursesError ? (
+                        <div className="text-sm text-red-500 py-2">
+                          Failed to load courses. Please try again.
+                        </div>
+                      ) : (
+                        <Select
+                          value={newCourse.course_id}
+                          onValueChange={(value) =>
+                            setNewCourse({ ...newCourse, course_id: value })
+                          }
+                        >
+                          <SelectTrigger id="course" className="w-full">
+                            <SelectValue placeholder="Select a course" />
+                          </SelectTrigger>
+                          <SelectContent
+                            side="bottom"
+                            className="max-h-[300px]" // Ensure enough height for search + items
+                          >
+                            <div className="sticky top-0 bg-white z-10 p-2 border-b">
+                              <div className="relative">
+                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <input
+                                  className="w-full rounded-md border border-input px-8 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                  placeholder="Search courses..."
+                                  value={courseSearchQuery}
+                                  onChange={(e) =>
+                                    setCourseSearchQuery(e.target.value)
+                                  }
+                                  onClick={(e) => e.stopPropagation()} // Prevent dropdown from closing
+                                />
+                                {courseSearchQuery && (
+                                  <button
+                                    type="button"
+                                    className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground hover:text-foreground"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setCourseSearchQuery("");
+                                    }}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {filteredCourses?.length === 0 ? (
+                              <div className="py-6 text-center text-sm text-muted-foreground">
+                                No courses found
+                              </div>
+                            ) : (
+                              filteredCourses?.map((course) => (
+                                <SelectItem
+                                  key={course.id}
+                                  value={course.id.toString()}
+                                >
+                                  {course.code} - {course.descriptive_title}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      )}
                       {errors.course_id && (
                         <p className="text-sm text-red-500 mt-1">
                           {errors.course_id}
@@ -528,6 +607,7 @@ export function CurriculumCoursesRevision() {
                       onClick={handleAddCourseFromSearch}
                       className="mt-4 bg-green-500 hover:bg-green-600 text-white"
                       disabled={
+                        isLoadingCourses ||
                         !newCourse.course_id ||
                         !newCourse.course_category_id ||
                         !newCourse.semester_id
