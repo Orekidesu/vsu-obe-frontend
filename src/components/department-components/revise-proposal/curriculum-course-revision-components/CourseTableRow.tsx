@@ -2,11 +2,12 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2 } from "lucide-react";
 import { Course } from "@/types/model/Course";
-import { CourseCategory, CurriculumCourse } from "./types";
+import { CourseCategory, CurriculumCourse, SemesterData } from "./types";
 
 interface CourseTableRowProps {
   course: CurriculumCourse;
   courseDetails: Course | undefined;
+  semesterDetails: SemesterData | undefined;
   categoryDetails: CourseCategory | undefined;
   handleStartEdit: (id: number) => void;
   handleDeleteCourse: (id: number) => void;
@@ -16,6 +17,7 @@ export function CourseTableRow({
   course,
   courseDetails,
   categoryDetails,
+  semesterDetails,
   handleStartEdit,
   handleDeleteCourse,
 }: CourseTableRowProps) {
@@ -29,6 +31,11 @@ export function CourseTableRow({
       </TableCell>
       <TableCell>
         {categoryDetails?.name} ({categoryDetails?.code})
+      </TableCell>
+      <TableCell>
+        {semesterDetails
+          ? `${semesterDetails.year} - ${semesterDetails.sem.charAt(0).toUpperCase() + semesterDetails.sem.slice(1)}`
+          : ""}
       </TableCell>
       <TableCell>{course.unit}</TableCell>
       <TableCell className="text-center">

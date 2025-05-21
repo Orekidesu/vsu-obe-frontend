@@ -18,6 +18,7 @@ import { EditCourseRow } from "./EditCourseRow";
 
 interface CurriculumTableProps {
   availableSemesters: SemesterData[];
+  sortedSemesters: SemesterData[];
   coursesBySemester: Record<number, CurriculumCourse[]>;
   isEditingCourse: number | null;
   editCourse: EditCourseFormData;
@@ -25,6 +26,7 @@ interface CurriculumTableProps {
   courseCategories: CourseCategory[];
   getCourseDetails: (courseId: number) => Course | undefined;
   getCategoryDetails: (categoryId: number) => CourseCategory | undefined;
+  getSemesterDetails: (semesterId: number) => SemesterData | undefined; // Add this line
   handleCategoryChange: (categoryId: string, isNewCourse: boolean) => void;
   handleStartEdit: (id: number) => void;
   handleSaveEdit: () => void;
@@ -35,12 +37,14 @@ interface CurriculumTableProps {
 export function CurriculumTable({
   availableSemesters,
   coursesBySemester,
+  sortedSemesters,
   isEditingCourse,
   editCourse,
   setEditCourse,
   courseCategories,
   getCourseDetails,
   getCategoryDetails,
+  getSemesterDetails,
   handleCategoryChange,
   handleStartEdit,
   handleSaveEdit,
@@ -77,6 +81,10 @@ export function CurriculumTable({
                   <TableHead className="w-[120px]">Course Code</TableHead>
                   <TableHead>Course Title</TableHead>
                   <TableHead className="w-[200px]">Category</TableHead>
+                  <TableHead className="w-[200px]">
+                    Year/Semester
+                  </TableHead>{" "}
+                  {/* Add this column */}
                   <TableHead className="w-[80px]">Units</TableHead>
                   <TableHead className="w-[120px] text-center">
                     Actions
@@ -95,6 +103,7 @@ export function CurriculumTable({
                       key={course.id}
                       courseDetails={courseDetails}
                       courseCategories={courseCategories}
+                      sortedSemesters={sortedSemesters} // Pass this new prop
                       editCourse={editCourse}
                       setEditCourse={setEditCourse}
                       handleCategoryChange={handleCategoryChange}
@@ -107,6 +116,7 @@ export function CurriculumTable({
                       course={course}
                       courseDetails={courseDetails}
                       categoryDetails={categoryDetails}
+                      semesterDetails={getSemesterDetails(course.semester_id)}
                       handleStartEdit={handleStartEdit}
                       handleDeleteCourse={handleDeleteCourse}
                     />

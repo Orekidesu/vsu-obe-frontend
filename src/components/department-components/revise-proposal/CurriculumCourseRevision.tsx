@@ -291,6 +291,10 @@ export function CurriculumCoursesRevision() {
 
   const availableSemesters = getAvailableSemesters();
 
+  // Add this helper function to get semester details
+  const getSemesterDetails = (semesterId: number) => {
+    return sampleSemesters.find((semester) => semester.id === semesterId);
+  };
   // Start editing a course
   const handleStartEdit = (courseId: number) => {
     const course = curriculumCourses.find((c) => c.id === courseId);
@@ -454,6 +458,7 @@ export function CurriculumCoursesRevision() {
             <h2 className="text-2xl font-bold">Current Curriculum</h2>
             <CurriculumTable
               availableSemesters={availableSemesters}
+              sortedSemesters={sortedSemesters}
               coursesBySemester={coursesBySemester}
               isEditingCourse={isEditingCourse}
               editCourse={editCourse}
@@ -461,6 +466,7 @@ export function CurriculumCoursesRevision() {
               courseCategories={courseCategories}
               getCourseDetails={getCourseDetails}
               getCategoryDetails={getCategoryDetails}
+              getSemesterDetails={getSemesterDetails}
               handleCategoryChange={handleCategoryChange}
               handleStartEdit={handleStartEdit}
               handleSaveEdit={handleSaveEdit}

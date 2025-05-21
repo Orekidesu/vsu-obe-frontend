@@ -10,11 +10,12 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Check, X } from "lucide-react";
 import { Course } from "@/types/model/Course";
-import { CourseCategory, EditCourseFormData } from "./types";
+import { CourseCategory, EditCourseFormData, SemesterData } from "./types";
 
 interface EditCourseRowProps {
   courseDetails: Course | undefined;
   courseCategories: CourseCategory[];
+  sortedSemesters: SemesterData[];
   editCourse: EditCourseFormData;
   setEditCourse: (course: EditCourseFormData) => void;
   handleCategoryChange: (categoryId: string, isNewCourse: boolean) => void;
@@ -25,6 +26,7 @@ interface EditCourseRowProps {
 export function EditCourseRow({
   courseDetails,
   courseCategories,
+  sortedSemesters,
   editCourse,
   setEditCourse,
   handleCategoryChange,
@@ -47,6 +49,30 @@ export function EditCourseRow({
             {courseCategories.map((category) => (
               <SelectItem key={category.id} value={category.id.toString()}>
                 {category.name} ({category.code})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </TableCell>
+      {/* Add semester selection dropdown */}
+      <TableCell>
+        <Select
+          value={editCourse.semester_id.toString()}
+          onValueChange={(value) =>
+            setEditCourse({
+              ...editCourse,
+              semester_id: Number.parseInt(value),
+            })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select semester" />
+          </SelectTrigger>
+          <SelectContent side="bottom">
+            {sortedSemesters.map((semester) => (
+              <SelectItem key={semester.id} value={semester.id.toString()}>
+                Year {semester.year} -{" "}
+                {semester.sem.charAt(0).toUpperCase() + semester.sem.slice(1)}
               </SelectItem>
             ))}
           </SelectContent>
