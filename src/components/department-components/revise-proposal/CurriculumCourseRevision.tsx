@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Search } from "lucide-react";
 
 import {
   Table,
@@ -485,9 +484,8 @@ export function CurriculumCoursesRevision() {
                           >
                             <div className="sticky top-0 bg-white z-10 p-2 border-b">
                               <div className="relative">
-                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <input
-                                  className="w-full rounded-md border border-input px-8 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                <Input
+                                  className="py-2 px-3 border-b"
                                   placeholder="Search courses..."
                                   value={courseSearchQuery}
                                   onChange={(e) =>
