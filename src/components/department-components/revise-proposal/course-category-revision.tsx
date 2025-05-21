@@ -20,6 +20,10 @@ import {
 export function CourseCategoriesRevision() {
   // Get course categories and related functions from the store
   const courseCategories = useRevisionStore((state) => state.course_categories);
+  const curriculumCourses = useRevisionStore(
+    (state) => state.curriculum_courses
+  );
+
   const isModified = useRevisionStore((state) =>
     state.isModified("course_categories")
   );
@@ -33,6 +37,11 @@ export function CourseCategoriesRevision() {
   const removeCourseCategory = useRevisionStore(
     (state) => state.removeCourseCategory
   );
+  const getCoursesCount = (categoryId: number) => {
+    return curriculumCourses.filter(
+      (course) => course.course_category_id === categoryId
+    ).length;
+  };
 
   // Local state for the form
   const [newCategory, setNewCategory] = useState({ name: "", code: "" });
@@ -187,8 +196,9 @@ export function CourseCategoriesRevision() {
             ) : (
               <div className="border rounded-md overflow-hidden">
                 <div className="grid grid-cols-12 bg-gray-50 p-3 border-b">
-                  <div className="col-span-5 font-medium">Category Name</div>
-                  <div className="col-span-5 font-medium">Code</div>
+                  <div className="col-span-4 font-medium">Category Name</div>
+                  <div className="col-span-4 font-medium">Code</div>
+                  <div className="col-span-2 font-medium">Courses</div>
                   <div className="col-span-2 font-medium text-right">
                     Actions
                   </div>
@@ -202,7 +212,7 @@ export function CourseCategoriesRevision() {
                       {editingCategoryId === category.id ? (
                         // Editing mode
                         <>
-                          <div className="col-span-5 pr-2">
+                          <div className="col-span-4 pr-2">
                             <Input
                               value={editForm.name}
                               onChange={(e) =>
@@ -219,7 +229,7 @@ export function CourseCategoriesRevision() {
                               </p>
                             )}
                           </div>
-                          <div className="col-span-5 pr-2">
+                          <div className="col-span-4 pr-2">
                             <Input
                               value={editForm.code}
                               onChange={(e) =>
@@ -236,6 +246,11 @@ export function CourseCategoriesRevision() {
                                 {errors.code}
                               </p>
                             )}
+                          </div>
+                          <div className="col-span-2">
+                            <Badge variant="secondary">
+                              {getCoursesCount(category.id)}
+                            </Badge>
                           </div>
                           <div className="col-span-2 flex justify-end gap-2">
                             <Button
@@ -259,10 +274,15 @@ export function CourseCategoriesRevision() {
                       ) : (
                         // Display mode
                         <>
-                          <div className="col-span-5">{category.name}</div>
-                          <div className="col-span-5">
+                          <div className="col-span-4">{category.name}</div>
+                          <div className="col-span-4">
                             <Badge variant="outline" className="font-mono">
                               {category.code}
+                            </Badge>
+                          </div>
+                          <div className="col-span-2">
+                            <Badge variant="secondary">
+                              {getCoursesCount(category.id)}
                             </Badge>
                           </div>
                           <div className="col-span-2 flex justify-end gap-2">
