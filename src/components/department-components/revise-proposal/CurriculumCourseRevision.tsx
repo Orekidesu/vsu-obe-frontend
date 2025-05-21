@@ -549,7 +549,7 @@ export function CurriculumCoursesRevision() {
                           <SelectTrigger id="category">
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent side="bottom">
                             {courseCategories.map((category) => (
                               <SelectItem
                                 key={category.id}
@@ -583,7 +583,7 @@ export function CurriculumCoursesRevision() {
                           <SelectTrigger id="semester">
                             <SelectValue placeholder="Select year/semester" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent side="bottom">
                             {availableSemesters.map((semester) => (
                               <SelectItem
                                 key={semester.id}
@@ -704,7 +704,7 @@ export function CurriculumCoursesRevision() {
                           <SelectTrigger id="newCategory">
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent side="bottom">
                             {courseCategories.map((category) => (
                               <SelectItem
                                 key={category.id}
@@ -736,7 +736,7 @@ export function CurriculumCoursesRevision() {
                           <SelectTrigger id="newSemester">
                             <SelectValue placeholder="Select year/semester" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent side="bottom">
                             {sortedSemesters.map((semester) => (
                               <SelectItem
                                 key={semester.id}
@@ -853,7 +853,7 @@ export function CurriculumCoursesRevision() {
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select a category" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent side="bottom">
                                       {courseCategories.map((category) => (
                                         <SelectItem
                                           key={category.id}
