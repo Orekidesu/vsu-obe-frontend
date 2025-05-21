@@ -162,6 +162,10 @@ interface RevisionState {
   addCourseCategory: (name: string, code: string) => void;
   updateCourseCategory: (id: number, name: string, code: string) => void;
   removeCourseCategory: (id: number) => void;
+  removeCategoryAndReassign: (
+    categoryId: number,
+    replacementCategoryId: number
+  ) => void;
 
   // Curriculum course actions
   addCurriculumCourse: (course: Omit<CurriculumCourse, "id">) => void;
@@ -638,6 +642,47 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
       return {
         course_categories: updatedCategories,
+        modifiedSections,
+      };
+    });
+  },
+
+  // Remove category and reassign
+  removeCategoryAndReassign: (
+    categoryId: number,
+    replacementCategoryId: number
+  ) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("course_categories");
+      modifiedSections.add("curriculum_courses");
+
+      // Remove the category
+      const updatedCategories = state.course_categories.filter(
+        (cat) => cat.id !== categoryId
+      );
+
+      // Get the replacement category's code
+      const replacementCategory = state.course_categories.find(
+        (cat) => cat.id === replacementCategoryId
+      );
+
+      if (!replacementCategory) return state;
+
+      // Update all affected courses with the new category
+      const updatedCourses = state.curriculum_courses.map((course) =>
+        course.course_category_id === categoryId
+          ? {
+              ...course,
+              course_category_id: replacementCategoryId,
+              category_code: replacementCategory.code,
+            }
+          : course
+      );
+
+      return {
+        course_categories: updatedCategories,
+        curriculum_courses: updatedCourses,
         modifiedSections,
       };
     });

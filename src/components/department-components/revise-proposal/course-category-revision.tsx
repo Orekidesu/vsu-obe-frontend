@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRevisionStore } from "@/store/revision/revision-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import useCourseCategories from "@/hooks/department/useCourseCategory";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function CourseCategoriesRevision() {
   // Get course categories and related functions from the store
@@ -31,6 +32,19 @@ export function CourseCategoriesRevision() {
     isLoading: categoriesLoading,
     error: categoriesError,
   } = useCourseCategories();
+
+  const { toast } = useToast();
+
+  const [defaultCategoryId, setDefaultCategoryId] = useState<number | null>(
+    null
+  );
+
+  // Set default category when API data loads (first category)
+  useEffect(() => {
+    if (apiCategories && apiCategories.length > 0 && !defaultCategoryId) {
+      setDefaultCategoryId(apiCategories[0].id);
+    }
+  }, [apiCategories, defaultCategoryId]);
 
   const [selectedApiCategoryId, setSelectedApiCategoryId] =
     useState<string>("");
@@ -48,6 +62,11 @@ export function CourseCategoriesRevision() {
   const removeCourseCategory = useRevisionStore(
     (state) => state.removeCourseCategory
   );
+
+  const removeCategoryAndReassign = useRevisionStore(
+    (state) => state.removeCategoryAndReassign
+  );
+
   const getCoursesCount = (categoryId: number) => {
     return curriculumCourses.filter(
       (course) => course.course_category_id === categoryId
@@ -163,9 +182,39 @@ export function CourseCategoriesRevision() {
   };
 
   // Handle deleting a category
+  // Modified delete handler
   const handleDeleteCategory = () => {
     if (categoryToDelete !== null) {
-      removeCourseCategory(categoryToDelete);
+      const coursesCount = getCoursesCount(categoryToDelete);
+
+      if (coursesCount > 0) {
+        // Get default category data
+        const defaultCategory =
+          courseCategories.find((cat) => cat.id !== categoryToDelete) ||
+          (apiCategories && apiCategories[0]);
+
+        if (!defaultCategory) {
+          toast({
+            title: "Cannot Delete Category",
+            description:
+              "There must be at least one category available for reassignment.",
+            variant: "destructive",
+          });
+          setIsDeleteDialogOpen(false);
+          return;
+        }
+
+        // Remove the category and reassign courses
+        removeCategoryAndReassign(categoryToDelete, defaultCategory.id);
+        toast({
+          title: "Category Deleted",
+          description: `${coursesCount} course(s) have been reassigned to "${defaultCategory.name}"`,
+        });
+      } else {
+        // No courses to reassign, just remove the category
+        removeCourseCategory(categoryToDelete);
+      }
+
       setCategoryToDelete(null);
       setIsDeleteDialogOpen(false);
     }
@@ -531,11 +580,49 @@ export function CourseCategoriesRevision() {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <div className="bg-red-50 border border-red-200 rounded-md p-3 text-red-700">
-              Warning: Deleting a category will remove it from all courses that
-              use it. Those courses will need to be reassigned to a different
-              category.
-            </div>
+            {categoryToDelete && getCoursesCount(categoryToDelete) > 0 ? (
+              <div className="space-y-3">
+                <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-amber-700">
+                  <p className="font-medium">Course Reassignment Required</p>
+                  <p className="mt-1">
+                    This category has{" "}
+                    <strong>
+                      {categoryToDelete && getCoursesCount(categoryToDelete)}
+                    </strong>{" "}
+                    course(s) associated with it.
+                  </p>
+                  <p className="mt-1">
+                    Upon deletion, all courses will be automatically reassigned
+                    to the default category.
+                  </p>
+                </div>
+
+                {/* Show which category will be used */}
+                <div className="p-3 border rounded-md">
+                  <p className="font-medium mb-1">
+                    Default reassignment category:
+                  </p>
+                  <div className="flex items-center">
+                    <Badge variant="outline" className="mr-2">
+                      {courseCategories.find(
+                        (cat) => cat.id !== categoryToDelete
+                      )?.code ||
+                        (apiCategories && apiCategories[0]?.code)}
+                    </Badge>
+                    <span>
+                      {courseCategories.find(
+                        (cat) => cat.id !== categoryToDelete
+                      )?.name ||
+                        (apiCategories && apiCategories[0]?.name)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-red-50 border border-red-200 rounded-md p-3 text-red-700">
+                Warning: Deleting a category cannot be undone.
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button
@@ -545,7 +632,9 @@ export function CourseCategoriesRevision() {
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteCategory}>
-              Delete Category
+              {categoryToDelete && getCoursesCount(categoryToDelete) > 0
+                ? "Delete and Reassign Courses"
+                : "Delete Category"}
             </Button>
           </DialogFooter>
         </DialogContent>
