@@ -66,6 +66,23 @@ export interface POGAMapping {
   ga_id: number;
 }
 
+// Define the Course Category type
+export interface CourseCategory {
+  id: number;
+  name: string;
+  code: string;
+}
+
+// Define the Curriculum Course type
+export interface CurriculumCourse {
+  id: number;
+  course_id: number;
+  course_category_id: number;
+  category_code: string;
+  semester_id: number;
+  unit: string;
+}
+
 // Define the store state
 interface RevisionState {
   // Original data
@@ -92,19 +109,10 @@ interface RevisionState {
   curriculum: {
     name: string;
   };
-  course_categories: Array<{
-    id: number;
-    name: string;
-    code: string;
-  }>;
-  curriculum_courses: Array<{
-    id: number;
-    course_id: number;
-    course_category_id: number;
-    category_code: string;
-    semester_id: number;
-    unit: string;
-  }>;
+  course_categories: CourseCategory[];
+
+  curriculum_courses: CurriculumCourse[];
+
   course_po_mappings: Array<{
     curriculum_course_id: number;
     po_id: number;
@@ -147,6 +155,22 @@ interface RevisionState {
   togglePOGAMapping: (po_id: number, ga_id: number) => void;
   updatePOGAMappings: (mappings: POGAMapping[]) => void;
 
+  // Update curriculum
+  updateCurriculum: (name: string) => void;
+
+  // Course category actions
+  addCourseCategory: (name: string, code: string) => void;
+  updateCourseCategory: (id: number, name: string, code: string) => void;
+  removeCourseCategory: (id: number) => void;
+
+  // Curriculum course actions
+  addCurriculumCourse: (course: Omit<CurriculumCourse, "id">) => void;
+  updateCurriculumCourse: (
+    id: number,
+    updates: Partial<Omit<CurriculumCourse, "id">>
+  ) => void;
+  removeCurriculumCourse: (id: number) => void;
+  //
   resetSection: (section: RevisionSection) => void;
   submitRevisions: () => Promise<boolean>;
 }
@@ -521,6 +545,164 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
       return {
         po_ga_mappings: mappings,
+        modifiedSections,
+      };
+    });
+  },
+  // Update curriculum
+  updateCurriculum: (name: string) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("curriculum");
+
+      return {
+        curriculum: { name },
+        modifiedSections,
+      };
+    });
+  },
+  // Add a new course category
+  addCourseCategory: (name: string, code: string) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("course_categories");
+
+      // Generate a temporary ID for the new category
+      const newId =
+        Math.max(0, ...state.course_categories.map((cat) => cat.id)) + 1;
+
+      return {
+        course_categories: [
+          ...state.course_categories,
+          { id: newId, name, code },
+        ],
+        modifiedSections,
+      };
+    });
+  },
+
+  // Update a course category
+  updateCourseCategory: (id: number, name: string, code: string) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("course_categories");
+
+      const updatedCategories = state.course_categories.map((cat) =>
+        cat.id === id ? { ...cat, name, code } : cat
+      );
+
+      // Also update the category code in curriculum courses
+      const updatedCurriculumCourses = state.curriculum_courses.map((course) =>
+        course.course_category_id === id
+          ? { ...course, category_code: code }
+          : course
+      );
+
+      // If curriculum courses were updated, mark that section as modified too
+      if (
+        JSON.stringify(state.curriculum_courses) !==
+        JSON.stringify(updatedCurriculumCourses)
+      ) {
+        modifiedSections.add("curriculum_courses");
+      }
+
+      return {
+        course_categories: updatedCategories,
+        curriculum_courses: updatedCurriculumCourses,
+        modifiedSections,
+      };
+    });
+  },
+
+  // Remove a course category
+  removeCourseCategory: (id: number) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("course_categories");
+
+      // Remove the category
+      const updatedCategories = state.course_categories.filter(
+        (cat) => cat.id !== id
+      );
+
+      // Check if any curriculum courses use this category
+      const affectedCourses = state.curriculum_courses.filter(
+        (course) => course.course_category_id === id
+      );
+
+      if (affectedCourses.length > 0) {
+        // In a real app, you might want to handle this differently
+        // For now, we'll just mark the curriculum_courses section as modified
+        modifiedSections.add("curriculum_courses");
+      }
+
+      return {
+        course_categories: updatedCategories,
+        modifiedSections,
+      };
+    });
+  },
+  // Add a new curriculum course
+  addCurriculumCourse: (course) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("curriculum_courses");
+
+      // Generate a temporary ID for the new course
+      const newId =
+        Math.max(0, ...state.curriculum_courses.map((c) => c.id)) + 1;
+
+      return {
+        curriculum_courses: [
+          ...state.curriculum_courses,
+          { id: newId, ...course },
+        ],
+        modifiedSections,
+      };
+    });
+  },
+
+  // Update a curriculum course
+  updateCurriculumCourse: (id, updates) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("curriculum_courses");
+
+      const updatedCourses = state.curriculum_courses.map((course) =>
+        course.id === id ? { ...course, ...updates } : course
+      );
+
+      return {
+        curriculum_courses: updatedCourses,
+        modifiedSections,
+      };
+    });
+  },
+
+  // Remove a curriculum course
+  removeCurriculumCourse: (id) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("curriculum_courses");
+
+      // Remove the course
+      const updatedCourses = state.curriculum_courses.filter(
+        (course) => course.id !== id
+      );
+
+      // Also remove any course to PO mappings that reference this course
+      const updatedCoursePOMappings = state.course_po_mappings.filter(
+        (mapping) => mapping.curriculum_course_id !== id
+      );
+
+      // If course to PO mappings were updated, mark that section as modified too
+      if (state.course_po_mappings.length !== updatedCoursePOMappings.length) {
+        modifiedSections.add("course_po_mappings");
+      }
+
+      return {
+        curriculum_courses: updatedCourses,
+        course_po_mappings: updatedCoursePOMappings,
         modifiedSections,
       };
     });
