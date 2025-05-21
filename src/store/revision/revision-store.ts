@@ -81,6 +81,8 @@ export interface CurriculumCourse {
   category_code: string;
   semester_id: number;
   unit: string;
+  course_code?: string;
+  course_title?: string;
 }
 
 // Define the store state
@@ -688,7 +690,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
     });
   },
   // Add a new curriculum course
-  addCurriculumCourse: (course) => {
+  addCurriculumCourse: (course: Omit<CurriculumCourse, "id">) => {
     set((state) => {
       const modifiedSections = new Set(state.modifiedSections);
       modifiedSections.add("curriculum_courses");
