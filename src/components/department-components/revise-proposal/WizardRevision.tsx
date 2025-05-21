@@ -34,18 +34,18 @@ import {
 } from "@/store/revision/revision-store";
 
 // Import revision components
-import { ProgramRevision } from "./program-revision";
-import { PEOsRevision } from "./peos-revision";
-import { PEOMissionMappingRevision } from "./peo-mission-mapping-revision";
-import { GAPEOMappingRevision } from "./ga-peo-mapping-revision";
-import { POsRevision } from "./pos-revision";
-import { POGAMappingRevision } from "./po-ga-mapping-revision";
+import { ProgramRevision } from "./ProgramRevision";
+import { PEOsRevision } from "./PEOSRevision";
+import { PEOMissionMappingRevision } from "./PEOMissionMappingRevision";
+import { GAPEOMappingRevision } from "./GAPEOMappingRevision";
+import { POsRevision } from "./POSRevision";
+import { POGAMappingRevision } from "./POGAMappingRevision";
 
 import useProgramProposals from "@/hooks/department/useProgramProposal";
-import { POPEOMappingRevision } from "./po-peo-mapping-revision";
-import { CurriculumRevision } from "./curriculum-revision";
-import { CourseCategoriesRevision } from "./course-category-revision";
-import { CurriculumCoursesRevision } from "./curriculum-course-revision";
+import { POPEOMappingRevision } from "./POPEOMappingRevision";
+import { CurriculumRevision } from "./CurriculumRevision";
+import { CourseCategoriesRevision } from "./CourseCategoryRevision";
+import { CurriculumCoursesRevision } from "./CurriculumCourseRevision";
 
 interface RevisionWizardProps {
   proposalId: string;
