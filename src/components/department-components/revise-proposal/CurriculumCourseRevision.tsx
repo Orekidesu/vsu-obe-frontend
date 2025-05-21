@@ -303,6 +303,33 @@ export function CurriculumCoursesRevision() {
     }
   };
 
+  const getAvailableSemesters = () => {
+    // Get unique semester IDs from the curriculum courses
+    const semesterIds = [
+      ...new Set(curriculumCourses.map((course) => course.semester_id)),
+    ];
+
+    // Filter sampleSemesters to only include those found in curriculum courses
+    const availableSemesters = sampleSemesters.filter((semester) =>
+      semesterIds.includes(semester.id)
+    );
+
+    // Sort semesters by year and term
+    return [...availableSemesters].sort((a, b) => {
+      if (a.year !== b.year) {
+        return a.year - b.year;
+      }
+
+      const semOrder = { first: 1, second: 2, summer: 3 };
+      return (
+        semOrder[a.sem as keyof typeof semOrder] -
+        semOrder[b.sem as keyof typeof semOrder]
+      );
+    });
+  };
+
+  const availableSemesters = getAvailableSemesters();
+
   // Start editing a course
   const handleStartEdit = (courseId: number) => {
     const course = curriculumCourses.find((c) => c.id === courseId);
@@ -557,7 +584,7 @@ export function CurriculumCoursesRevision() {
                             <SelectValue placeholder="Select year/semester" />
                           </SelectTrigger>
                           <SelectContent>
-                            {sortedSemesters.map((semester) => (
+                            {availableSemesters.map((semester) => (
                               <SelectItem
                                 key={semester.id}
                                 value={semester.id.toString()}
@@ -772,7 +799,7 @@ export function CurriculumCoursesRevision() {
           <div className="space-y-8">
             <h2 className="text-2xl font-bold">Current Curriculum</h2>
 
-            {sortedSemesters.map((semester) => {
+            {availableSemesters.map((semester) => {
               const courses = coursesBySemester[semester.id] || [];
               if (courses.length === 0) return null;
 
