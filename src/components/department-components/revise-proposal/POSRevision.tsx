@@ -29,20 +29,20 @@ export function POsRevision() {
   const { pos, updatePO, addPO, removePO, resetSection, isModified } =
     useRevisionStore();
   const [newPO, setNewPO] = useState({ name: "", statement: "" });
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | string | null>(null);
   const [editForm, setEditForm] = useState({ name: "", statement: "" });
   const [errors, setErrors] = useState<{ name?: string; statement?: string }>(
     {}
   );
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [poToDelete, setPoToDelete] = useState<number | null>(null);
+  const [poToDelete, setPoToDelete] = useState<number | string | null>(null);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
 
   const sectionModified = isModified("pos");
 
   // Start editing a PO
-  const handleEdit = (id: number, name: string, statement: string) => {
+  const handleEdit = (id: number | string, name: string, statement: string) => {
     setEditingId(id);
     setEditForm({ name, statement });
     setErrors({});
@@ -123,7 +123,7 @@ export function POsRevision() {
   };
 
   // Confirm deletion of a PO
-  const handleDeleteClick = (id: number) => {
+  const handleDeleteClick = (id: number | string) => {
     setPoToDelete(id);
     setShowDeleteDialog(true);
   };
