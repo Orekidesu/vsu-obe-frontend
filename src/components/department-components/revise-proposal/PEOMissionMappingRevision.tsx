@@ -35,14 +35,14 @@ export function PEOMissionMappingRevision() {
   const sectionModified = isModified("peo_mission_mappings");
 
   // Check if a PEO is mapped to a mission
-  const isMapped = (peoId: number, missionId: number) => {
+  const isMapped = (peoId: number | string, missionId: number) => {
     return peo_mission_mappings.some(
       (mapping) => mapping.peo_id === peoId && mapping.mission_id === missionId
     );
   };
 
   // Handle toggling a mapping
-  const handleToggleMapping = (peoId: number, missionId: number) => {
+  const handleToggleMapping = (peoId: number | string, missionId: number) => {
     togglePEOMissionMapping(peoId, missionId);
   };
 

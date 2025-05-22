@@ -35,14 +35,14 @@ export function POPEOMappingRevision() {
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   // Check if a PO is mapped to a PEO
-  const isMapped = (po_id: number, peo_id: number) => {
+  const isMapped = (po_id: number, peo_id: number | string) => {
     return po_peo_mappings.some(
       (mapping) => mapping.po_id === po_id && mapping.peo_id === peo_id
     );
   };
 
   // Handle mapping toggle
-  const handleToggleMapping = (po_id: number, peo_id: number) => {
+  const handleToggleMapping = (po_id: number, peo_id: number | string) => {
     togglePOPEOMapping(po_id, peo_id);
   };
 
@@ -92,7 +92,7 @@ export function POPEOMappingRevision() {
               <th className="sticky left-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
                 Program Outcomes
               </th>
-              {peos.map((peo) => (
+              {peos.map((peo, index) => (
                 <th
                   key={peo.id}
                   className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]"
@@ -100,7 +100,7 @@ export function POPEOMappingRevision() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger className="cursor-help flex items-center justify-center">
-                        PEO {peo.id}
+                        PEO {index + 1}
                         <Info className="h-3 w-3 ml-1 text-gray-400" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs p-2">

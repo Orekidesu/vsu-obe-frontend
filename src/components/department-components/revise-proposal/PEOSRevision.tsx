@@ -29,7 +29,7 @@ export function PEOsRevision() {
   const [newPEOError, setNewPEOError] = useState("");
 
   // State for editing existing PEOs
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | string | null>(null);
   const [editingStatement, setEditingStatement] = useState("");
   const [editingError, setEditingError] = useState("");
 
@@ -76,7 +76,7 @@ export function PEOsRevision() {
   };
 
   // Handle removing a PEO
-  const handleRemovePEO = (id: number) => {
+  const handleRemovePEO = (id: number | string) => {
     if (
       confirm(
         "Are you sure you want to remove this PEO? This will also remove any mappings associated with it."

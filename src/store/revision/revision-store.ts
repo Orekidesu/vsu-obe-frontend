@@ -17,7 +17,7 @@ export type RevisionSection =
   | "course_po_mappings";
 
 export interface PEO {
-  id: number;
+  id: number | string;
   statement: string;
 }
 // Define the Mission type
@@ -36,14 +36,14 @@ export interface GraduateAttribute {
 
 // Define the PEO to Mission mapping type
 export interface PEOMissionMapping {
-  peo_id: number;
+  peo_id: number | string;
   mission_id: number;
 }
 
 // Define the GA to PEO mapping type
 export interface GAPEOMapping {
   ga_id: number;
-  peo_id: number;
+  peo_id: number | string;
 }
 
 // Define the Program Outcome type
@@ -56,7 +56,7 @@ export interface PO {
 // Define the PO to PEO mapping type
 export interface POPEOMapping {
   po_id: number;
-  peo_id: number;
+  peo_id: number | string;
 }
 
 // Define the PO to GA Mapping type
@@ -133,16 +133,19 @@ interface RevisionState {
   updateProgram: (program: { name: string; abbreviation: string }) => void;
 
   // PEO actions
-  updatePEO: (id: number, statement: string) => void;
+  updatePEO: (id: number | string, statement: string) => void;
   addPEO: (statement: string) => void;
-  removePEO: (id: number) => void;
+  removePEO: (id: number | string) => void;
 
   // PEO to Mission mapping actions
-  togglePEOMissionMapping: (peo_id: number, mission_id: number) => void;
+  togglePEOMissionMapping: (
+    peo_id: number | string,
+    mission_id: number
+  ) => void;
   updatePEOMissionMappings: (mappings: PEOMissionMapping[]) => void;
 
   // GA to PEO mapping actions
-  toggleGAPEOMapping: (ga_id: number, peo_id: number) => void;
+  toggleGAPEOMapping: (ga_id: number, peo_id: number | string) => void;
   updateGAPEOMappings: (mappings: GAPEOMapping[]) => void;
 
   // PO actions
@@ -151,7 +154,7 @@ interface RevisionState {
   removePO: (id: number) => void;
 
   // PO to PEO mapping actions
-  togglePOPEOMapping: (po_id: number, peo_id: number) => void;
+  togglePOPEOMapping: (po_id: number, peo_id: number | string) => void;
   updatePOPEOMappings: (mappings: POPEOMapping[]) => void;
 
   // PO to GA mapping  actions
@@ -265,7 +268,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
       // Generate a temporary ID for the new PEO
       // In a real app, the server would assign a permanent ID
-      const newId = Math.max(0, ...state.peos.map((peo) => peo.id)) + 1;
+      const newId = `new-peo-${Date.now()}`;
 
       return {
         peos: [...state.peos, { id: newId, statement }],
