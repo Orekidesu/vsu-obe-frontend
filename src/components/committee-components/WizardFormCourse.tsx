@@ -37,6 +37,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
     Record<string, string[]> | string | null
   >(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const { curriculumCourses, isLoading } = useCurriculumCourses();
   const { submitFullCurriculumCourseDetails } = useCurriculumCourses();
@@ -339,7 +340,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       });
     } else if (currentStep === 7) {
       // Review step is always valid
-      return true;
+      return isConfirmed;
     }
 
     return false;
@@ -481,6 +482,8 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
           learningResources={learningResources}
           getCOTeachingMethods={getCOTeachingMethods}
           getCOLearningResources={getCOLearningResources}
+          isConfirmed={isConfirmed}
+          setIsConfirmed={setIsConfirmed}
           onEditStep={setCurrentStep}
         />
       )}

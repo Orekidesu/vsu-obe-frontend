@@ -29,6 +29,10 @@ interface CourseOutcomesReviewStepProps {
   learningResources: LearningResource[];
   getCOTeachingMethods: (courseOutcomeId: number) => string[];
   getCOLearningResources: (courseOutcomeId: number) => string[];
+
+  isConfirmed: boolean;
+  setIsConfirmed: (value: boolean) => void;
+
   onEditStep: (step: number) => void;
 }
 
@@ -44,6 +48,9 @@ export function CourseOutcomesReviewStep({
   getCOTeachingMethods,
   getCOLearningResources,
   onEditStep,
+
+  isConfirmed,
+  setIsConfirmed,
 }: CourseOutcomesReviewStepProps) {
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
@@ -145,7 +152,10 @@ export function CourseOutcomesReviewStep({
       />
 
       {/* Final Confirmation */}
-      <FinalConfirmation />
+      <FinalConfirmation
+        isConfirmed={isConfirmed}
+        setIsConfirmed={setIsConfirmed}
+      />
     </div>
   );
 }
