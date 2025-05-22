@@ -98,10 +98,14 @@ export function CurriculumCoursesRevision() {
 
   // Local state for the form
   const [activeTab, setActiveTab] = useState("search");
-  const [isEditingCourse, setIsEditingCourse] = useState<number | null>(null);
+  const [isEditingCourse, setIsEditingCourse] = useState<
+    number | string | null
+  >(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
-  const [courseToDelete, setCourseToDelete] = useState<number | null>(null);
+  const [courseToDelete, setCourseToDelete] = useState<number | string | null>(
+    null
+  );
   const [errors, setErrors] = useState<CourseFormErrors>({
     course_id: "",
     course_category_id: "",
@@ -133,7 +137,7 @@ export function CurriculumCoursesRevision() {
   const [editCourse, setEditCourse] = useState<EditCourseFormData>({
     id: 0,
     course_id: 0,
-    course_category_id: 0,
+    course_category_id: 0, // This should accept string IDs too
     category_code: "",
     semester_id: 0,
     unit: "",
@@ -146,14 +150,14 @@ export function CurriculumCoursesRevision() {
   };
 
   // Get category details by ID
-  const getCategoryDetails = (categoryId: number) => {
+  const getCategoryDetails = (categoryId: number | string) => {
     return courseCategories.find((category) => category.id === categoryId);
   };
 
   // Update category code when category is selected
   const handleCategoryChange = (categoryId: string, isNewCourse = true) => {
     const category = courseCategories.find(
-      (cat) => cat.id === Number.parseInt(categoryId)
+      (cat) => cat.id.toString() === categoryId
     );
     if (category) {
       if (isNewCourse) {
@@ -173,7 +177,7 @@ export function CurriculumCoursesRevision() {
       } else {
         setEditCourse({
           ...editCourse,
-          course_category_id: Number.parseInt(categoryId),
+          course_category_id: categoryId,
           category_code: category.code,
         });
       }
@@ -345,7 +349,7 @@ export function CurriculumCoursesRevision() {
   };
 
   // Start editing a course
-  const handleStartEdit = (courseId: number) => {
+  const handleStartEdit = (courseId: number | string) => {
     const course = curriculumCourses.find((c) => c.id === courseId);
     if (course) {
       setEditCourse({
@@ -378,7 +382,7 @@ export function CurriculumCoursesRevision() {
   };
 
   // Handle preparing to delete a course
-  const handlePrepareDeleteCourse = (courseId: number) => {
+  const handlePrepareDeleteCourse = (courseId: number | string) => {
     setCourseToDelete(courseId);
     setIsDeleteDialogOpen(true);
   };

@@ -25,14 +25,14 @@ export function POGAMappingRevision() {
   const sectionModified = isModified("po_ga_mappings");
 
   // Check if a PO is mapped to a GA
-  const isMapped = (poId: number, gaId: number) => {
+  const isMapped = (poId: number | string, gaId: number) => {
     return po_ga_mappings.some(
       (mapping) => mapping.po_id === poId && mapping.ga_id === gaId
     );
   };
 
   // Handle toggling a mapping
-  const handleToggleMapping = (poId: number, gaId: number) => {
+  const handleToggleMapping = (poId: number | string, gaId: number) => {
     togglePOGAMapping(poId, gaId);
   };
 

@@ -156,7 +156,10 @@ export function CoursePOMappingRevision() {
   // };
 
   // Get mapping for a course and PO
-  const getMapping = (curriculumCourseId: number, poId: number) => {
+  const getMapping = (
+    curriculumCourseId: number | string,
+    poId: number | string
+  ) => {
     return course_po_mappings.find(
       (mapping) =>
         mapping.curriculum_course_id === curriculumCourseId &&
@@ -165,7 +168,10 @@ export function CoursePOMappingRevision() {
   };
 
   // Get contribution level for a course and PO
-  const getContributionLevel = (curriculumCourseId: number, poId: number) => {
+  const getContributionLevel = (
+    curriculumCourseId: number | string,
+    poId: number | string
+  ) => {
     const mapping = getMapping(curriculumCourseId, poId);
     return mapping ? mapping.ied : null;
   };
@@ -178,8 +184,8 @@ export function CoursePOMappingRevision() {
 
   // Handle contribution level change
   const handleContributionChange = (
-    curriculumCourseId: number,
-    poId: number,
+    curriculumCourseId: number | string,
+    poId: number | string,
     level: string
   ) => {
     const mapping = getMapping(curriculumCourseId, poId);
@@ -213,7 +219,7 @@ export function CoursePOMappingRevision() {
 
   // Get selected course details
   const selectedCourse = selectedCourseId
-    ? curriculum_courses.find((c) => c.id === Number(selectedCourseId))
+    ? curriculum_courses.find((c) => String(c.id) === selectedCourseId)
     : null;
 
   const selectedCourseDetails = selectedCourse
