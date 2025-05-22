@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -50,6 +50,7 @@ import { CoursePOMappingRevision } from "./CoursePOMappingRevision";
 import { RevisionReview } from "./ReviewRevision";
 
 import useDepartmentRevision from "@/hooks/shared/useDepartmentRevision";
+import { SubmitDepartmentRevisionsPayload } from "@/types/model/DepartmentRevision";
 
 interface RevisionWizardProps {
   proposalId: string;
@@ -64,7 +65,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   const [isReviewing, setIsReviewing] = useState(false);
 
   // Get the proposal from API using cache
-  const { getProgramProposalFromCache } = useProgramProposals();
+  const { getProgramProposalFromCache, submitDepartmentRevisions } =
+    useProgramProposals();
   const proposalIdNumber = parseInt(proposalId, 10);
 
   // Fetch the revision data from API
@@ -79,8 +81,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   );
 
   // Initialize the store with sample data
-  const { initializeData, submitRevisions, modifiedSections } =
-    useRevisionStore();
+  const { initializeData, modifiedSections } = useRevisionStore();
 
   useEffect(() => {
     if (proposalData) {
@@ -144,36 +145,58 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
     setIsSubmitting(true);
 
     try {
-      const success = await submitRevisions();
+      // Get only the modified sections data from the store
+      const state = useRevisionStore.getState();
+      const dataToSubmit: Partial<SubmitDepartmentRevisionsPayload> = {};
 
-      if (success) {
-        setSubmitSuccess(true);
+      modifiedSections.forEach((section) => {
+        dataToSubmit[section] = state[section];
+      });
 
-        // Enhanced logging
-        console.group("Revision Submission Details");
-        console.log(
-          "Requested Revision Sections:",
-          revisions.map((r) => r.section)
-        );
-        console.log("Modified Sections:", Array.from(modifiedSections));
-
-        // Get the actual payload data
-        const state = useRevisionStore.getState();
-        const dataToSubmit = {};
-        modifiedSections.forEach((section) => {
-          dataToSubmit[section] = state[section];
+      // Only proceed if there are modifications
+      if (Object.keys(dataToSubmit).length === 0) {
+        toast({
+          title: "No Changes",
+          description: "No modifications were made to submit.",
+          variant: "default",
         });
-        console.log("Submission Payload:", dataToSubmit);
-        console.groupEnd();
-
-        // Redirect after a delay
-        setTimeout(() => {}, 3000);
-      } else {
-        // Handle submission error
         setIsSubmitting(false);
+        return;
       }
-    } catch (error) {
+
+      // Submit the revisions to the API
+      await submitDepartmentRevisions.mutateAsync({
+        proposalId: proposalIdNumber,
+        revisionData: dataToSubmit,
+      });
+
+      // Show success state
+      setSubmitSuccess(true);
+
+      // Log submission details for debugging
+      console.group("Revision Submission Details");
+      console.log(
+        "Requested Revision Sections:",
+        revisions.map((r) => r.section)
+      );
+      console.log("Modified Sections:", Array.from(modifiedSections));
+      console.log("Submission Payload:", dataToSubmit);
+      console.groupEnd();
+
+      // Redirect after a delay
+      setTimeout(() => {
+        router.push("/department/programs/all-programs");
+      }, 3000);
+    } catch (error: unknown) {
       console.error("Error submitting revisions:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to submit revisions. Please try again later.",
+        variant: "destructive",
+      });
       setIsSubmitting(false);
     }
   };

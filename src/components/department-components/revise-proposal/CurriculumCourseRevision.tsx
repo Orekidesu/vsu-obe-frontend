@@ -250,6 +250,7 @@ export function CurriculumCoursesRevision() {
       semester_id: "",
       unit: "",
     };
+
     let isValid = true;
 
     if (!newManualCourse.code.trim()) {
@@ -286,11 +287,24 @@ export function CurriculumCoursesRevision() {
     setErrors(newErrors);
 
     if (isValid) {
-      // In a real app, we would create a new course, but for now we'll just use a high ID
-      const newCourseId =
+      // Get the highest course_id from the API courses
+      const maxApiCourseId =
         courses && courses.length > 0
-          ? Math.max(...courses.map((c) => c.id)) + 1
-          : 1000;
+          ? Math.max(...courses.map((c) => c.id))
+          : 0;
+
+      // Get the highest course_id from manually added curriculum courses
+      // (courses that have course_code property are manually added)
+      const manualCourses = curriculumCourses.filter(
+        (course) => course.course_code
+      );
+      const maxManualCourseId =
+        manualCourses.length > 0
+          ? Math.max(...manualCourses.map((c) => c.course_id))
+          : 0;
+
+      // Use the maximum of both plus 1 for the new course_id
+      const newCourseId = Math.max(maxApiCourseId, maxManualCourseId) + 1;
 
       addCurriculumCourse({
         course_id: newCourseId,

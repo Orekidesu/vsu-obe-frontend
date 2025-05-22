@@ -9,6 +9,7 @@ import { FullProgramProposalPayload } from "@/app/utils/department/programPropos
 import { useAuth } from "@/hooks/useAuth";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { ReviewProposalPayload } from "@/app/utils/dean/reviewProgramProposalPayload";
+import { SubmitDepartmentRevisionsPayload } from "@/types/model/DepartmentRevision"; // Add this import
 
 interface DeleteProgramProposalContext {
   previousProgramProposals?: ProgramProposal[];
@@ -182,7 +183,7 @@ const useProgramProposals = (options: useProgramOptions = {}) => {
   >({
     mutationFn: async ({ proposalId, reviewData }) => {
       const response = await api.post(
-        `${role}/program-proposals/${proposalId}/review`,
+        `department/program-proposals/${proposalId}/revise`,
         reviewData
       );
       return response.data;
@@ -197,6 +198,30 @@ const useProgramProposals = (options: useProgramOptions = {}) => {
     },
   });
 
+  const submitDepartmentRevisions = useMutation<
+    void,
+    APIError,
+    { proposalId: number; revisionData: SubmitDepartmentRevisionsPayload }
+  >({
+    mutationFn: async ({ proposalId, revisionData }) => {
+      const response = await api.post(
+        `${role}/program-proposals/${proposalId}/revision`,
+        revisionData
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate relevant queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["program-proposals"] });
+      queryClient.invalidateQueries({ queryKey: ["programProposalRevisions"] });
+    },
+    onError: (error) => {
+      throw new Error(
+        getErrorMessage(error, "Failed to submit proposal revisions")
+      );
+    },
+  });
+
   return {
     programProposals,
     isLoading,
@@ -205,6 +230,7 @@ const useProgramProposals = (options: useProgramOptions = {}) => {
     error,
     getProgramProposal,
     getProgramProposalFromCache,
+    submitDepartmentRevisions,
     createProgramProposal,
     updateProgramProposal,
     deleteProgramProposal,
