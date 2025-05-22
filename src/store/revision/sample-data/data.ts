@@ -264,22 +264,22 @@ export const sampleRevisionData = {
     //   created_at: "2025-05-19T06:45:28.000000Z",
     //   version: 3,
     // },
-    {
-      id: 56,
-      section: "po_ga_mappings",
-      details:
-        "The Program Outcome to Graduate Attribute mappings need to be reviewed for comprehensive coverage. Ensure each PO is appropriately mapped to relevant Graduate Attributes, particularly focusing on 'Knowledge Competence' and 'Lifelong Learning' attributes which appear underrepresented in current mappings.",
-      created_at: "2025-05-19T06:45:28.000000Z",
-      version: 3,
-    },
-    {
-      id: 57,
-      section: "curriculum",
-      details:
-        "The curriculum name and structure need to be updated to reflect the current academic year and program focus. Consider renaming to include the full academic year range.",
-      created_at: "2025-05-19T06:45:28.000000Z",
-      version: 3,
-    },
+    // {
+    //   id: 56,
+    //   section: "po_ga_mappings",
+    //   details:
+    //     "The Program Outcome to Graduate Attribute mappings need to be reviewed for comprehensive coverage. Ensure each PO is appropriately mapped to relevant Graduate Attributes, particularly focusing on 'Knowledge Competence' and 'Lifelong Learning' attributes which appear underrepresented in current mappings.",
+    //   created_at: "2025-05-19T06:45:28.000000Z",
+    //   version: 3,
+    // },
+    // {
+    //   id: 57,
+    //   section: "curriculum",
+    //   details:
+    //     "The curriculum name and structure need to be updated to reflect the current academic year and program focus. Consider renaming to include the full academic year range.",
+    //   created_at: "2025-05-19T06:45:28.000000Z",
+    //   version: 3,
+    // },
     {
       id: 58,
       section: "course_categories",
@@ -293,6 +293,14 @@ export const sampleRevisionData = {
       section: "curriculum_courses",
       details:
         "The curriculum courses need to be reviewed and updated to ensure proper sequencing and credit allocation. Consider redistributing courses across semesters for better workload balance.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
+    {
+      id: 60,
+      section: "course_po_mappings",
+      details:
+        "The Course to Program Outcome mappings need to be revised to ensure proper alignment between course content and program outcomes. Ensure all courses contribute appropriately to program outcomes and that the I-E-D levels are correctly assigned.",
       created_at: "2025-05-19T06:45:28.000000Z",
       version: 3,
     },

@@ -46,6 +46,7 @@ import { POPEOMappingRevision } from "./POPEOMappingRevision";
 import { CurriculumRevision } from "./CurriculumRevision";
 import { CourseCategoriesRevision } from "./CourseCategoryRevision";
 import { CurriculumCoursesRevision } from "./CurriculumCourseRevision";
+import { CoursePOMappingRevision } from "./CoursePOMappingRevision";
 
 interface RevisionWizardProps {
   proposalId: string;
@@ -158,6 +159,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         return <CourseCategoriesRevision />;
       case "curriculum_courses":
         return <CurriculumCoursesRevision />;
+      case "course_po_mappings":
+        return <CoursePOMappingRevision />;
       default:
         return (
           <div className="text-center">

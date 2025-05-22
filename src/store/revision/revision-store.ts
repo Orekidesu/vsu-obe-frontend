@@ -85,6 +85,12 @@ export interface CurriculumCourse {
   course_title?: string;
 }
 
+export interface CoursePOMapping {
+  curriculum_course_id: number;
+  po_id: number;
+  ied: string[];
+}
+
 // Define the store state
 interface RevisionState {
   // Original data
@@ -115,12 +121,7 @@ interface RevisionState {
 
   curriculum_courses: CurriculumCourse[];
 
-  course_po_mappings: Array<{
-    curriculum_course_id: number;
-    po_id: number;
-    // ied: string[];
-    ied: string[];
-  }>;
+  course_po_mappings: CoursePOMapping[];
 
   // Track which sections have been modified
   modifiedSections: Set<RevisionSection>;
@@ -176,7 +177,21 @@ interface RevisionState {
     updates: Partial<Omit<CurriculumCourse, "id">>
   ) => void;
   removeCurriculumCourse: (id: number) => void;
-  //
+
+  // Course to PO mapping actions
+  addCourseToPOMapping: (
+    curriculumCourseId: number,
+    poId: number,
+    levels: string[]
+  ) => void;
+  updateCourseToPOMapping: (
+    curriculumCourseId: number,
+    poId: number,
+    levels: string[]
+  ) => void;
+  removeCourseToPOMapping: (curriculumCourseId: number, poId: number) => void;
+
+  //Other actions
   resetSection: (section: RevisionSection) => void;
   submitRevisions: () => Promise<boolean>;
 }
@@ -750,6 +765,70 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       return {
         curriculum_courses: updatedCourses,
         course_po_mappings: updatedCoursePOMappings,
+        modifiedSections,
+      };
+    });
+  },
+  // Add a new course to PO mapping
+  addCourseToPOMapping: (
+    curriculumCourseId: number,
+    poId: number,
+    levels: string[]
+  ) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("course_po_mappings");
+
+      return {
+        course_po_mappings: [
+          ...state.course_po_mappings,
+          {
+            curriculum_course_id: curriculumCourseId,
+            po_id: poId,
+            ied: levels,
+          },
+        ],
+        modifiedSections,
+      };
+    });
+  },
+
+  // Update an existing course to PO mapping
+  updateCourseToPOMapping: (
+    curriculumCourseId: number,
+    poId: number,
+    levels: string[]
+  ) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("course_po_mappings");
+
+      return {
+        course_po_mappings: state.course_po_mappings.map((mapping) =>
+          mapping.curriculum_course_id === curriculumCourseId &&
+          mapping.po_id === poId
+            ? { ...mapping, ied: levels }
+            : mapping
+        ),
+        modifiedSections,
+      };
+    });
+  },
+
+  // Remove a course to PO mapping
+  removeCourseToPOMapping: (curriculumCourseId: number, poId: number) => {
+    set((state) => {
+      const modifiedSections = new Set(state.modifiedSections);
+      modifiedSections.add("course_po_mappings");
+
+      return {
+        course_po_mappings: state.course_po_mappings.filter(
+          (mapping) =>
+            !(
+              mapping.curriculum_course_id === curriculumCourseId &&
+              mapping.po_id === poId
+            )
+        ),
         modifiedSections,
       };
     });
