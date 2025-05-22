@@ -41,6 +41,7 @@ interface CommitteeAssignment {
   committeeId: string;
   courseId: string;
   isCompleted: boolean; // Added isCompleted property
+  isInRevision: boolean;
 }
 
 interface Course {
@@ -241,9 +242,13 @@ export function CommitteeAssignments({
                 {committees.map((committee) => {
                   const assignedCourses = getCoursesForCommittee(committee.id);
                   const completedCount = assignedCourses.filter(
-                    (c) => c.isCompleted
+                    (c) => c.isCompleted && !c.isInRevision
                   ).length;
-                  const pendingCount = assignedCourses.length - completedCount;
+                  const revisionCount = assignedCourses.filter(
+                    (c) => !c.isCompleted && c.isInRevision
+                  ).length;
+                  const pendingCount =
+                    assignedCourses.length - completedCount - revisionCount;
 
                   return (
                     <AccordionItem
@@ -279,6 +284,15 @@ export function CommitteeAssignments({
                                 <Clock className="h-3 w-3 mr-0.5" />
                                 {pendingCount}
                               </span>
+                              {revisionCount > 0 && (
+                                <>
+                                  <span className="mx-1">/</span>
+                                  <span className="flex items-center text-red-600">
+                                    <AlertCircle className="h-3 w-3 mr-0.5" />
+                                    {revisionCount}
+                                  </span>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -292,17 +306,44 @@ export function CommitteeAssignments({
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             {assignedCourses.map((assignment) => {
                               const course = getCourseById(assignment.courseId);
+                              // Determine course status
+                              let statusClass = "";
+                              let statusIcon = null;
+                              let statusTooltip = "";
+
+                              if (
+                                assignment.isCompleted &&
+                                !assignment.isInRevision
+                              ) {
+                                // Completed
+                                statusClass = "border-green-200 bg-green-50";
+                                statusIcon = (
+                                  <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                                );
+                                statusTooltip = "Course details completed";
+                              } else if (
+                                !assignment.isCompleted &&
+                                assignment.isInRevision
+                              ) {
+                                // Needs Revision
+                                statusClass = "border-red-200 bg-red-50";
+                                statusIcon = (
+                                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                                );
+                                statusTooltip = "Course needs revision";
+                              } else {
+                                // Pending
+                                statusClass = "border-amber-200 bg-amber-50";
+                                statusIcon = (
+                                  <Clock className="h-5 w-5 text-amber-600 flex-shrink-0" />
+                                );
+                                statusTooltip = "Course details pending";
+                              }
                               return (
                                 <TooltipProvider key={assignment.courseId}>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Card
-                                        className={`border ${
-                                          assignment.isCompleted
-                                            ? "border-green-200 bg-green-50"
-                                            : "border-amber-200 bg-amber-50"
-                                        }`}
-                                      >
+                                      <Card className={`border ${statusClass}`}>
                                         <CardContent className="p-4">
                                           <div className="flex justify-between items-start">
                                             <div>
@@ -314,21 +355,13 @@ export function CommitteeAssignments({
                                                   "Unknown"}
                                               </p>
                                             </div>
-                                            {assignment.isCompleted ? (
-                                              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
-                                            ) : (
-                                              <Clock className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                                            )}
+                                            {statusIcon}
                                           </div>
                                         </CardContent>
                                       </Card>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>
-                                        {assignment.isCompleted
-                                          ? "Course details completed"
-                                          : "Course details pending"}
-                                      </p>
+                                      <p>{statusTooltip}</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
@@ -438,9 +471,10 @@ export function CommitteeAssignments({
             <div className="space-y-6">
               {committees.map((committee) => {
                 const assignedCourses = getCoursesForCommittee(committee.id);
-                const completedCourses = assignedCourses.filter(
-                  (c) => c.isCompleted
-                );
+                const completedCoursesCount = assignedCourses.filter(
+                  (assignment) =>
+                    assignment.isCompleted && !assignment.isInRevision
+                ).length;
 
                 const assignmentPercentage =
                   courses.length > 0
@@ -449,7 +483,7 @@ export function CommitteeAssignments({
 
                 const completionPercentage =
                   assignedCourses.length > 0
-                    ? (completedCourses.length / assignedCourses.length) * 100
+                    ? (completedCoursesCount / assignedCourses.length) * 100
                     : 0;
 
                 return (
@@ -457,7 +491,7 @@ export function CommitteeAssignments({
                     <div className="flex justify-between items-center">
                       <span className="font-medium">{committee.name}</span>
                       <span className="text-sm text-muted-foreground">
-                        {completedCourses.length} of {assignedCourses.length}{" "}
+                        {completedCoursesCount} of {assignedCourses.length}{" "}
                         completed
                       </span>
                     </div>

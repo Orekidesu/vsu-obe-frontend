@@ -94,6 +94,7 @@ export default function PendingProgramReviewPage() {
       committeeId: string;
       courseId: string;
       isCompleted: boolean;
+      isInRevision: boolean;
     }>,
   });
 
@@ -252,6 +253,7 @@ export default function PendingProgramReviewPage() {
       committeeId: string;
       courseId: string;
       isCompleted: boolean;
+      isInRevision: boolean;
     }> = [];
 
     data.committees?.forEach((committee) => {
@@ -260,6 +262,7 @@ export default function PendingProgramReviewPage() {
           committeeId: committee.id.toString(),
           courseId: course.course_code,
           isCompleted: course.is_completed || false, // Default to false if not provided
+          isInRevision: course.is_in_revision || false, // Default to false if not provided
         });
       });
     });

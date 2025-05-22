@@ -108,6 +108,7 @@ export interface ProgramProposalResponse {
       course_code: string;
       descriptive_title: string;
       is_completed: boolean;
+      is_in_revision: boolean;
     }>;
   }>;
 }
