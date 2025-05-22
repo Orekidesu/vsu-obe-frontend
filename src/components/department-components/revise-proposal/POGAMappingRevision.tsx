@@ -1,6 +1,5 @@
 "use client";
 import { useRevisionStore } from "@/store/revision/revision-store";
-import { sampleGraduateAttributes } from "@/store/revision/sample-data/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,15 +9,19 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { AlertCircle, RotateCcw, Info } from "lucide-react";
+import { AlertCircle, RotateCcw, Info, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 
+import useGraduateAttributes from "@/hooks/shared/useGraduateAttribute";
+
 export function POGAMappingRevision() {
   const { pos, po_ga_mappings, togglePOGAMapping, resetSection, isModified } =
     useRevisionStore();
-  const graduateAttributes = sampleGraduateAttributes;
+
+  const { graduateAttributes, isFetching, error } = useGraduateAttributes();
+
   const sectionModified = isModified("po_ga_mappings");
 
   // Check if a PO is mapped to a GA
@@ -43,6 +46,37 @@ export function POGAMappingRevision() {
       resetSection("po_ga_mappings");
     }
   };
+
+  if (isFetching) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Loading graduate attributes...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive" className="my-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load graduate attributes. Please try refreshing the page.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!graduateAttributes || graduateAttributes.length === 0) {
+    return (
+      <Alert className="my-4">
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          No graduate attributes found. Please contact your administrator.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
