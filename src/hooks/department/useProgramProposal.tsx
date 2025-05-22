@@ -9,7 +9,7 @@ import { FullProgramProposalPayload } from "@/app/utils/department/programPropos
 import { useAuth } from "@/hooks/useAuth";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { ReviewProposalPayload } from "@/app/utils/dean/reviewProgramProposalPayload";
-import { SubmitDepartmentRevisionsPayload } from "@/types/model/DepartmentRevision"; // Add this import
+import { SubmitDepartmentRevisionsPayload } from "@/types/model/DepartmentRevision";
 
 interface DeleteProgramProposalContext {
   previousProgramProposals?: ProgramProposal[];
@@ -183,7 +183,7 @@ const useProgramProposals = (options: useProgramOptions = {}) => {
   >({
     mutationFn: async ({ proposalId, reviewData }) => {
       const response = await api.post(
-        `department/program-proposals/${proposalId}/revise`,
+        `${role}/program-proposals/${proposalId}/review`,
         reviewData
       );
       return response.data;
@@ -204,8 +204,8 @@ const useProgramProposals = (options: useProgramOptions = {}) => {
     { proposalId: number; revisionData: SubmitDepartmentRevisionsPayload }
   >({
     mutationFn: async ({ proposalId, revisionData }) => {
-      const response = await api.post(
-        `${role}/program-proposals/${proposalId}/revision`,
+      const response = await api.patch(
+        `${role}/program-proposals/${proposalId}/revise`,
         revisionData
       );
       return response.data;
@@ -227,10 +227,10 @@ const useProgramProposals = (options: useProgramOptions = {}) => {
     isLoading,
     submitFullProgramProposal,
     submitProposalReview,
+    submitDepartmentRevisions,
     error,
     getProgramProposal,
     getProgramProposalFromCache,
-    submitDepartmentRevisions,
     createProgramProposal,
     updateProgramProposal,
     deleteProgramProposal,

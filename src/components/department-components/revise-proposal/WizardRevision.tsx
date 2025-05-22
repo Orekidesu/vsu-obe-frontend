@@ -50,7 +50,6 @@ import { CoursePOMappingRevision } from "./CoursePOMappingRevision";
 import { RevisionReview } from "./ReviewRevision";
 
 import useDepartmentRevision from "@/hooks/shared/useDepartmentRevision";
-import { SubmitDepartmentRevisionsPayload } from "@/types/model/DepartmentRevision";
 
 interface RevisionWizardProps {
   proposalId: string;
@@ -147,8 +146,12 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
     try {
       // Get only the modified sections data from the store
       const state = useRevisionStore.getState();
-      const dataToSubmit: Partial<SubmitDepartmentRevisionsPayload> = {};
+      // const dataToSubmit: Record<RevisionSection, unknown> = {};
 
+      // modifiedSections.forEach((section) => {
+      //   dataToSubmit[section] = state[section];
+      // });
+      const dataToSubmit: Record<string, unknown> = {};
       modifiedSections.forEach((section) => {
         dataToSubmit[section] = state[section];
       });
