@@ -222,6 +222,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
 
   // Check if the current section has been modified
   const isCurrentSectionModified = () => {
+    if (revisions.length === 0) return false;
+
     const currentRevision = revisions[currentStep];
     return modifiedSections.has(currentRevision.section as RevisionSection);
   };
@@ -241,6 +243,30 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         <AlertCircle className="h-10 w-10 mx-auto text-red-500 mb-4" />
         <h2 className="text-xl font-medium">Failed to load revision data</h2>
         <p className="text-gray-600 mt-2">{revisionError.message}</p>
+        <Button
+          className="mt-4"
+          variant="outline"
+          onClick={handleBackToDashboard}
+        >
+          Return to Dashboard
+        </Button>
+      </div>
+    );
+  }
+
+  if (revisions.length === 0) {
+    return (
+      <div className="container mx-auto text-center">
+        <AlertCircle className="h-10 w-10 mx-auto text-amber-500 mb-4" />
+        <h2 className="text-xl font-medium">
+          No Revisions Required in the Program Level
+        </h2>
+        <p className="text-gray-600 mt-2">
+          This proposal does not have any revision requests at the program
+          level. This proposal might be in revision due to courses that need
+          some revisions. Check the details of this proposal and see if there
+          are courses that need revisions.
+        </p>
         <Button
           className="mt-4"
           variant="outline"

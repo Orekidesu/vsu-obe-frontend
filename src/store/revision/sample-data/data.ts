@@ -224,30 +224,30 @@ export const sampleRevisionData = {
     //   created_at: "2025-05-19T06:45:28.000000Z",
     //   version: 3,
     // },
-    {
-      id: 51,
-      section: "peos",
-      details:
-        "PEOs need to be more specific and aligned with industry standards. Consider adding a PEO related to ethical practice.",
-      created_at: "2025-05-19T06:45:28.000000Z",
-      version: 3,
-    },
-    {
-      id: 52,
-      section: "peo_mission_mappings",
-      details:
-        "The PEO to Mission mappings need to be revised to ensure all PEOs are properly aligned with the university's mission statements. Consider mapping to Mission 3 as well.",
-      created_at: "2025-05-19T06:45:28.000000Z",
-      version: 3,
-    },
-    {
-      id: 53,
-      section: "ga_peo_mappings",
-      details:
-        "The Graduate Attribute to PEO mappings need to be revised to ensure comprehensive coverage of all relevant graduate attributes. Consider mapping to additional GAs such as 'Knowledge Competence' and 'Lifelong Learning'.",
-      created_at: "2025-05-19T06:45:28.000000Z",
-      version: 3,
-    },
+    // {
+    //   id: 51,
+    //   section: "peos",
+    //   details:
+    //     "PEOs need to be more specific and aligned with industry standards. Consider adding a PEO related to ethical practice.",
+    //   created_at: "2025-05-19T06:45:28.000000Z",
+    //   version: 3,
+    // },
+    // {
+    //   id: 52,
+    //   section: "peo_mission_mappings",
+    //   details:
+    //     "The PEO to Mission mappings need to be revised to ensure all PEOs are properly aligned with the university's mission statements. Consider mapping to Mission 3 as well.",
+    //   created_at: "2025-05-19T06:45:28.000000Z",
+    //   version: 3,
+    // },
+    // {
+    //   id: 53,
+    //   section: "ga_peo_mappings",
+    //   details:
+    //     "The Graduate Attribute to PEO mappings need to be revised to ensure comprehensive coverage of all relevant graduate attributes. Consider mapping to additional GAs such as 'Knowledge Competence' and 'Lifelong Learning'.",
+    //   created_at: "2025-05-19T06:45:28.000000Z",
+    //   version: 3,
+    // },
     // {
     //   id: 54,
     //   section: "pos",
@@ -256,14 +256,14 @@ export const sampleRevisionData = {
     //   created_at: "2025-05-19T06:45:28.000000Z",
     //   version: 3,
     // },
-    {
-      id: 55,
-      section: "po_peo_mappings",
-      details:
-        "The Program Outcome to PEO mappings need to be revised to ensure all POs are properly aligned with the program's educational objectives. Ensure each PO contributes to at least one PEO.",
-      created_at: "2025-05-19T06:45:28.000000Z",
-      version: 3,
-    },
+    // {
+    //   id: 55,
+    //   section: "po_peo_mappings",
+    //   details:
+    //     "The Program Outcome to PEO mappings need to be revised to ensure all POs are properly aligned with the program's educational objectives. Ensure each PO contributes to at least one PEO.",
+    //   created_at: "2025-05-19T06:45:28.000000Z",
+    //   version: 3,
+    // },
     // {
     //   id: 56,
     //   section: "po_ga_mappings",
@@ -280,14 +280,14 @@ export const sampleRevisionData = {
     //   created_at: "2025-05-19T06:45:28.000000Z",
     //   version: 3,
     // },
-    {
-      id: 58,
-      section: "course_categories",
-      details:
-        "The course categories need to be reviewed and updated to align with current academic standards. Consider adding specialized categories for technical electives and capstone courses.",
-      created_at: "2025-05-19T06:45:28.000000Z",
-      version: 3,
-    },
+    // {
+    //   id: 58,
+    //   section: "course_categories",
+    //   details:
+    //     "The course categories need to be reviewed and updated to align with current academic standards. Consider adding specialized categories for technical electives and capstone courses.",
+    //   created_at: "2025-05-19T06:45:28.000000Z",
+    //   version: 3,
+    // },
     // {
     //   id: 59,
     //   section: "curriculum_courses",
