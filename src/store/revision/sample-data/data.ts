@@ -288,22 +288,22 @@ export const sampleRevisionData = {
       created_at: "2025-05-19T06:45:28.000000Z",
       version: 3,
     },
-    {
-      id: 59,
-      section: "curriculum_courses",
-      details:
-        "The curriculum courses need to be reviewed and updated to ensure proper sequencing and credit allocation. Consider redistributing courses across semesters for better workload balance.",
-      created_at: "2025-05-19T06:45:28.000000Z",
-      version: 3,
-    },
-    {
-      id: 60,
-      section: "course_po_mappings",
-      details:
-        "The Course to Program Outcome mappings need to be revised to ensure proper alignment between course content and program outcomes. Ensure all courses contribute appropriately to program outcomes and that the I-E-D levels are correctly assigned.",
-      created_at: "2025-05-19T06:45:28.000000Z",
-      version: 3,
-    },
+    // {
+    //   id: 59,
+    //   section: "curriculum_courses",
+    //   details:
+    //     "The curriculum courses need to be reviewed and updated to ensure proper sequencing and credit allocation. Consider redistributing courses across semesters for better workload balance.",
+    //   created_at: "2025-05-19T06:45:28.000000Z",
+    //   version: 3,
+    // },
+    // {
+    //   id: 60,
+    //   section: "course_po_mappings",
+    //   details:
+    //     "The Course to Program Outcome mappings need to be revised to ensure proper alignment between course content and program outcomes. Ensure all courses contribute appropriately to program outcomes and that the I-E-D levels are correctly assigned.",
+    //   created_at: "2025-05-19T06:45:28.000000Z",
+    //   version: 3,
+    // },
   ],
   message: "Department-level revisions fetched successfully.",
 };

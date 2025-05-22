@@ -6,7 +6,7 @@ import {
   LayoutDashboard,
   BookOpenText,
   ChevronDown,
-  LucideUsers,
+  // LucideUsers,
   GraduationCap,
   Settings,
 } from "lucide-react";
@@ -81,15 +81,15 @@ const roleMenuItems: Record<string, MenuItem[]> = {
       ],
     },
     {
-      title: "Manage Courses",
+      title: "Assign Courses",
       url: "/department/courses",
       icon: GraduationCap,
     },
-    {
-      title: "Committees",
-      url: "/department/committees",
-      icon: LucideUsers,
-    },
+    // {
+    //   title: "Committees",
+    //   url: "/department/committees",
+    //   icon: LucideUsers,
+    // },
     {
       title: "Settings",
       url: "/department/settings",
