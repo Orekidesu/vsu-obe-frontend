@@ -7,11 +7,11 @@ import { CourseCategory, CurriculumCourse, SemesterData } from "./types";
 interface CourseTableRowProps {
   course: CurriculumCourse;
   courseDetails: Course | undefined;
-  semesterDetails: SemesterData | undefined;
   categoryDetails: CourseCategory | undefined;
-  handleStartEdit: (id: number) => void;
-  handleDeleteCourse: (id: number) => void;
+  semesterDetails: SemesterData | undefined;
   showSemesterColumn: boolean;
+  handleStartEdit: (id: number | string) => void;
+  handleDeleteCourse: (id: number | string) => void;
 }
 
 export function CourseTableRow({

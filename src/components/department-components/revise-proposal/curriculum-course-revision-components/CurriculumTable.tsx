@@ -20,18 +20,21 @@ interface CurriculumTableProps {
   availableSemesters: SemesterData[];
   sortedSemesters: SemesterData[];
   coursesBySemester: Record<number, CurriculumCourse[]>;
-  isEditingCourse: number | null;
+  isEditingCourse: number | string | null;
   editCourse: EditCourseFormData;
   setEditCourse: (course: EditCourseFormData) => void;
   courseCategories: CourseCategory[];
   getCourseDetails: (courseId: number) => Course | undefined;
-  getCategoryDetails: (categoryId: number) => CourseCategory | undefined;
-  getSemesterDetails: (semesterId: number) => SemesterData | undefined; // Add this line
+  // Update these functions to accept string IDs
+  getCategoryDetails: (
+    categoryId: number | string
+  ) => CourseCategory | undefined;
+  getSemesterDetails: (semesterId: number) => SemesterData | undefined;
   handleCategoryChange: (categoryId: string, isNewCourse: boolean) => void;
-  handleStartEdit: (id: number) => void;
+  handleStartEdit: (id: number | string) => void;
   handleSaveEdit: () => void;
   handleCancelEdit: () => void;
-  handleDeleteCourse: (id: number) => void;
+  handleDeleteCourse: (id: number | string) => void;
 }
 
 export function CurriculumTable({
