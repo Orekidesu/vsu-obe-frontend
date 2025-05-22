@@ -25,7 +25,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Import data and store
 import {
-  sampleRevisionData,
+  // sampleRevisionData,
   getSectionDisplayName,
 } from "@/store/revision/sample-data/data";
 import {
@@ -49,6 +49,8 @@ import { CurriculumCoursesRevision } from "./CurriculumCourseRevision";
 import { CoursePOMappingRevision } from "./CoursePOMappingRevision";
 import { RevisionReview } from "./ReviewRevision";
 
+import useDepartmentRevision from "@/hooks/shared/useDepartmentRevision";
+
 interface RevisionWizardProps {
   proposalId: string;
 }
@@ -65,6 +67,13 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   const { getProgramProposalFromCache } = useProgramProposals();
   const proposalIdNumber = parseInt(proposalId, 10);
 
+  // Fetch the revision data from API
+  const {
+    revisionData,
+    isLoading: isLoadingRevisions,
+    error: revisionError,
+  } = useDepartmentRevision(proposalIdNumber);
+
   const { data: proposalData, isLoading: isLoadingProposal } = useQuery(
     getProgramProposalFromCache(proposalIdNumber)
   );
@@ -79,7 +88,9 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
     }
   }, [initializeData, proposalData]);
 
-  const { revisions } = sampleRevisionData;
+  // const { revisions } = sampleRevisionData;
+  // Get revisions from API data or fallback to empty array if not available
+  const revisions = revisionData?.revisions || [];
 
   // Start the revision process
   const handleStartRevision = () => {
@@ -215,11 +226,28 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
     return modifiedSections.has(currentRevision.section as RevisionSection);
   };
 
-  if (isLoadingProposal) {
+  if (isLoadingProposal || isLoadingRevisions) {
     return (
       <div className="container mx-auto  text-center">
         <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary mb-4" />
         <h2 className="text-xl font-medium">Loading proposal data...</h2>
+      </div>
+    );
+  }
+  // Error handling for revision data
+  if (revisionError) {
+    return (
+      <div className="container mx-auto text-center">
+        <AlertCircle className="h-10 w-10 mx-auto text-red-500 mb-4" />
+        <h2 className="text-xl font-medium">Failed to load revision data</h2>
+        <p className="text-gray-600 mt-2">{revisionError.message}</p>
+        <Button
+          className="mt-4"
+          variant="outline"
+          onClick={handleBackToDashboard}
+        >
+          Return to Dashboard
+        </Button>
       </div>
     );
   }
