@@ -46,18 +46,35 @@ export function CurriculumCoursesRevision() {
     if (!semesters) return [];
 
     return semesters.map((semester) => {
-      // Add null check for semester.name
-      const name = semester.name || "";
+      // Use sem instead of name
+      const sem = semester.sem || "";
+
+      // Determine semester display with appropriate handling
+      let displayName;
+      switch (sem.toLowerCase()) {
+        case "first":
+          displayName = "First Semester";
+          break;
+        case "second":
+          displayName = "Second Semester";
+          break;
+        case "midyear":
+          displayName = "Midyear Term";
+          break;
+        default:
+          displayName = sem
+            ? sem.charAt(0).toUpperCase() + sem.slice(1)
+            : "Unknown Term";
+      }
 
       return {
         id: semester.id,
         year: semester.year,
-        sem: name, // Map name to sem for compatibility
-        display: `Year ${semester.year} - ${name.charAt(0).toUpperCase() + name.slice(1)}`,
+        sem: sem, // Using the correct property
+        display: `Year ${semester.year} - ${displayName}`,
       };
     });
   };
-
   const apiSemesters = formatSemesters();
 
   const curriculumCourses = useRevisionStore(
@@ -326,6 +343,7 @@ export function CurriculumCoursesRevision() {
   const getSemesterDetails = (semesterId: number) => {
     return apiSemesters.find((semester) => semester.id === semesterId);
   };
+
   // Start editing a course
   const handleStartEdit = (courseId: number) => {
     const course = curriculumCourses.find((c) => c.id === courseId);
@@ -399,11 +417,11 @@ export function CurriculumCoursesRevision() {
       return a.year - b.year;
     }
 
-    const semOrder = { first: 1, second: 2, summer: 3 };
-    return (
-      semOrder[a.sem as keyof typeof semOrder] -
-      semOrder[b.sem as keyof typeof semOrder]
-    );
+    // Updated to include midyear term
+    const semOrder = { first: 1, second: 2, midyear: 3 };
+    const aOrder = semOrder[a.sem.toLowerCase() as keyof typeof semOrder] || 99;
+    const bOrder = semOrder[b.sem.toLowerCase() as keyof typeof semOrder] || 99;
+    return aOrder - bOrder;
   });
 
   // Show loading state if data is being fetched

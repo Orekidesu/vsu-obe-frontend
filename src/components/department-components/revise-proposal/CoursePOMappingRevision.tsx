@@ -122,17 +122,37 @@ export function CoursePOMappingRevision() {
 
   // Get semester details by ID
   const getSemesterDetails = (semesterId: number) => {
-    return semesters?.find((semester) => semester.id === semesterId);
+    const semester = semesters?.find((semester) => semester.id === semesterId);
+    if (!semester) return null;
+
+    // No need to modify, just return the semester
+    return semester;
   };
 
   // Format semester display text (since API doesn't provide a display property)
-  // const formatSemesterDisplay = (semester: { year: number; name: string }) => {
+  // const formatSemesterDisplay = (semester: { year: number; sem?: string }) => {
   //   if (!semester) return "";
 
-  //   // Convert first letter of name to uppercase
-  //   const formattedName =
-  //     semester.name.charAt(0).toUpperCase() + semester.name.slice(1);
-  //   return `Year ${semester.year} - ${formattedName}`;
+  //   // Safely handle undefined sem
+  //   const sem = semester.sem || "";
+  //   let semesterLabel = "";
+
+  //   // Handle all three possible values
+  //   switch (sem.toLowerCase()) {
+  //     case "first":
+  //       semesterLabel = "First";
+  //       break;
+  //     case "second":
+  //       semesterLabel = "Second";
+  //       break;
+  //     case "midyear":
+  //       semesterLabel = "Midyear";
+  //       break;
+  //     default:
+  //       semesterLabel = sem.charAt(0).toUpperCase() + sem.slice(1);
+  //   }
+
+  //   return `Year ${semester.year} - ${semesterLabel}`;
   // };
 
   // Get mapping for a course and PO
