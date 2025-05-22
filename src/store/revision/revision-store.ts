@@ -48,36 +48,36 @@ export interface GAPEOMapping {
 
 // Define the Program Outcome type
 export interface PO {
-  id: number;
+  id: number | string;
   name: string;
   statement: string;
 }
 
 // Define the PO to PEO mapping type
 export interface POPEOMapping {
-  po_id: number;
+  po_id: number | string;
   peo_id: number | string;
 }
 
 // Define the PO to GA Mapping type
 
 export interface POGAMapping {
-  po_id: number;
+  po_id: number | string;
   ga_id: number;
 }
 
 // Define the Course Category type
 export interface CourseCategory {
-  id: number;
+  id: number | string;
   name: string;
   code: string;
 }
 
 // Define the Curriculum Course type
 export interface CurriculumCourse {
-  id: number;
+  id: number | string;
   course_id: number;
-  course_category_id: number;
+  course_category_id: number | string;
   category_code: string;
   semester_id: number;
   unit: string;
@@ -86,8 +86,8 @@ export interface CurriculumCourse {
 }
 
 export interface CoursePOMapping {
-  curriculum_course_id: number;
-  po_id: number;
+  curriculum_course_id: number | string;
+  po_id: number | string;
   ied: string[];
 }
 
@@ -149,16 +149,19 @@ interface RevisionState {
   updateGAPEOMappings: (mappings: GAPEOMapping[]) => void;
 
   // PO actions
-  updatePO: (id: number, po: { name: string; statement: string }) => void;
+  updatePO: (
+    id: number | string,
+    po: { name: string; statement: string }
+  ) => void;
   addPO: (po: { name: string; statement: string }) => void;
-  removePO: (id: number) => void;
+  removePO: (id: number | string) => void;
 
   // PO to PEO mapping actions
-  togglePOPEOMapping: (po_id: number, peo_id: number | string) => void;
+  togglePOPEOMapping: (po_id: number | string, peo_id: number | string) => void;
   updatePOPEOMappings: (mappings: POPEOMapping[]) => void;
 
   // PO to GA mapping  actions
-  togglePOGAMapping: (po_id: number, ga_id: number) => void;
+  togglePOGAMapping: (po_id: number | string, ga_id: number) => void;
   updatePOGAMappings: (mappings: POGAMapping[]) => void;
 
   // Update curriculum
@@ -166,33 +169,40 @@ interface RevisionState {
 
   // Course category actions
   addCourseCategory: (name: string, code: string) => void;
-  updateCourseCategory: (id: number, name: string, code: string) => void;
-  removeCourseCategory: (id: number) => void;
+  updateCourseCategory: (
+    id: number | string,
+    name: string,
+    code: string
+  ) => void;
+  removeCourseCategory: (id: number | string) => void;
   removeCategoryAndReassign: (
-    categoryId: number,
-    replacementCategoryId: number
+    categoryId: number | string,
+    replacementCategoryId: number | string
   ) => void;
 
   // Curriculum course actions
   addCurriculumCourse: (course: Omit<CurriculumCourse, "id">) => void;
   updateCurriculumCourse: (
-    id: number,
+    id: number | string,
     updates: Partial<Omit<CurriculumCourse, "id">>
   ) => void;
-  removeCurriculumCourse: (id: number) => void;
+  removeCurriculumCourse: (id: number | string) => void;
 
   // Course to PO mapping actions
   addCourseToPOMapping: (
-    curriculumCourseId: number,
-    poId: number,
+    curriculumCourseId: number | string,
+    poId: number | string,
     levels: string[]
   ) => void;
   updateCourseToPOMapping: (
-    curriculumCourseId: number,
-    poId: number,
+    curriculumCourseId: number | string,
+    poId: number | string,
     levels: string[]
   ) => void;
-  removeCourseToPOMapping: (curriculumCourseId: number, poId: number) => void;
+  removeCourseToPOMapping: (
+    curriculumCourseId: number | string,
+    poId: number | string
+  ) => void;
 
   //Other actions
   resetSection: (section: RevisionSection) => void;
@@ -268,7 +278,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
       // Generate a temporary ID for the new PEO
       // In a real app, the server would assign a permanent ID
-      const newId = `new-peo-${Date.now()}`;
+      const newId = `new-peo-${Math.floor(Math.random() * 500)}`;
 
       return {
         peos: [...state.peos, { id: newId, statement }],
@@ -437,8 +447,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       modifiedSections.add("pos");
 
       // Generate a temporary ID for the new PO
-      // In a real app, the server would assign a permanent ID
-      const newId = Math.max(0, ...state.pos.map((po) => po.id)) + 1;
+      const newId = `new-po-${Math.floor(Math.random() * 5000)}`;
 
       return {
         pos: [...state.pos, { id: newId, ...po }],
@@ -592,8 +601,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       modifiedSections.add("course_categories");
 
       // Generate a temporary ID for the new category
-      const newId =
-        Math.max(0, ...state.course_categories.map((cat) => cat.id)) + 1;
+      const newId = `new-category-${Math.floor(Math.random() * 2500)}`;
 
       return {
         course_categories: [
@@ -606,7 +614,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
   },
 
   // Update a course category
-  updateCourseCategory: (id: number, name: string, code: string) => {
+  updateCourseCategory: (id: number | string, name: string, code: string) => {
     set((state) => {
       const modifiedSections = new Set(state.modifiedSections);
       modifiedSections.add("course_categories");
@@ -639,7 +647,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
   },
 
   // Remove a course category
-  removeCourseCategory: (id: number) => {
+  removeCourseCategory: (id: number | string) => {
     set((state) => {
       const modifiedSections = new Set(state.modifiedSections);
       modifiedSections.add("course_categories");
@@ -669,8 +677,8 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
   // Remove category and reassign
   removeCategoryAndReassign: (
-    categoryId: number,
-    replacementCategoryId: number
+    categoryId: number | string,
+    replacementCategoryId: number | string
   ) => {
     set((state) => {
       const modifiedSections = new Set(state.modifiedSections);
@@ -714,8 +722,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       modifiedSections.add("curriculum_courses");
 
       // Generate a temporary ID for the new course
-      const newId =
-        Math.max(0, ...state.curriculum_courses.map((c) => c.id)) + 1;
+      const newId = `new-course-${Math.floor(Math.random() * 1000)}`;
 
       return {
         curriculum_courses: [
@@ -774,8 +781,8 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
   },
   // Add a new course to PO mapping
   addCourseToPOMapping: (
-    curriculumCourseId: number,
-    poId: number,
+    curriculumCourseId: number | string,
+    poId: number | string,
     levels: string[]
   ) => {
     set((state) => {
@@ -798,8 +805,8 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
   // Update an existing course to PO mapping
   updateCourseToPOMapping: (
-    curriculumCourseId: number,
-    poId: number,
+    curriculumCourseId: number | string,
+    poId: number | string,
     levels: string[]
   ) => {
     set((state) => {
@@ -819,7 +826,10 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
   },
 
   // Remove a course to PO mapping
-  removeCourseToPOMapping: (curriculumCourseId: number, poId: number) => {
+  removeCourseToPOMapping: (
+    curriculumCourseId: number | string,
+    poId: number | string
+  ) => {
     set((state) => {
       const modifiedSections = new Set(state.modifiedSections);
       modifiedSections.add("course_po_mappings");

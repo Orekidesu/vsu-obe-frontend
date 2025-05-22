@@ -23,24 +23,24 @@ export interface NewManualCourseFormData {
 }
 
 export interface EditCourseFormData {
-  id: number;
+  id: number | string;
   course_id: number;
-  course_category_id: number;
+  course_category_id: number | string;
   category_code: string;
   semester_id: number;
   unit: string;
 }
 
 export interface CourseCategory {
-  id: number;
+  id: number | string;
   name: string;
   code: string;
 }
 
 export interface CurriculumCourse {
-  id: number;
+  id: number | string;
   course_id: number;
-  course_category_id: number;
+  course_category_id: number | string;
   category_code: string;
   semester_id: number;
   unit: string;
