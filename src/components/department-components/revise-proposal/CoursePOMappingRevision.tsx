@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Info, RotateCcw } from "lucide-react";
+import { Info, RotateCcw, Loader2 } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -28,10 +28,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useRevisionStore } from "@/store/revision/revision-store";
-import {
-  sampleCourses,
-  sampleSemesters,
-} from "@/store/revision/sample-data/data";
+import { sampleSemesters } from "@/store/revision/sample-data/data";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +43,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+import useCourses from "@/hooks/department/useCourse";
 
 // Define contribution levels with colors
 const contributionLevels = [
@@ -75,6 +74,12 @@ export function CoursePOMappingRevision() {
   const [showMappingSummary, setShowMappingSummary] = useState(true);
 
   const {
+    courses,
+    isLoading: isLoadingCourses,
+    error: coursesError,
+  } = useCourses();
+
+  const {
     pos,
     curriculum_courses,
     course_po_mappings,
@@ -87,7 +92,17 @@ export function CoursePOMappingRevision() {
 
   // Get course details by ID
   const getCourseDetails = (courseId: number) => {
-    return sampleCourses.find((course) => course.id === courseId);
+    return (
+      courses?.find((course) => course.id === courseId) || {
+        id: courseId,
+        code:
+          curriculum_courses.find((c) => c.course_id === courseId)
+            ?.course_code || "Unknown",
+        descriptive_title:
+          curriculum_courses.find((c) => c.course_id === courseId)
+            ?.course_title || "Unknown Course",
+      }
+    );
   };
   //  helper function for truncating text
   const truncateText = (text: string, maxLength = 40) => {
@@ -166,6 +181,29 @@ export function CoursePOMappingRevision() {
   const selectedCourseDetails = selectedCourse
     ? getCourseDetails(selectedCourse.course_id)
     : null;
+
+  // Show loading state if courses are being fetched
+  if (isLoadingCourses) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+          <p className="text-sm text-gray-500">Loading courses...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if there was an error fetching courses
+  if (coursesError) {
+    return (
+      <Alert className="bg-red-50 border-red-200 mb-4">
+        <AlertDescription className="text-red-700">
+          Error loading courses. Please try refreshing the page.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <TooltipProvider>
