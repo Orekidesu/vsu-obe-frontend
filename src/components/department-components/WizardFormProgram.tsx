@@ -47,6 +47,8 @@ import useCourses from "@/hooks/department/useCourse";
 
 export default function WizardFormProgram() {
   const [step, setStep] = useState(1);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+
   const [, setFormError] = useFormErrorState<
     Record<string, string[]> | string | null
   >(null);
@@ -399,7 +401,7 @@ export default function WizardFormProgram() {
     }
     if (step === 16) {
       // Review step is always valid
-      return true;
+      return isConfirmed;
     }
 
     return false;
@@ -598,6 +600,8 @@ export default function WizardFormProgram() {
           committees={committees}
           selectedCommittees={selectedCommittees}
           committeeCourseAssignments={committeeCourseAssignments}
+          isConfirmed={isConfirmed}
+          setIsConfirmed={setIsConfirmed}
           goToStep={goToStep}
         />
       )}
@@ -632,7 +636,7 @@ export default function WizardFormProgram() {
               disabled={!isStepValid()}
               className="bg-green-600 hover:bg-green-700"
             >
-              Submit
+              Submit Proposal
             </Button>
           )}
         </div>

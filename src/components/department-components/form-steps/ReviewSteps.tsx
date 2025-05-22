@@ -65,6 +65,8 @@ interface ReviewStepProps {
   selectedCommittees: number[];
   committees: Committee[];
   committeeCourseAssignments: CommitteeCourseAssignment[];
+  isConfirmed: boolean;
+  setIsConfirmed: (value: boolean) => void;
 
   goToStep: (step: number) => void;
 }
@@ -91,6 +93,9 @@ export function ReviewStep({
   selectedCommittees,
   committees,
   committeeCourseAssignments,
+
+  isConfirmed,
+  setIsConfirmed,
 
   goToStep,
 }: ReviewStepProps) {
@@ -206,7 +211,10 @@ export function ReviewStep({
           />
         </Accordion>
 
-        <FinalConfirmation />
+        <FinalConfirmation
+          isConfirmed={isConfirmed}
+          setIsConfirmed={setIsConfirmed}
+        />
       </div>
     </>
   );
