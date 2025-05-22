@@ -47,6 +47,7 @@ import { CurriculumRevision } from "./CurriculumRevision";
 import { CourseCategoriesRevision } from "./CourseCategoryRevision";
 import { CurriculumCoursesRevision } from "./CurriculumCourseRevision";
 import { CoursePOMappingRevision } from "./CoursePOMappingRevision";
+import { RevisionReview } from "./ReviewRevision";
 
 interface RevisionWizardProps {
   proposalId: string;
@@ -58,6 +59,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isReviewing, setIsReviewing] = useState(false);
 
   // Get the proposal from API using cache
   const { getProgramProposalFromCache } = useProgramProposals();
@@ -94,8 +96,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
     if (currentStep < revisions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Submit the revisions
-      handleSubmitRevisions();
+      // Go to review page
+      setIsReviewing(true);
     }
   };
 
@@ -106,6 +108,23 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
     } else {
       // Go back to the revision details
       setIsRevising(false);
+    }
+  };
+
+  // Go back from review to a specific section
+  const handleGoBackFromReview = (section?: string) => {
+    if (section) {
+      // Find the index of the specified section
+      const sectionIndex = revisions.findIndex(
+        (rev) => rev.section === section
+      );
+      if (sectionIndex !== -1) {
+        setCurrentStep(sectionIndex);
+        setIsReviewing(false);
+      }
+    } else {
+      // Go back to the last step
+      setIsReviewing(false);
     }
   };
 
@@ -226,97 +245,81 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
           </Card>
         ) : isRevising ? (
           <div className=" mx-auto">
-            <div className="flex items-center mb-6">
-              <Button
-                variant="outline"
-                onClick={handlePreviousStep}
-                className="mr-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" /> Back
-              </Button>
-              <h1 className="text-2xl font-bold">
-                Revising:{" "}
-                {getSectionDisplayName(revisions[currentStep].section)}
-              </h1>
+            {isReviewing ? (
+              <RevisionReview
+                onGoBack={handleGoBackFromReview}
+                onSubmit={handleSubmitRevisions}
+                isSubmitting={isSubmitting}
+              />
+            ) : (
+              <>
+                <div className="flex items-center mb-6">
+                  <Button
+                    variant="outline"
+                    onClick={handlePreviousStep}
+                    className="mr-4"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" /> Back
+                  </Button>
+                  <h1 className="text-2xl font-bold">
+                    Revising:{" "}
+                    {getSectionDisplayName(revisions[currentStep].section)}
+                  </h1>
 
-              {isCurrentSectionModified() && (
-                <Badge className="ml-2 bg-green-500">Modified</Badge>
-              )}
-            </div>
-
-            <Card className="mb-6">
-              <CardHeader className="bg-amber-50 border-b">
-                <CardTitle className="text-amber-800">
-                  Revision Request
-                </CardTitle>
-                <CardDescription className="text-amber-700">
-                  {revisions[currentStep].details}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                {getCurrentRevisionComponent()}
-              </CardContent>
-              <CardFooter className="flex justify-between border-t pt-6">
-                <Button variant="outline" onClick={handlePreviousStep}>
-                  Back
-                </Button>
-                <Button
-                  onClick={handleNextStep}
-                  disabled={isSubmitting}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center">
-                      <svg
-                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Processing...
-                    </span>
-                  ) : currentStep < revisions.length - 1 ? (
-                    "Next"
-                  ) : (
-                    "Submit Revisions"
+                  {isCurrentSectionModified() && (
+                    <Badge className="ml-2 bg-green-500">Modified</Badge>
                   )}
-                </Button>
-              </CardFooter>
-            </Card>
+                </div>
 
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-gray-500">
-                Step {currentStep + 1} of {revisions.length}
-              </div>
-              <div className="flex gap-2">
-                {revisions.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`h-2 w-8 rounded-full ${
-                      index === currentStep
-                        ? "bg-green-600"
-                        : index < currentStep
-                          ? "bg-green-300"
-                          : "bg-gray-200"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+                <Card className="mb-6">
+                  <CardHeader className="bg-amber-50 border-b">
+                    <CardTitle className="text-amber-800">
+                      Revision Request
+                    </CardTitle>
+                    <CardDescription className="text-amber-700">
+                      {revisions[currentStep].details}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    {getCurrentRevisionComponent()}
+                  </CardContent>
+                  <CardFooter className="flex justify-between border-t pt-6">
+                    <Button variant="outline" onClick={handlePreviousStep}>
+                      Back
+                    </Button>
+
+                    <Button
+                      onClick={handleNextStep}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      {currentStep < revisions.length - 1
+                        ? "Next"
+                        : "Review Changes"}
+                    </Button>
+                  </CardFooter>
+                </Card>
+
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    Step {currentStep + 1} of {revisions.length}
+                  </div>
+                  <div className="flex gap-2">
+                    {revisions.map((_, index) => (
+                      <div
+                        key={index}
+                        className={`h-2 w-8 rounded-full ${
+                          index === currentStep
+                            ? "bg-green-600"
+                            : index < currentStep
+                              ? "bg-green-300"
+                              : "bg-gray-200"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div className="mx-auto">
