@@ -216,14 +216,14 @@ export const sampleRevisionData = {
   program_proposal_id: 17,
   version: 3,
   revisions: [
-    // {
-    //   id: 50,
-    //   section: "program",
-    //   details:
-    //     "Program details need revision - verify department alignment and abbreviation accuracy.",
-    //   created_at: "2025-05-19T06:45:28.000000Z",
-    //   version: 3,
-    // },
+    {
+      id: 50,
+      section: "program",
+      details:
+        "Program details need revision - verify department alignment and abbreviation accuracy.",
+      created_at: "2025-05-19T06:45:28.000000Z",
+      version: 3,
+    },
     // {
     //   id: 51,
     //   section: "peos",

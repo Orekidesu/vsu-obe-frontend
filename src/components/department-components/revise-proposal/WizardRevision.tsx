@@ -304,6 +304,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
                 onGoBack={handleGoBackFromReview}
                 onSubmit={handleSubmitRevisions}
                 isSubmitting={isSubmitting}
+                revisions={revisions}
               />
             ) : (
               <>

@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { useRevisionStore } from "@/store/revision/revision-store";
+import {
+  useRevisionStore,
+  type RevisionSection,
+} from "@/store/revision/revision-store";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,18 +28,26 @@ import {
   AlertTriangle,
   Info,
 } from "lucide-react";
-import { sampleRevisionData } from "@/store/revision/sample-data/data";
 
 interface RevisionReviewProps {
   onGoBack: (section?: string) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
+
+  revisions: Array<{
+    id: number;
+    section: string;
+    details: string;
+    created_at: string;
+    version: number;
+  }>;
 }
 
 export function RevisionReview({
   onGoBack,
   onSubmit,
   isSubmitting,
+  revisions,
 }: RevisionReviewProps) {
   const [isConfirmed, setIsConfirmed] = useState(false);
 
@@ -44,10 +55,15 @@ export function RevisionReview({
   const modifiedSectionsList = Array.from(modifiedSections);
 
   // Get revision requests for modified sections
+  const allRequestedSections = revisions.map((rev) => rev.section);
+
+  // Find unmodified sections that were in the revision request
+  const unmodifiedSections = allRequestedSections.filter(
+    (section) => !modifiedSections.has(section as RevisionSection)
+  );
+
   const getRevisionRequest = (section: string) => {
-    const revision = sampleRevisionData.revisions.find(
-      (rev) => rev.section === section
-    );
+    const revision = revisions.find((rev) => rev.section === section);
     return revision?.details || "No specific revision request found.";
   };
 
@@ -114,7 +130,9 @@ export function RevisionReview({
             </div>
             <div>
               <p className="text-sm text-gray-500">Sections Modified</p>
-              <p className="font-medium">{modifiedSections.size} of 11</p>
+              <p className="font-medium">
+                {modifiedSections.size} of {allRequestedSections.length}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Status</p>
@@ -125,59 +143,120 @@ export function RevisionReview({
       </Card>
 
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold">Modified Sections</h2>
+        <h2 className="text-xl font-semibold">Revision Requests</h2>
         <p className="text-gray-600">
-          The following sections have been modified. Review your changes before
-          submitting.
+          Review all sections that were requested for revision and your changes.
         </p>
       </div>
 
       <Accordion type="multiple" className="w-full">
-        {modifiedSectionsList.map((section) => (
-          <AccordionItem key={section} value={section}>
-            <AccordionTrigger className="hover:bg-gray-50 px-4 py-2 rounded-md">
-              <div className="flex items-center justify-between w-full pr-4">
-                <div className="flex items-center">
-                  <Badge className="mr-3 bg-green-500">Modified</Badge>
-                  <span className="font-medium">
-                    {getSectionDisplayName(section)}
-                  </span>
+        <h3 className="font-medium text-gray-700 mb-2">Modified Sections</h3>
+        {modifiedSectionsList.length > 0 ? (
+          modifiedSectionsList.map((section) => (
+            <AccordionItem key={section} value={`modified-${section}`}>
+              <AccordionTrigger className="hover:bg-gray-50 px-4 py-2 rounded-md">
+                <div className="flex items-center justify-between w-full pr-4">
+                  <div className="flex items-center">
+                    <Badge className="mr-3 bg-green-500">Modified</Badge>
+                    <span className="font-medium">
+                      {getSectionDisplayName(section)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pt-2 pb-4">
-              <div className="space-y-4">
-                <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
-                  <p className="text-sm font-medium text-amber-800 mb-1">
-                    Original Revision Request:
-                  </p>
-                  <p className="text-sm text-amber-700">
-                    {getRevisionRequest(section)}
-                  </p>
-                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pt-2 pb-4">
+                <div className="space-y-4">
+                  <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
+                    <p className="text-sm font-medium text-amber-800 mb-1">
+                      Original Revision Request:
+                    </p>
+                    <p className="text-sm text-amber-700">
+                      {getRevisionRequest(section)}
+                    </p>
+                  </div>
 
-                <div className="bg-green-50 border border-green-200 rounded-md p-3">
-                  <p className="text-sm font-medium text-green-800 mb-1">
-                    Changes Made:
-                  </p>
-                  <p className="text-sm text-green-700">
-                    {getChangeSummary(section)}
-                  </p>
-                </div>
+                  <div className="bg-green-50 border border-green-200 rounded-md p-3">
+                    <p className="text-sm font-medium text-green-800 mb-1">
+                      Changes Made:
+                    </p>
+                    <p className="text-sm text-green-700">
+                      {getChangeSummary(section)}
+                    </p>
+                  </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onGoBack(section)}
-                  className="mt-2"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" /> Review or Edit this
-                  Section
-                </Button>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onGoBack(section)}
+                    className="mt-2"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" /> Edit This Section
+                  </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))
+        ) : (
+          <Alert className="bg-amber-50 border-amber-200 mb-4">
+            <AlertTriangle className="h-4 w-4 text-amber-800" />
+            <AlertDescription className="text-amber-800">
+              No sections have been modified yet. Please make changes to at
+              least one section before submitting.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {unmodifiedSections.length > 0 && (
+          <>
+            <h3 className="font-medium text-gray-700 mt-6 mb-2">
+              Unmodified Sections
+            </h3>
+            {unmodifiedSections.map((section) => (
+              <AccordionItem key={section} value={`unmodified-${section}`}>
+                <AccordionTrigger className="hover:bg-gray-50 px-4 py-2 rounded-md">
+                  <div className="flex items-center justify-between w-full pr-4">
+                    <div className="flex items-center">
+                      <Badge className="mr-3 bg-gray-400">Unmodified</Badge>
+                      <span className="font-medium">
+                        {getSectionDisplayName(section)}
+                      </span>
+                    </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pt-2 pb-4">
+                  <div className="space-y-4">
+                    <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
+                      <p className="text-sm font-medium text-amber-800 mb-1">
+                        Original Revision Request:
+                      </p>
+                      <p className="text-sm text-amber-700">
+                        {getRevisionRequest(section)}
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
+                      <p className="text-sm font-medium text-gray-800 mb-1">
+                        Status:
+                      </p>
+                      <p className="text-sm text-gray-700">
+                        No changes have been made to this section.
+                      </p>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onGoBack(section)}
+                      className="mt-2"
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" /> Edit This Section
+                    </Button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </>
+        )}
       </Accordion>
 
       {modifiedSections.size === 0 && (
