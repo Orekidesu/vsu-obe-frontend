@@ -35,9 +35,9 @@ export function CourseCategoriesRevision() {
 
   const { toast } = useToast();
 
-  const [defaultCategoryId, setDefaultCategoryId] = useState<number | null>(
-    null
-  );
+  const [defaultCategoryId, setDefaultCategoryId] = useState<
+    number | string | null
+  >(null);
 
   // Set default category when API data loads (first category)
   useEffect(() => {
@@ -67,7 +67,7 @@ export function CourseCategoriesRevision() {
     (state) => state.removeCategoryAndReassign
   );
 
-  const getCoursesCount = (categoryId: number) => {
+  const getCoursesCount = (categoryId: number | string) => {
     return curriculumCourses.filter(
       (course) => course.course_category_id === categoryId
     ).length;
@@ -75,19 +75,22 @@ export function CourseCategoriesRevision() {
 
   // Local state for the form
   const [newCategory, setNewCategory] = useState({ name: "", code: "" });
-  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
-    null
-  );
+  const [editingCategoryId, setEditingCategoryId] = useState<
+    number | string | null
+  >(null);
+
   const [editForm, setEditForm] = useState({ name: "", code: "" });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<
+    number | string | null
+  >(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [errors, setErrors] = useState({ name: "", code: "" });
   const [activeTab, setActiveTab] = useState("add-new");
 
   // Start editing a category
   const startEditing = (category: {
-    id: number;
+    id: number | string;
     name: string;
     code: string;
   }) => {
