@@ -35,14 +35,17 @@ export function POPEOMappingRevision() {
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   // Check if a PO is mapped to a PEO
-  const isMapped = (po_id: number, peo_id: number | string) => {
+  const isMapped = (po_id: number | string, peo_id: number | string) => {
     return po_peo_mappings.some(
       (mapping) => mapping.po_id === po_id && mapping.peo_id === peo_id
     );
   };
 
   // Handle mapping toggle
-  const handleToggleMapping = (po_id: number, peo_id: number | string) => {
+  const handleToggleMapping = (
+    po_id: number | string,
+    peo_id: number | string
+  ) => {
     togglePOPEOMapping(po_id, peo_id);
   };
 
