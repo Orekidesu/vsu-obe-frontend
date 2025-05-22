@@ -37,14 +37,14 @@ export function GAPEOMappingRevision() {
   const sectionModified = isModified("ga_peo_mappings");
 
   // Check if a GA is mapped to a PEO
-  const isMapped = (gaId: number, peoId: number) => {
+  const isMapped = (gaId: number, peoId: number | string) => {
     return ga_peo_mappings.some(
       (mapping) => mapping.ga_id === gaId && mapping.peo_id === peoId
     );
   };
 
   // Handle toggling a mapping
-  const handleToggleMapping = (gaId: number, peoId: number) => {
+  const handleToggleMapping = (gaId: number, peoId: number | string) => {
     toggleGAPEOMapping(gaId, peoId);
   };
 
