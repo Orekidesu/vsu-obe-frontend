@@ -28,7 +28,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useRevisionStore } from "@/store/revision/revision-store";
-import { sampleSemesters } from "@/store/revision/sample-data/data";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +44,7 @@ import {
 } from "@/components/ui/popover";
 
 import useCourses from "@/hooks/department/useCourse";
+import useSemesters from "@/hooks/department/useSemester";
 
 // Define contribution levels with colors
 const contributionLevels = [
@@ -73,11 +73,19 @@ export function CoursePOMappingRevision() {
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [showMappingSummary, setShowMappingSummary] = useState(true);
 
+  // fetch courses
   const {
     courses,
     isLoading: isLoadingCourses,
     error: coursesError,
   } = useCourses();
+
+  // fetch semesters
+  const {
+    semesters,
+    isLoading: isLoadingSemesters,
+    error: semestersError,
+  } = useSemesters();
 
   const {
     pos,
@@ -114,8 +122,18 @@ export function CoursePOMappingRevision() {
 
   // Get semester details by ID
   const getSemesterDetails = (semesterId: number) => {
-    return sampleSemesters.find((semester) => semester.id === semesterId);
+    return semesters?.find((semester) => semester.id === semesterId);
   };
+
+  // Format semester display text (since API doesn't provide a display property)
+  // const formatSemesterDisplay = (semester: { year: number; name: string }) => {
+  //   if (!semester) return "";
+
+  //   // Convert first letter of name to uppercase
+  //   const formattedName =
+  //     semester.name.charAt(0).toUpperCase() + semester.name.slice(1);
+  //   return `Year ${semester.year} - ${formattedName}`;
+  // };
 
   // Get mapping for a course and PO
   const getMapping = (curriculumCourseId: number, poId: number) => {
@@ -183,7 +201,7 @@ export function CoursePOMappingRevision() {
     : null;
 
   // Show loading state if courses are being fetched
-  if (isLoadingCourses) {
+  if (isLoadingCourses || isLoadingSemesters) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="flex flex-col items-center gap-2">
@@ -195,7 +213,7 @@ export function CoursePOMappingRevision() {
   }
 
   // Show error state if there was an error fetching courses
-  if (coursesError) {
+  if (coursesError || semestersError) {
     return (
       <Alert className="bg-red-50 border-red-200 mb-4">
         <AlertDescription className="text-red-700">
