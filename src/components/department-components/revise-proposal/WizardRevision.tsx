@@ -86,7 +86,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
 
   // Go back to the dashboard
   const handleBackToDashboard = () => {
-    router.push("/");
+    router.push("/department/programs/all-programs");
   };
 
   // Go to the next step in the revision process
@@ -119,7 +119,22 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
       if (success) {
         setSubmitSuccess(true);
 
-        console.log("Revisions:", modifiedSections);
+        // Enhanced logging
+        console.group("Revision Submission Details");
+        console.log(
+          "Requested Revision Sections:",
+          revisions.map((r) => r.section)
+        );
+        console.log("Modified Sections:", Array.from(modifiedSections));
+
+        // Get the actual payload data
+        const state = useRevisionStore.getState();
+        const dataToSubmit = {};
+        modifiedSections.forEach((section) => {
+          dataToSubmit[section] = state[section];
+        });
+        console.log("Submission Payload:", dataToSubmit);
+        console.groupEnd();
 
         // Redirect after a delay
         setTimeout(() => {}, 3000);
