@@ -81,9 +81,9 @@ export function CurriculumTable({
                   <TableHead className="w-[120px]">Course Code</TableHead>
                   <TableHead>Course Title</TableHead>
                   <TableHead className="w-[200px]">Category</TableHead>
-                  <TableHead className="w-[200px]">
-                    Year/Semester
-                  </TableHead>{" "}
+                  {isEditingCourse !== null && (
+                    <TableHead className="w-[200px]">Year/Semester</TableHead>
+                  )}
                   {/* Add this column */}
                   <TableHead className="w-[80px]">Units</TableHead>
                   <TableHead className="w-[120px] text-center">
@@ -103,12 +103,13 @@ export function CurriculumTable({
                       key={course.id}
                       courseDetails={courseDetails}
                       courseCategories={courseCategories}
-                      sortedSemesters={sortedSemesters} // Pass this new prop
+                      sortedSemesters={sortedSemesters}
                       editCourse={editCourse}
                       setEditCourse={setEditCourse}
                       handleCategoryChange={handleCategoryChange}
                       handleSaveEdit={handleSaveEdit}
                       handleCancelEdit={handleCancelEdit}
+                      showSemesterColumn={true}
                     />
                   ) : (
                     <CourseTableRow
@@ -119,6 +120,7 @@ export function CurriculumTable({
                       semesterDetails={getSemesterDetails(course.semester_id)}
                       handleStartEdit={handleStartEdit}
                       handleDeleteCourse={handleDeleteCourse}
+                      showSemesterColumn={isEditingCourse !== null}
                     />
                   );
                 })}

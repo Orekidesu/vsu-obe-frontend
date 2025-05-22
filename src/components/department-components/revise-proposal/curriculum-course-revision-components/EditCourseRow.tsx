@@ -21,6 +21,7 @@ interface EditCourseRowProps {
   handleCategoryChange: (categoryId: string, isNewCourse: boolean) => void;
   handleSaveEdit: () => void;
   handleCancelEdit: () => void;
+  showSemesterColumn: boolean;
 }
 
 export function EditCourseRow({
@@ -32,6 +33,7 @@ export function EditCourseRow({
   handleCategoryChange,
   handleSaveEdit,
   handleCancelEdit,
+  // showSemesterColumn,
 }: EditCourseRowProps) {
   return (
     <TableRow>
@@ -54,7 +56,7 @@ export function EditCourseRow({
           </SelectContent>
         </Select>
       </TableCell>
-      {/* Add semester selection dropdown */}
+      {/* Always show semester dropdown in edit mode */}
       <TableCell>
         <Select
           value={editCourse.semester_id.toString()}

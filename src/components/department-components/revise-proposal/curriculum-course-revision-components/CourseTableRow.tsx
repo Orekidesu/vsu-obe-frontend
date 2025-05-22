@@ -11,6 +11,7 @@ interface CourseTableRowProps {
   categoryDetails: CourseCategory | undefined;
   handleStartEdit: (id: number) => void;
   handleDeleteCourse: (id: number) => void;
+  showSemesterColumn: boolean;
 }
 
 export function CourseTableRow({
@@ -20,6 +21,7 @@ export function CourseTableRow({
   semesterDetails,
   handleStartEdit,
   handleDeleteCourse,
+  showSemesterColumn,
 }: CourseTableRowProps) {
   return (
     <TableRow>
@@ -32,11 +34,14 @@ export function CourseTableRow({
       <TableCell>
         {categoryDetails?.name} ({categoryDetails?.code})
       </TableCell>
-      <TableCell>
-        {semesterDetails
-          ? `${semesterDetails.year} - ${semesterDetails.sem.charAt(0).toUpperCase() + semesterDetails.sem.slice(1)}`
-          : ""}
-      </TableCell>
+      {/* Only render the semester cell if showSemesterColumn is true */}
+      {showSemesterColumn && (
+        <TableCell>
+          {semesterDetails
+            ? `Year ${semesterDetails.year} - ${semesterDetails.sem.charAt(0).toUpperCase() + semesterDetails.sem.slice(1)}`
+            : ""}
+        </TableCell>
+      )}
       <TableCell>{course.unit}</TableCell>
       <TableCell className="text-center">
         <div className="flex justify-center space-x-2">
