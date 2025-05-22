@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Info, RotateCcw } from "lucide-react";
-import { sampleSemesters } from "@/store/revision/sample-data/data";
+import { Info, RotateCcw, Loader2 } from "lucide-react";
 
 import useCourses from "@/hooks/department/useCourse";
+
+import useSemesters from "@/hooks/department/useSemester";
+
 import { Course } from "@/types/model/Course";
 
 // Import the subcomponents
@@ -33,10 +35,36 @@ export function CurriculumCoursesRevision() {
     error: coursesError,
   } = useCourses();
 
+  // Add API semesters
+  const {
+    semesters,
+    isLoading: isLoadingSemesters,
+    error: semestersError,
+  } = useSemesters();
+
+  const formatSemesters = () => {
+    if (!semesters) return [];
+
+    return semesters.map((semester) => {
+      // Add null check for semester.name
+      const name = semester.name || "";
+
+      return {
+        id: semester.id,
+        year: semester.year,
+        sem: name, // Map name to sem for compatibility
+        display: `Year ${semester.year} - ${name.charAt(0).toUpperCase() + name.slice(1)}`,
+      };
+    });
+  };
+
+  const apiSemesters = formatSemesters();
+
   const curriculumCourses = useRevisionStore(
     (state) => state.curriculum_courses
   );
   const courseCategories = useRevisionStore((state) => state.course_categories);
+
   const isModified = useRevisionStore((state) =>
     state.isModified("curriculum_courses")
   );
@@ -265,13 +293,16 @@ export function CurriculumCoursesRevision() {
   };
 
   const getAvailableSemesters = () => {
+    // Return empty array if semesters aren't loaded yet
+    if (!apiSemesters.length) return [];
+
     // Get unique semester IDs from the curriculum courses
     const semesterIds = [
       ...new Set(curriculumCourses.map((course) => course.semester_id)),
     ];
 
-    // Filter sampleSemesters to only include those found in curriculum courses
-    const availableSemesters = sampleSemesters.filter((semester) =>
+    // Filter apiSemesters to only include those found in curriculum courses
+    const availableSemesters = apiSemesters.filter((semester) =>
       semesterIds.includes(semester.id)
     );
 
@@ -289,11 +320,11 @@ export function CurriculumCoursesRevision() {
     });
   };
 
-  const availableSemesters = getAvailableSemesters();
+  const availableSemesters = !isLoadingSemesters ? getAvailableSemesters() : [];
 
   // Add this helper function to get semester details
   const getSemesterDetails = (semesterId: number) => {
-    return sampleSemesters.find((semester) => semester.id === semesterId);
+    return apiSemesters.find((semester) => semester.id === semesterId);
   };
   // Start editing a course
   const handleStartEdit = (courseId: number) => {
@@ -363,7 +394,7 @@ export function CurriculumCoursesRevision() {
   );
 
   // Sort semesters by year and semester
-  const sortedSemesters = [...sampleSemesters].sort((a, b) => {
+  const sortedSemesters = [...apiSemesters].sort((a, b) => {
     if (a.year !== b.year) {
       return a.year - b.year;
     }
@@ -374,6 +405,29 @@ export function CurriculumCoursesRevision() {
       semOrder[b.sem as keyof typeof semOrder]
     );
   });
+
+  // Show loading state if data is being fetched
+  if (isLoadingCourses || isLoadingSemesters) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+          <p className="text-sm text-gray-500">Loading curriculum data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if there was an error fetching data
+  if (coursesError || semestersError) {
+    return (
+      <Alert className="bg-red-50 border-red-200 mb-4">
+        <AlertDescription className="text-red-700">
+          Error loading curriculum data. Please try refreshing the page.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div>
