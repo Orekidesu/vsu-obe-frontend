@@ -1,6 +1,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions"; // Import the correct session type
 
 export const useAuth = () => {
   const router = useRouter();
@@ -16,7 +17,7 @@ export const useAuth = () => {
         if (!session) {
           router.push("/");
         } else {
-          const role = (session as any).Role;
+          const role = (session as Session).Role;
           if (role === "Admin" && !pathName.startsWith("/admin")) {
             router.push("/admin");
           } else if (role === "Dean" && !pathName.startsWith("/dean")) {
@@ -26,7 +27,10 @@ export const useAuth = () => {
             !pathName.startsWith("/department")
           ) {
             router.push("/department");
-          } else if (role === "Faculty" && !pathName.startsWith("/faculty")) {
+          } else if (
+            role === "Faculty_Member" &&
+            !pathName.startsWith("/faculty")
+          ) {
             router.push("/faculty");
           }
         }

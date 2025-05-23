@@ -1,14 +1,27 @@
+// "use client";
+
+// import { Session } from "next-auth";
+// import { SessionProvider } from "next-auth/react";
+
+// export default function Provider({
+//   children,
+//   session,
+// }: {
+//   children: React.ReactNode;
+//   session: Session;
+// }) {
+//   return <SessionProvider session={session}>{children}</SessionProvider>;
+// }
 "use client";
 
-import { Session } from "inspector/promises";
+import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 
-export default function Provider({
-  children,
-  session,
-}: {
+interface ProviderProps {
   children: React.ReactNode;
-  session: any;
-}) {
+  session: Session | null; // ✅ Allow null
+}
+
+export default function Provider({ children, session }: ProviderProps) {
   return <SessionProvider session={session}>{children}</SessionProvider>;
 }

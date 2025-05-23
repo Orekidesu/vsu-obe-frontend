@@ -1,7 +1,4 @@
-"use client";
-
 import type React from "react";
-
 import {
   LogOut,
   University,
@@ -9,6 +6,9 @@ import {
   LayoutDashboard,
   BookOpenText,
   ChevronDown,
+  // LucideUsers,
+  GraduationCap,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,7 +24,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "./ui/sidebar";
 import {
@@ -32,10 +31,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import handleLogout from "@/app/utils/handleLogout";
 import Image from "next/image";
 import vsuLogo from "../../public/assets/images/vsu_logo.png";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 
 type MenuItem = {
   title: string;
@@ -48,34 +47,135 @@ const roleMenuItems: Record<string, MenuItem[]> = {
   Admin: [
     { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
     {
-      title: "College & Departments",
-      url: "/admin/colleges_departments",
+      title: "Faculties & Departments",
+      url: "/admin/faculties-departments",
       icon: University,
     },
-    { title: "User Management", url: "/admin/user_management", icon: Users },
+    { title: "User Management", url: "/admin/user-management", icon: Users },
+    {
+      title: "Settings",
+      url: "/admin/settings",
+      icon: Settings,
+    },
   ],
-  Dean: [{ title: "Dashboard", url: "/dean/dashboard", icon: LayoutDashboard }],
+  Dean: [
+    { title: "Dashboard", url: "/dean", icon: LayoutDashboard },
+    {
+      title: "Proposals",
+      icon: BookOpenText,
+      submenus: [
+        { title: "All Programs", url: "/dean/proposals/all-programs" },
+        { title: "All Syllabi", url: "/dean/proposals/all-syllabi" },
+      ],
+    },
+    { title: "Settings", url: "/dean/settings", icon: Settings },
+  ],
   Department: [
-    { title: "Dashboard", url: "/department/dashboard", icon: LayoutDashboard },
+    { title: "Dashboard", url: "/department", icon: LayoutDashboard },
     {
       title: "Programs",
       icon: BookOpenText,
       submenus: [
-        { title: "Manage Courses", url: "/department/manage-courses" },
-        { title: "Assign Instructors", url: "/department/assign-instructors" },
+        { title: "All Programs", url: "/department/programs/all-programs" },
+        { title: "Archived", url: "/department/programs/archive" },
       ],
+    },
+    {
+      title: "Assign Courses",
+      url: "/department/courses",
+      icon: GraduationCap,
+    },
+    // {
+    //   title: "Committees",
+    //   url: "/department/committees",
+    //   icon: LucideUsers,
+    // },
+    {
+      title: "Settings",
+      url: "/department/settings",
+      icon: Settings,
+    },
+  ],
+  Faculty_Member: [
+    { title: "Dashboard", url: "/faculty", icon: LayoutDashboard },
+    {
+      title: "Syllabi",
+      icon: BookOpenText,
+      submenus: [
+        { title: "All Syllabi", url: "/faculty/syllabi/all-syllabi" },
+        { title: "Archived", url: "/faculty/syllabi/archive" },
+      ],
+    },
+    {
+      title: "Manage Courses",
+      url: "/faculty/courses",
+      icon: GraduationCap,
+    },
+    {
+      title: "Settings",
+      url: "/faculty/settings",
+      icon: Settings,
     },
   ],
 };
 
 interface AppSidebarProps {
-  role: keyof typeof roleMenuItems;
-  session: { accessToken: string };
+  role: string;
+  session: Session;
 }
 
 const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
   const pathname = usePathname();
   const roleBasedMenu = roleMenuItems[role] || [];
+
+  // Generate personalized display info based on role
+  const getPersonalizedDisplay = () => {
+    if (role === "Admin") {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">Admin</p>
+        </div>
+      );
+    } else if (role === "Dean" && session.Faculty) {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">{`Dean`}</p>
+          <p className="text-sm font-thin pt-2 ">{`${session.Faculty.name}`}</p>
+        </div>
+      );
+    } else if (role === "Department" && session.Department) {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">{`Department`}</p>
+          <p className="text-sm font-thin pt-2 ">
+            {`${session.Department.name}`}
+          </p>
+          <p className="text-sm font-thin ">{` (${session.Department.abbreviation})`}</p>
+        </div>
+      );
+    } else if (role === "Faculty_Member" && session.Department) {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">{`Faculty Member`}</p>
+          <p className="text-sm font-thin pt-2 ">
+            {`${session.Department.name}`}
+          </p>
+          <p className="text-sm font-thin ">{` (${session.Department.abbreviation})`}</p>
+        </div>
+      );
+    }
+    // Fallback if no role-specific display is available
+    return (
+      <div className="flex flex-col items-center text-center">
+        <p className="font-semibold">{role}</p>
+        {session.First_Name && session.Last_Name && (
+          <p className="text-xs text-muted-foreground mt-1">
+            {`${session.First_Name} ${session.Last_Name}`}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   const renderMenuItem = (item: MenuItem) => (
     <SidebarMenuItem key={item.title}>
@@ -94,40 +194,26 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
             <SidebarMenuSub>
               {item.submenus?.map((submenu) => (
                 <SidebarMenuSubItem key={submenu.title}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuSubButton
-                        asChild
-                        isActive={pathname === submenu.url}
-                      >
-                        <Link href={submenu.url} className="pl-6">
-                          {submenu.title}
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={40}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === submenu.url}
+                  >
+                    <Link href={submenu.url} className="pl-6">
                       {submenu.title}
-                    </TooltipContent>
-                  </Tooltip>
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuSubItem>
               ))}
             </SidebarMenuSub>
           </CollapsibleContent>
         </Collapsible>
       ) : (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <SidebarMenuButton asChild isActive={pathname === item.url}>
-              <Link href={item.url || "#"} className="flex items-center gap-2">
-                <item.icon className="h-4 w-4" />
-                <span>{item.title}</span>
-              </Link>
-            </SidebarMenuButton>
-          </TooltipTrigger>
-          <TooltipContent side="right" sideOffset={20}>
-            {item.title}
-          </TooltipContent>
-        </Tooltip>
+        <SidebarMenuButton asChild isActive={pathname === item.url}>
+          <Link href={item.url || "#"} className="flex items-center gap-2">
+            <item.icon className="h-4 w-4" />
+            <span>{item.title}</span>
+          </Link>
+        </SidebarMenuButton>
       )}
     </SidebarMenuItem>
   );
@@ -143,7 +229,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
             height={80}
             priority
           />
-          <p className="font-semibold">{role}</p>
+          {getPersonalizedDisplay()}
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -154,25 +240,20 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="pb-20">
+      <SidebarFooter className="">
         <SidebarMenu>
           <SidebarMenuItem>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <SidebarMenuButton
-                  asChild
-                  onClick={() => handleLogout((session as any).accessToken)}
-                >
-                  <button className="flex w-full items-center gap-2">
-                    <LogOut className="h-4 w-4" />
-                    <span>Logout</span>
-                  </button>
-                </SidebarMenuButton>
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={20}>
-                Logout
-              </TooltipContent>
-            </Tooltip>
+            <SidebarMenuButton
+              asChild
+              onClick={() =>
+                session.accessToken && handleLogout(session.accessToken)
+              }
+            >
+              <button className="flex w-full items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </button>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

@@ -11,11 +11,16 @@ export default function LandingPage() {
       {/* Left side - Illustration */}
       <div className="hidden w-1/2 bg-muted lg:block">
         <div className="flex h-full items-center justify-center">
-          <Image src={vsuHomePageLogo} alt="home page logo" priority></Image>
+          <Image
+            src={vsuHomePageLogo}
+            className="h-full"
+            alt="home page logo"
+            priority
+          ></Image>
         </div>
       </div>
 
-      <div className="flex w-full items-center justify-center lg:w-1/2 bg-[#e5dfda] text-primary">
+      <div className="flex w-full items-center justify-center lg:w-1/2 bg-background text-primary">
         <div className="w-full max-w-sm space-y-8">
           <div className="flex flex-col justify-center items-center">
             <div>

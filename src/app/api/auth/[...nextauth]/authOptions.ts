@@ -1,10 +1,28 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { DefaultSession, NextAuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
-import { access } from "fs";
+import { Faculty } from "@/types/model/Faculty";
+import { Department } from "@/types/model/Department";
 
+// Define a proper type for authenticated user
+interface AuthUser {
+  id: string;
+  email: string;
+  role: string;
+  token: string;
+}
+
+// Extend the default session type
 export interface Session extends DefaultSession {
   accessToken?: string;
+  First_Name?: string;
+  Last_Name?: string;
+  Email?: string;
+  role?: string;
+  Role?: string;
+  Faculty?: Faculty;
+  Department?: Department;
+  IsCommittee?: boolean;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -15,7 +33,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<AuthUser | null> {
         try {
           console.log(credentials);
           const res = await fetch(
@@ -29,14 +47,13 @@ export const authOptions: NextAuthOptions = {
               }),
             }
           );
+
           const data = await res.json();
-          // console.log("Api Response:", data);
           if (!res.ok) {
             throw new Error(data.message || "Login failed");
           }
 
-          // only get the necessary data
-
+          // Return only the required user information
           return {
             id: data.user.id,
             email: data.user.email,
@@ -51,22 +68,26 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ token, session }): Promise<Session> {
+    async session({
+      token,
+      session,
+    }: {
+      token: JWT;
+      session: Session;
+    }): Promise<Session> {
       if (token.accessToken) {
         const getMeResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
           {
             method: "GET",
             headers: {
-              "Content-type": "application/json",
+              "Content-Type": "application/json",
               Authorization: `Bearer ${token.accessToken}`,
             },
           }
         );
 
         const myInfo = await getMeResponse.json();
-
-        // console.log("User info from API:", myInfo, token.accessToken);
 
         return { ...myInfo.data, accessToken: token.accessToken };
       }
@@ -75,12 +96,13 @@ export const authOptions: NextAuthOptions = {
     },
     jwt({ token, user }): JWT {
       if (user) {
+        // Explicitly cast user to AuthUser type
+        const authUser = user as AuthUser;
         return {
           ...token,
-          accessToken: (user as any).token,
+          accessToken: authUser.token, // No more TypeScript error
         };
       }
-      // console.log("Which token is this:", token);
       return token;
     },
   },

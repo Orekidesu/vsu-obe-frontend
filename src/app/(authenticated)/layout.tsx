@@ -1,14 +1,22 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSideBar";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Roboto } from "next/font/google";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
+
+const inter = Roboto({ subsets: ["latin"], weight: "400" });
+
 const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const { status, session } = useAuth();
   const router = useRouter();
-
   useEffect(() => {
     if (status === "loading") {
       return;
@@ -26,18 +34,19 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  const role = (session as any).Role;
-
+  const role = (session as Session)?.Role;
   return (
     <div>
       <SidebarProvider>
-        <AppSidebar role={role} session={session as any} />
-        <main>
-          {/* {status === "authenticated" && <SidebarTrigger />} */}
-          {/* {status === "authenticated" && children} */}
-          <SidebarTrigger />
-          {children}
-        </main>
+        <AppSidebar role={role || ""} session={session as Session} />
+        <SidebarInset>
+          <main className={`${inter.className} grow`}>
+            <SidebarTrigger className="fixed" />
+            {/* {status === "authenticated" && <SidebarTrigger />} */}
+            {/* {status === "authenticated" && children} */}
+            <div className="p-10 h-full">{children}</div>
+          </main>
+        </SidebarInset>
       </SidebarProvider>
     </div>
   );
