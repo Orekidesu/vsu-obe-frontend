@@ -376,10 +376,27 @@ export default function WizardFormProgram() {
       // At least one course category is required
       return courseCategories.length > 0;
     }
+    // if (step === 12) {
+    //   // At least one curriculum course is required
+    //   return curriculumCourses.length > 0;
+    // }
     if (step === 12) {
-      // At least one curriculum course is required
-      return curriculumCourses.length > 0;
+      // First check if we have any courses at all
+      if (curriculumCourses.length === 0) {
+        return false;
+      }
+
+      // Check if all year-semesters have at least one course
+      const yearSemestersWithCourses = new Set(
+        curriculumCourses.map((course) => course.yearSemesterId)
+      );
+
+      // Make sure every yearSemester ID has at least one course
+      return yearSemesters.every((ys) =>
+        yearSemestersWithCourses.has(ys.id.toString())
+      );
     }
+
     if (step === 13) {
       // At least one course to PO mapping is required
       return courseToPOMappings.length > 0;
