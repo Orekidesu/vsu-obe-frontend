@@ -13,13 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  ArrowLeft,
-  ClipboardList,
-  AlertCircle,
-  CheckCircle2,
-  Loader2,
-} from "lucide-react";
+import { ArrowLeft, ClipboardList, AlertCircle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -60,7 +54,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   const [isRevising, setIsRevising] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+
   const [isReviewing, setIsReviewing] = useState(false);
 
   // Get the proposal from API using cache
@@ -173,8 +167,12 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         revisionData: dataToSubmit,
       });
 
-      // Show success state
-      setSubmitSuccess(true);
+      // Show success toast instead of setting state
+      toast({
+        title: "Success!",
+        description: "Your revisions have been submitted successfully.",
+        variant: "success",
+      });
 
       // Log submission details for debugging
       console.group("Revision Submission Details");
@@ -308,23 +306,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   return (
     <TooltipProvider>
       <div className="container ">
-        {submitSuccess ? (
-          <Card className="">
-            <CardContent className="pt-6 text-center">
-              <CheckCircle2 className="mx-auto h-16 w-16 text-green-500 mb-4" />
-              <h2 className="text-2xl font-bold mb-2">
-                Revisions Submitted Successfully!
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Your revisions have been submitted and will be reviewed by the
-                appropriate personnel.
-              </p>
-              <Button onClick={handleBackToDashboard}>
-                Return to Dashboard
-              </Button>
-            </CardContent>
-          </Card>
-        ) : isRevising ? (
+        {isRevising ? (
           <div className=" mx-auto">
             {isReviewing ? (
               <RevisionReview
