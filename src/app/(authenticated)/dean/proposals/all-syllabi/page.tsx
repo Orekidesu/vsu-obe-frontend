@@ -1,7 +1,7 @@
 import React from "react";
 
-const page = () => {
+const AllSyllabiPage = () => {
   return <div>This is the All Syllabi Page</div>;
 };
 
-export default page;
+export default AllSyllabiPage;
