@@ -255,9 +255,11 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
 
   if (isLoadingProposal || isLoadingRevisions) {
     return (
-      <div className="container mx-auto  text-center">
-        <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary mb-4" />
-        <h2 className="text-xl font-medium">Loading proposal data...</h2>
+      <div className="container mx-auto h-[500px] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary mb-4" />
+          <h2 className="text-xl font-medium">Loading proposal data...</h2>
+        </div>
       </div>
     );
   }
@@ -387,12 +389,12 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
           </div>
         ) : (
           <div className="mx-auto">
-            <div className="flex items-center justify-between mb-6">
+            {/* <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Program Revision Requests</h1>
               <Button variant="outline" onClick={handleBackToDashboard}>
                 <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
               </Button>
-            </div>
+            </div> */}
 
             <Card className="mb-8">
               <CardHeader>
