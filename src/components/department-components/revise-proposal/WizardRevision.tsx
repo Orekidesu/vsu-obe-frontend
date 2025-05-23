@@ -134,20 +134,190 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   };
 
   // Submit the revisions
+  // const handleSubmitRevisions = async () => {
+  //   setIsSubmitting(true);
+
+  //   try {
+  //     // Get only the modified sections data from the store
+  //     const state = useRevisionStore.getState();
+  //     // const dataToSubmit: Record<RevisionSection, unknown> = {};
+
+  //     // modifiedSections.forEach((section) => {
+  //     //   dataToSubmit[section] = state[section];
+  //     // });
+  //     const dataToSubmit: Record<string, unknown> = {};
+  //     modifiedSections.forEach((section) => {
+  //       dataToSubmit[section] = state[section];
+  //     });
+
+  //     // Only proceed if there are modifications
+  //     if (Object.keys(dataToSubmit).length === 0) {
+  //       toast({
+  //         title: "No Changes",
+  //         description: "No modifications were made to submit.",
+  //         variant: "default",
+  //       });
+  //       setIsSubmitting(false);
+  //       return;
+  //     }
+
+  //     // Submit the revisions to the API
+  //     await submitDepartmentRevisions.mutateAsync({
+  //       proposalId: proposalIdNumber,
+  //       revisionData: dataToSubmit,
+  //     });
+
+  //     // Show success toast instead of setting state
+  //     toast({
+  //       title: "Success!",
+  //       description: "Your revisions have been submitted successfully.",
+  //       variant: "success",
+  //     });
+
+  //     // Log submission details for debugging
+  //     console.group("Revision Submission Details");
+  //     console.log(
+  //       "Requested Revision Sections:",
+  //       revisions.map((r) => r.section)
+  //     );
+  //     console.log("Modified Sections:", Array.from(modifiedSections));
+  //     console.log("Submission Payload:", dataToSubmit);
+  //     console.groupEnd();
+
+  //     // Redirect after a delay
+  //     setTimeout(() => {
+  //       // router.push("/department/programs/all-programs");
+  //       router.back();
+  //     }, 3000);
+  //   } catch (error: unknown) {
+  //     console.error("Error submitting revisions:", error);
+  //     toast({
+  //       title: "Error",
+  //       description:
+  //         error instanceof Error
+  //           ? error.message
+  //           : "Failed to submit revisions. Please try again later.",
+  //       variant: "destructive",
+  //     });
+  //     setIsSubmitting(false);
+  //   }
+  // };
   const handleSubmitRevisions = async () => {
     setIsSubmitting(true);
 
     try {
       // Get only the modified sections data from the store
       const state = useRevisionStore.getState();
-      // const dataToSubmit: Record<RevisionSection, unknown> = {};
-
-      // modifiedSections.forEach((section) => {
-      //   dataToSubmit[section] = state[section];
-      // });
       const dataToSubmit: Record<string, unknown> = {};
+
       modifiedSections.forEach((section) => {
-        dataToSubmit[section] = state[section];
+        // Copy the section data first
+        let sectionData = JSON.parse(JSON.stringify(state[section]));
+
+        // Process arrays of items with IDs
+        if (Array.isArray(sectionData)) {
+          // Handle sections with arrays of items
+          switch (section) {
+            case "peos":
+            case "pos":
+            case "course_categories":
+            case "curriculum_courses":
+              // First, identify which category IDs are actually new (have string IDs)
+              const newCategoryIds = new Set();
+              state.course_categories.forEach((category) => {
+                if (
+                  typeof category.id === "string" &&
+                  /^\d+$/.test(category.id)
+                ) {
+                  newCategoryIds.add(category.id);
+                }
+              });
+
+              sectionData = sectionData.map((item) => {
+                const updatedItem = { ...item };
+
+                // Check if the main ID is a newly generated numeric string
+                if (
+                  item.id &&
+                  typeof item.id === "string" &&
+                  /^\d+$/.test(item.id)
+                ) {
+                  updatedItem.id = `new_${item.id}`;
+                }
+
+                // Only add "new_" prefix to course_category_id if it's actually a reference
+                // to a newly created category (in the newCategoryIds set)
+                if (
+                  item.course_category_id &&
+                  typeof item.course_category_id === "string" &&
+                  /^\d+$/.test(item.course_category_id) &&
+                  newCategoryIds.has(item.course_category_id)
+                ) {
+                  updatedItem.course_category_id = `new_${item.course_category_id}`;
+                }
+
+                return updatedItem;
+              });
+              break;
+            // Handle mappings that reference items with potentially new IDs
+            case "peo_mission_mappings":
+            case "ga_peo_mappings":
+            case "po_peo_mappings":
+            case "po_ga_mappings":
+              sectionData = sectionData.map((mapping) => {
+                const updatedMapping = { ...mapping };
+
+                // Check if peo_id is a numeric string
+                if (
+                  mapping.peo_id &&
+                  typeof mapping.peo_id === "string" &&
+                  /^\d+$/.test(mapping.peo_id)
+                ) {
+                  updatedMapping.peo_id = `new_${mapping.peo_id}`;
+                }
+
+                // Check if po_id is a numeric string
+                if (
+                  mapping.po_id &&
+                  typeof mapping.po_id === "string" &&
+                  /^\d+$/.test(mapping.po_id)
+                ) {
+                  updatedMapping.po_id = `new_${mapping.po_id}`;
+                }
+
+                return updatedMapping;
+              });
+              break;
+
+            case "course_po_mappings":
+              sectionData = sectionData.map((mapping) => {
+                const updatedMapping = { ...mapping };
+
+                // Check curriculum_course_id
+                if (
+                  mapping.curriculum_course_id &&
+                  typeof mapping.curriculum_course_id === "string" &&
+                  /^\d+$/.test(mapping.curriculum_course_id)
+                ) {
+                  updatedMapping.curriculum_course_id = `new_${mapping.curriculum_course_id}`;
+                }
+
+                // Check po_id
+                if (
+                  mapping.po_id &&
+                  typeof mapping.po_id === "string" &&
+                  /^\d+$/.test(mapping.po_id)
+                ) {
+                  updatedMapping.po_id = `new_${mapping.po_id}`;
+                }
+
+                return updatedMapping;
+              });
+              break;
+          }
+        }
+
+        dataToSubmit[section] = sectionData;
       });
 
       // Only proceed if there are modifications
@@ -186,7 +356,6 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
 
       // Redirect after a delay
       setTimeout(() => {
-        // router.push("/department/programs/all-programs");
         router.back();
       }, 3000);
     } catch (error: unknown) {

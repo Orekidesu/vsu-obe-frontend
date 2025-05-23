@@ -151,13 +151,15 @@ export function CurriculumCoursesRevision() {
 
   // Get category details by ID
   const getCategoryDetails = (categoryId: number | string) => {
-    return courseCategories.find((category) => category.id === categoryId);
+    return courseCategories.find(
+      (category) => category.id.toString() === categoryId.toString()
+    );
   };
 
   // Update category code when category is selected
   const handleCategoryChange = (categoryId: string, isNewCourse = true) => {
     const category = courseCategories.find(
-      (cat) => cat.id.toString() === categoryId
+      (cat) => cat.id.toString() === categoryId.toString()
     );
     if (category) {
       if (isNewCourse) {
