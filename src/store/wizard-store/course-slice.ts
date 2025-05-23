@@ -143,6 +143,68 @@ export const createCourseSlice: StateCreator<
     return newId;
   },
 
+  // addCurriculumCourse: (courseId, categoryId, yearSemesterId, units) =>
+  //   set((state) => {
+  //     // Find the course from premade courses
+  //     const course = state.premadeCourses.find((c) => c.id === courseId);
+  //     if (!course) {
+  //       return state; // Course not found
+  //     }
+
+  //     // Check if this course is already in the curriculum for this year-semester
+  //     const exists = state.curriculumCourses.some(
+  //       (cc) => cc.id === courseId && cc.yearSemesterId === yearSemesterId
+  //     );
+  //     if (exists) {
+  //       return state; // Don't add duplicates
+  //     }
+
+  //     // Add the new curriculum course
+  //     const newCurriculumCourse: CurriculumCourse = {
+  //       ...course,
+  //       categoryId,
+  //       yearSemesterId,
+  //       units,
+  //     };
+
+  //     return {
+  //       curriculumCourses: [
+  //         ...state.curriculumCourses,
+  //         newCurriculumCourse,
+  //       ].sort((a, b) => {
+  //         // Sort by year-semester first
+  //         const yearSemesterA = state.yearSemesters.find(
+  //           (ys) => ys.id === a.yearSemesterId
+  //         );
+  //         const yearSemesterB = state.yearSemesters.find(
+  //           (ys) => ys.id === b.yearSemesterId
+  //         );
+
+  //         if (yearSemesterA && yearSemesterB) {
+  //           if (yearSemesterA.year !== yearSemesterB.year) {
+  //             return yearSemesterA.year - yearSemesterB.year;
+  //           }
+
+  //           const semesterOrder = { first: 0, second: 1, midyear: 2 };
+  //           const semesterCompare =
+  //             semesterOrder[
+  //               yearSemesterA.semester as keyof typeof semesterOrder
+  //             ] -
+  //             semesterOrder[
+  //               yearSemesterB.semester as keyof typeof semesterOrder
+  //             ];
+
+  //           if (semesterCompare !== 0) {
+  //             return semesterCompare;
+  //           }
+  //         }
+
+  //         // Then sort by course code
+  //         return a.code.localeCompare(b.code);
+  //       }),
+  //     };
+  //   }),
+
   addCurriculumCourse: (courseId, categoryId, yearSemesterId, units) =>
     set((state) => {
       // Find the course from premade courses
@@ -153,15 +215,19 @@ export const createCourseSlice: StateCreator<
 
       // Check if this course is already in the curriculum for this year-semester
       const exists = state.curriculumCourses.some(
-        (cc) => cc.id === courseId && cc.yearSemesterId === yearSemesterId
+        (cc) => cc.code === course.code && cc.yearSemesterId === yearSemesterId
       );
       if (exists) {
         return state; // Don't add duplicates
       }
 
-      // Add the new curriculum course
+      // Generate a unique ID for the curriculum course
+      const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+
+      // Add the new curriculum course with a unique ID
       const newCurriculumCourse: CurriculumCourse = {
         ...course,
+        id: uniqueId, // Override with unique ID
         categoryId,
         yearSemesterId,
         units,
@@ -204,7 +270,6 @@ export const createCourseSlice: StateCreator<
         }),
       };
     }),
-
   updateCurriculumCourse: (id, categoryId, yearSemesterId, units) =>
     set((state) => ({
       curriculumCourses: state.curriculumCourses.map((cc) =>
