@@ -226,7 +226,8 @@ export function CurriculumCoursesRevision() {
     if (isValid) {
       addCurriculumCourse({
         course_id: Number.parseInt(newCourse.course_id),
-        course_category_id: Number.parseInt(newCourse.course_category_id),
+        // course_category_id: Number.parseInt(newCourse.course_category_id),
+        course_category_id: newCourse.course_category_id,
         category_code: newCourse.category_code,
         semester_id: Number.parseInt(newCourse.semester_id),
         unit: newCourse.unit,
@@ -295,7 +296,8 @@ export function CurriculumCoursesRevision() {
 
       addCurriculumCourse({
         course_id: newCourseId,
-        course_category_id: Number.parseInt(newManualCourse.course_category_id),
+        // course_category_id: Number.parseInt(newManualCourse.course_category_id),
+        course_category_id: newManualCourse.course_category_id,
         category_code: newManualCourse.category_code,
         semester_id: Number.parseInt(newManualCourse.semester_id),
         unit: newManualCourse.unit,

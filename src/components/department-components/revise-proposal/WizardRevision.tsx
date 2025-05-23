@@ -188,7 +188,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
 
       // Redirect after a delay
       setTimeout(() => {
-        router.push("/department/programs/all-programs");
+        // router.push("/department/programs/all-programs");
+        router.back();
       }, 3000);
     } catch (error: unknown) {
       console.error("Error submitting revisions:", error);
