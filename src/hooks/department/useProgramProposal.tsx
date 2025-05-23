@@ -205,7 +205,7 @@ const useProgramProposals = (options: useProgramOptions = {}) => {
   >({
     mutationFn: async ({ proposalId, revisionData }) => {
       const response = await api.patch(
-        `${role}/program-proposals/${proposalId}/revise`,
+        `department/program-proposals/${proposalId}/revise`,
         revisionData
       );
       return response.data;

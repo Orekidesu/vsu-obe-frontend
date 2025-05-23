@@ -137,7 +137,7 @@ export function CurriculumCoursesRevision() {
   const [editCourse, setEditCourse] = useState<EditCourseFormData>({
     id: 0,
     course_id: 0,
-    course_category_id: 0, // This should accept string IDs too
+    course_category_id: "", // This should accept string IDs too
     category_code: "",
     semester_id: 0,
     unit: "",
