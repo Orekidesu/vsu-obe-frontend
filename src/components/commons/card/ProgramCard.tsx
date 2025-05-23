@@ -12,13 +12,13 @@ import moment from "moment";
 import { ProgramResponse } from "@/types/model/Program";
 import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle, Clock, AlertCircle, Search } from "lucide-react";
 
 // Define types for the props
 export interface ProgramCardProps {
   program?: ProgramResponse;
   programProposal?: ProgramProposalResponse;
-  status: "active" | "pending" | "revision";
+  status: "active" | "pending" | "revision" | "review";
   onViewDetails?: (id: number, type: "program" | "proposal") => void;
   onEdit?: (id: number) => void;
   onReview?: (id: number) => void;
@@ -27,7 +27,7 @@ export interface ProgramCardProps {
 export function StatusBadge({
   status,
 }: {
-  status: "active" | "pending" | "revision";
+  status: "active" | "pending" | "revision" | "review";
 }) {
   if (status === "active") {
     return (
@@ -41,6 +41,13 @@ export function StatusBadge({
     return (
       <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">
         <Clock className="h-3 w-3 mr-1" /> Pending
+      </Badge>
+    );
+  }
+  if (status === "review") {
+    return (
+      <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">
+        <Search className="h-3 w-3 mr-1" /> For Review
       </Badge>
     );
   }
@@ -63,7 +70,8 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
   // Handle both program and programProposal based on status
   const isActiveProgram = status === "active" && program;
   const isProposal =
-    (status === "pending" || status === "revision") && programProposal;
+    (status === "pending" || status === "revision" || status === "review") &&
+    programProposal;
 
   if (!isActiveProgram && !isProposal) {
     console.error(

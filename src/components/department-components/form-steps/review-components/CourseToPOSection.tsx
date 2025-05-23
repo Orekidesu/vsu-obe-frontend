@@ -44,7 +44,7 @@ export function CoursePOMappingSection({
     switch (level) {
       case "I":
         return "bg-blue-100 text-blue-800";
-      case "R":
+      case "E":
         return "bg-green-100 text-green-800";
       case "D":
         return "bg-purple-100 text-purple-800";
@@ -67,8 +67,8 @@ export function CoursePOMappingSection({
             <span>Introductory</span>
           </div>
           <div className="flex items-center gap-2">
-            <Badge className="bg-green-100 text-green-800">R</Badge>
-            <span>Reinforcement</span>
+            <Badge className="bg-green-100 text-green-800">E</Badge>
+            <span>Enabling</span>
           </div>
           <div className="flex items-center gap-2">
             <Badge className="bg-purple-100 text-purple-800">D</Badge>

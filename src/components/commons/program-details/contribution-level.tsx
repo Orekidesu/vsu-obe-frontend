@@ -14,8 +14,8 @@ export function ContributionLegend({
         <span>Introductory</span>
       </div>
       <div className="flex items-center gap-2">
-        <Badge className={getLevelBadgeColor("R")}>R</Badge>
-        <span>Reinforcement</span>
+        <Badge className={getLevelBadgeColor("E")}>E</Badge>
+        <span>Enabling</span>
       </div>
       <div className="flex items-center gap-2">
         <Badge className={getLevelBadgeColor("D")}>D</Badge>

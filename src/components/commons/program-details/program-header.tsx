@@ -5,7 +5,7 @@ import {
   XCircle,
   AlertCircle,
   CheckCheck,
-  ThumbsDown,
+  // ThumbsDown,
   FileEdit,
 } from "lucide-react";
 
@@ -20,16 +20,19 @@ interface ProgramHeaderProps {
 }
 
 export function ProgramHeader({
-  // programName,
-  // programAbbreviation,
+  programName,
+  programAbbreviation,
   actionTaken,
   onApprove,
   onRevise,
-  onReject,
+  // onReject,
   role,
 }: ProgramHeaderProps) {
-  const showActions = role === "department";
-  const showAlert = role === "department" && actionTaken;
+  // Show actions for Dean role
+  const showActions = role === "Dean";
+
+  // Changed this to show alert when role is Dean and there's an action taken
+  const showAlert = role === "Dean" && actionTaken;
 
   return (
     <>
@@ -83,7 +86,11 @@ export function ProgramHeader({
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">Program Details</h1>
+          <h1 className="text-xl font-bold text-gray-800">
+            {programName && programAbbreviation
+              ? `${programName} (${programAbbreviation})`
+              : "Program Details"}
+          </h1>
           {role === "Department" ? (
             <p className="text-gray-600 mt-1">Review Program Details</p>
           ) : (
@@ -110,14 +117,14 @@ export function ProgramHeader({
             >
               <FileEdit className="h-4 w-4" /> Request Revisions
             </Button>
-            <Button
+            {/* <Button
               onClick={onReject}
               variant="outline"
               className="border-red-500 text-red-600 hover:bg-red-50 flex items-center gap-2"
               disabled={!!actionTaken}
             >
               <ThumbsDown className="h-4 w-4" /> Reject
-            </Button>
+            </Button> */}
           </div>
         )}
       </div>

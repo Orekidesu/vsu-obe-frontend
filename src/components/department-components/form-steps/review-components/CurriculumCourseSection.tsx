@@ -78,7 +78,7 @@ export function CurriculumCoursesSection({
                   {courses.map((course) => (
                     <TableRow key={`${course.id}-${course.yearSemesterId}`}>
                       <TableCell>{course.code}</TableCell>
-                      <TableCell>{course.title}</TableCell>
+                      <TableCell>{course.descriptive_title}</TableCell>
                       <TableCell>
                         {courseCategories.find(
                           (category) =>

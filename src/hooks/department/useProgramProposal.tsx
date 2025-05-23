@@ -5,42 +5,31 @@ import {
 } from "@/types/model/ProgramProposal";
 import { APIError } from "@/app/utils/errorHandler";
 import useApi from "../useApi";
+import { FullProgramProposalPayload } from "@/app/utils/department/programProposalPayload";
+import { useAuth } from "@/hooks/useAuth";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
+import { ReviewProposalPayload } from "@/app/utils/dean/reviewProgramProposalPayload";
+import { SubmitDepartmentRevisionsPayload } from "@/types/model/DepartmentRevision";
 
 interface DeleteProgramProposalContext {
   previousProgramProposals?: ProgramProposal[];
 }
-interface FullProgramProposalPayload {
-  program: {
-    name: string;
-    abbreviation: string;
-  };
-  peos: Array<{ statement: string }>;
-  peo_mission_mappings: Array<{ peo_index: number; mission_id: number }>;
-  ga_peo_mappings: Array<{ peo_index: number; ga_id: number }>;
-  pos: Array<{ name: string; statement: string }>;
-  po_peo_mappings: Array<{ po_index: number; peo_index: number }>;
-  po_ga_mappings: Array<{ po_index: number; ga_id: number }>;
-  curriculum: { name: string };
-  semesters: Array<{ year: number; sem: string }>;
-  course_categories: Array<{ name: string; code: string }>;
-  courses: Array<{ code: string; descriptive_title: string }>;
-  curriculum_courses: Array<{
-    course_code: string;
-    category_code: string;
-    semester_year: number;
-    semester_name: string;
-    units: number;
-  }>;
-  course_po_mappings: Array<{
-    course_code: string;
-    po_code: string;
-    ird: string[];
-  }>;
+
+interface useProgramOptions {
+  role?: "dean" | "department";
 }
 
-const useProgramProposals = () => {
+const useProgramProposals = (options: useProgramOptions = {}) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { session } = useAuth();
+
+  const role =
+    options.role ||
+    ((session as Session)?.Role === "Department" ? "department" : "dean");
+
+  // fetch programs
+  const endpoint = `${role}/program-proposals`;
 
   // fetch program proposals
 
@@ -49,10 +38,10 @@ const useProgramProposals = () => {
     error,
     isLoading,
   } = useQuery({
-    queryKey: ["program-proposals"],
+    queryKey: ["program-proposals", role],
     queryFn: async () => {
       const response = await api.get<{ data: ProgramProposalResponse[] }>(
-        "department/program-proposals"
+        endpoint
       );
 
       return response.data.data;
@@ -70,10 +59,7 @@ const useProgramProposals = () => {
     Partial<ProgramProposal>
   >({
     mutationFn: async (newProgramProposal: Partial<ProgramProposal>) => {
-      const response = await api.post(
-        "department/program-proposals",
-        newProgramProposal
-      );
+      const response = await api.post(endpoint, newProgramProposal);
       return response.data;
     },
     onSuccess: () => {
@@ -88,7 +74,7 @@ const useProgramProposals = () => {
     queryKey: ["program-proposal", id],
     queryFn: async () => {
       const response = await api.get<{ data: ProgramProposalResponse }>(
-        `department/program-proposals/${id}`
+        `${endpoint}/${id}`
       );
       return response.data.data;
     },
@@ -97,7 +83,14 @@ const useProgramProposals = () => {
 
   const getProgramProposalFromCache = (id: number) => {
     return {
-      queryKey: ["program-proposals"],
+      queryKey: ["program-proposals", role], // Match the exact key used in the main query
+      queryFn: async () => {
+        // We need to provide a query function even when reading from cache
+        const response = await api.get<{ data: ProgramProposalResponse[] }>(
+          endpoint
+        );
+        return response.data.data;
+      },
       select: (data: ProgramProposalResponse[] | undefined) =>
         data?.find((proposal) => proposal.id === id),
       enabled: !!id,
@@ -111,10 +104,7 @@ const useProgramProposals = () => {
     { id: number; updatedData: Partial<ProgramProposal> }
   >({
     mutationFn: async ({ id, updatedData }) => {
-      const response = await api.put(
-        `department/program-proposals/${id}`,
-        updatedData
-      );
+      const response = await api.put(`${endpoint}/${id}`, updatedData);
       return response.data;
     },
     onSuccess: () => {
@@ -133,7 +123,7 @@ const useProgramProposals = () => {
     DeleteProgramProposalContext
   >({
     mutationFn: async (id) => {
-      await api.delete(`department/program-proposals/${id}`);
+      await api.delete(`${endpoint}/${id}`);
     },
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["programs"] });
@@ -185,10 +175,59 @@ const useProgramProposals = () => {
       );
     },
   });
+
+  const submitProposalReview = useMutation<
+    void,
+    APIError,
+    { proposalId: number; reviewData: ReviewProposalPayload }
+  >({
+    mutationFn: async ({ proposalId, reviewData }) => {
+      const response = await api.post(
+        `${role}/program-proposals/${proposalId}/review`,
+        reviewData
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["program-proposals"] });
+    },
+    onError: (error) => {
+      throw new Error(
+        getErrorMessage(error, "Failed to submit proposal review")
+      );
+    },
+  });
+
+  const submitDepartmentRevisions = useMutation<
+    void,
+    APIError,
+    { proposalId: number; revisionData: SubmitDepartmentRevisionsPayload }
+  >({
+    mutationFn: async ({ proposalId, revisionData }) => {
+      const response = await api.patch(
+        `department/program-proposals/${proposalId}/revise`,
+        revisionData
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate relevant queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["program-proposals"] });
+      queryClient.invalidateQueries({ queryKey: ["programProposalRevisions"] });
+    },
+    onError: (error) => {
+      throw new Error(
+        getErrorMessage(error, "Failed to submit proposal revisions")
+      );
+    },
+  });
+
   return {
     programProposals,
     isLoading,
     submitFullProgramProposal,
+    submitProposalReview,
+    submitDepartmentRevisions,
     error,
     getProgramProposal,
     getProgramProposalFromCache,

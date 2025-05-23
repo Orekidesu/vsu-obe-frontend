@@ -18,11 +18,19 @@ export interface ProgramProposalResponse {
   version: number;
   created_at: string;
   updated_at: string;
+  proposed_by: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
   program: {
     id: number;
     name: string;
     abbreviation: string;
     department_id: number;
+    department_name: string;
+    department_abbreviation: string;
     version: number;
     status: string;
   };
@@ -78,8 +86,29 @@ export interface ProgramProposalResponse {
       po_mappings: Array<{
         po_id: number;
         po_name: string;
-        ird: string;
+        ied: string[]; // since this is json in database
       }>;
     }>;
   };
+  committees: Array<{
+    id: number;
+    user: {
+      id: number;
+      first_name: string;
+      last_name: string;
+      email: string;
+    };
+    assigned_by: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    };
+    assigned_courses: Array<{
+      curriculum_course_id: number;
+      course_code: string;
+      descriptive_title: string;
+      is_completed: boolean;
+      is_in_revision: boolean;
+    }>;
+  }>;
 }

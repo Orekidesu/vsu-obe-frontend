@@ -22,6 +22,7 @@ export interface Session extends DefaultSession {
   Role?: string;
   Faculty?: Faculty;
   Department?: Department;
+  IsCommittee?: boolean;
 }
 
 export const authOptions: NextAuthOptions = {

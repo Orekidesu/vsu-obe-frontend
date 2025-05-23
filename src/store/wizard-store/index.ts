@@ -6,6 +6,8 @@ import { createCourseSlice } from "./course-slice";
 import { createPEOSlice } from "./peo-slice";
 import { createProgramOutcomeSlice } from "./program-outcome-slice";
 import { createMappingSlice } from "./mapping-slice";
+
+import { createCommitteeSlice } from "./committee-slice";
 import {
   predefinedYearSemesters,
   createProgramTemplates,
@@ -20,6 +22,7 @@ export const useWizardStore = create<WizardState>((set, get, api) => ({
   ...createPEOSlice(set, get, api),
   ...createProgramOutcomeSlice(set, get, api),
   ...createMappingSlice(set, get, api),
+  ...createCommitteeSlice(set, get, api),
 
   // Graduate attributes are not in a slice
   graduateAttributes: [],

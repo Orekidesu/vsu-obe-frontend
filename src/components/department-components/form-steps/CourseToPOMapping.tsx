@@ -100,7 +100,7 @@ export function CourseToPOMappingStep({
     switch (level) {
       case "I":
         return "bg-blue-100 text-blue-800 hover:bg-blue-200";
-      case "R":
+      case "E":
         return "bg-green-100 text-green-800 hover:bg-green-200";
       case "D":
         return "bg-purple-100 text-purple-800 hover:bg-purple-200";
@@ -114,8 +114,8 @@ export function CourseToPOMappingStep({
     switch (level) {
       case "I":
         return "Introductory";
-      case "R":
-        return "Reinforcement";
+      case "E":
+        return "Enabling";
       case "D":
         return "Development";
       default:
@@ -153,8 +153,8 @@ export function CourseToPOMappingStep({
                 <span>Introductory</span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className="bg-green-100 text-green-800">R</Badge>
-                <span>Reinforcement</span>
+                <Badge className="bg-green-100 text-green-800">E</Badge>
+                <span>Enabling</span>
               </div>
               <div className="flex items-center gap-2">
                 <Badge className="bg-purple-100 text-purple-800">D</Badge>
@@ -179,7 +179,7 @@ export function CourseToPOMappingStep({
                 <TooltipContent className="max-w-md">
                   <p>
                     Select a course, then use the checkboxes to assign
-                    contribution levels (I, R, D) to each Program Outcome. A
+                    contribution levels (I, E, D) to each Program Outcome. A
                     course can have multiple contribution levels for each PO.
                   </p>
                 </TooltipContent>
@@ -194,7 +194,7 @@ export function CourseToPOMappingStep({
             <SelectContent>
               {curriculumCourses.map((course) => (
                 <SelectItem key={course.id} value={course.id.toString()}>
-                  {course.code} - {course.title}
+                  {course.code} - {course.descriptive_title}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -215,7 +215,7 @@ export function CourseToPOMappingStep({
               {
                 curriculumCourses.find(
                   (c) => c.id.toString() === selectedCourse
-                )?.title
+                )?.descriptive_title
               }
             </h3>
 
@@ -298,7 +298,7 @@ export function CourseToPOMappingStep({
                                 Contribution Levels
                               </h4>
                               <div className="space-y-2">
-                                {(["I", "R", "D"] as ContributionLevel[]).map(
+                                {(["I", "E", "D"] as ContributionLevel[]).map(
                                   (level) => (
                                     <div
                                       key={level}
@@ -378,7 +378,7 @@ export function CourseToPOMappingStep({
                               <span>{course.code}</span>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{course.title}</p>
+                              <p>{course.descriptive_title}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>

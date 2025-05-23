@@ -56,10 +56,10 @@ export interface CourseCategory {
 export interface Course {
   id: number;
   code: string;
-  title: string;
+  descriptive_title: string;
 }
 
-export type ContributionLevel = "I" | "R" | "D";
+export type ContributionLevel = "I" | "E" | "D";
 
 export interface CourseToPOMapping {
   courseId: number;
@@ -71,6 +71,17 @@ export interface CurriculumCourse extends Course {
   categoryId: string;
   yearSemesterId: string;
   units: number;
+}
+
+export interface Committee {
+  id: number;
+  first_name: string;
+  last_name: string;
+}
+
+export interface CommitteeCourseAssignment {
+  committeeId: number;
+  courseId: number;
 }
 
 export interface WizardState {
@@ -90,6 +101,9 @@ export interface WizardState {
   premadeCourses: Course[];
   curriculumCourses: CurriculumCourse[];
   courseToPOMappings: CourseToPOMapping[];
+  committees: Committee[];
+  selectedCommittees: number[];
+  committeeCourseAssignments: CommitteeCourseAssignment[];
 
   // Educational objectives
   peos: ProgramEducationalObjective[];
@@ -145,6 +159,14 @@ export interface WizardState {
   ) => void;
   removeCourseToPOMapping: (courseId: number, poId: number) => void;
   setPremadeCourses: (courses: Course[]) => void;
+  setSelectedCommittees: (committeeIds: number[]) => void;
+  addCommittee: (committeeId: number) => void;
+  removeCommittee: (committeeId: number) => void;
+  setCommittees: (committees: Committee[]) => void;
+
+  assignCourseToCommittee: (committeeId: number, courseId: number) => void;
+  removeCourseAssignment: (courseId: number) => void;
+  getCommitteeForCourse: (courseId: number) => number | null;
 
   // Actions - PEO related
   addPEO: () => void;

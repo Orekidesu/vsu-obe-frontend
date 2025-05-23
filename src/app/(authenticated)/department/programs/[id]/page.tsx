@@ -14,13 +14,14 @@ import { CourseCategories } from "@/components/commons/program-details/course-ca
 import { ProgramStructure } from "@/components/commons/program-details/program-structure";
 import { CurriculumCourses } from "@/components/commons/program-details/curriculum-courses";
 import { MappingTable } from "@/components/commons/program-details/mapping-table";
+import { CommitteeAssignments } from "@/components/commons/program-details/committee-assignments";
 
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { useAuth } from "@/hooks/useAuth";
 
 // Import custom hooks and types
-import usePrograms from "@/hooks/department/useProgram";
+import usePrograms from "@/hooks/shared/useProgram";
 import { ProgramResponse } from "@/types/model/Program";
 
 interface CurriculumCourse {
@@ -77,9 +78,21 @@ export default function ActiveProgramReviewPage() {
     course_po_mappings: [] as {
       course_code: string;
       po_code: string;
-      ird: string[];
+      ied: string[];
     }[],
     missions: [] as { id: number; statement: string }[],
+    committees: [] as Array<{
+      id: string;
+      name: string;
+      email: string;
+      description: string;
+    }>,
+    committeeAssignments: [] as Array<{
+      committeeId: string;
+      courseId: string;
+      isCompleted: boolean;
+      isInRevision: boolean;
+    }>,
   });
 
   // Transform API data when it's loaded
@@ -191,11 +204,11 @@ export default function ActiveProgramReviewPage() {
       });
     });
 
-    // Create Course to PO mappings with IRD groups
+    // Create Course to PO mappings with IED groups
     const coursePOMappings: {
       course_code: string;
       po_code: string;
-      ird: string[];
+      ied: string[];
     }[] = [];
 
     data.curriculum.courses.forEach((course) => {
@@ -208,16 +221,16 @@ export default function ActiveProgramReviewPage() {
         );
 
         if (existingMapping) {
-          // Add IRD level if not already present
-          if (!existingMapping.ird.includes(mapping.ird)) {
-            existingMapping.ird.push(mapping.ird);
+          // Add IED level if not already present
+          if (!existingMapping.ied.includes(mapping.ied)) {
+            existingMapping.ied.push(mapping.ied);
           }
         } else {
           // Create new mapping
           coursePOMappings.push({
             course_code: course.course.code,
             po_code: mapping.po_name,
-            ird: [mapping.ird],
+            ied: [mapping.ied],
           });
         }
       });
@@ -231,6 +244,33 @@ export default function ActiveProgramReviewPage() {
       semester_name: course.semester.sem,
       units: parseFloat(course.units),
     }));
+
+    // Transform committees data
+    const committees =
+      data.committees?.map((committee) => ({
+        id: committee.id.toString(),
+        name: `${committee.user.first_name} ${committee.user.last_name}`,
+        email: committee.user.email,
+        description: `Assigned by ${committee.assigned_by.first_name} ${committee.assigned_by.last_name}`,
+      })) || [];
+
+    // Transform committee assignments
+    const committeeAssignments: Array<{
+      committeeId: string;
+      courseId: string;
+      isCompleted: boolean;
+      isInRevision: boolean;
+    }> = [];
+    data.committees?.forEach((committee) => {
+      committee.assigned_courses.forEach((course) => {
+        committeeAssignments.push({
+          committeeId: committee.id.toString(),
+          courseId: course.course_code,
+          isCompleted: course.is_completed, // Include is_completed status
+          isInRevision: course.is_in_revision || false,
+        });
+      });
+    });
 
     // Set the transformed data
     setTransformedData({
@@ -255,6 +295,8 @@ export default function ActiveProgramReviewPage() {
       po_ga_mappings: poGaMappings,
       course_po_mappings: coursePOMappings,
       missions: Array.from(uniqueMissions.values()),
+      committees,
+      committeeAssignments,
     });
   };
 
@@ -277,7 +319,7 @@ export default function ActiveProgramReviewPage() {
     switch (level) {
       case "I":
         return "bg-blue-100 text-blue-800";
-      case "R":
+      case "E":
         return "bg-green-100 text-green-800";
       case "D":
         return "bg-purple-100 text-purple-800";
@@ -460,6 +502,7 @@ export default function ActiveProgramReviewPage() {
         programAbbreviation={transformedData.program.abbreviation}
         curriculumName={transformedData.curriculum.name}
         totalCourses={transformedData.curriculum_courses.length}
+        status={programData?.status || ""}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
@@ -467,14 +510,17 @@ export default function ActiveProgramReviewPage() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
           <TabsTrigger value="mappings">Mappings</TabsTrigger>
+          <TabsTrigger value="committees">Committees</TabsTrigger>
         </TabsList>
 
+        {/* Overview */}
         <TabsContent value="overview" className="space-y-6">
           <PEOSection peos={transformedData.peos} />
           <POSection pos={transformedData.pos} />
           <CourseCategories categories={transformedData.course_categories} />
         </TabsContent>
 
+        {/* Curriculum */}
         <TabsContent value="curriculum" className="space-y-6">
           <ProgramStructure
             semesters={transformedData.semesters}
@@ -488,6 +534,7 @@ export default function ActiveProgramReviewPage() {
           />
         </TabsContent>
 
+        {/* mappings */}
         <TabsContent value="mappings" className="space-y-6">
           <MappingTable
             title="PEO to Mission Mapping"
@@ -524,6 +571,15 @@ export default function ActiveProgramReviewPage() {
             coursePOMappings={transformedData.course_po_mappings}
             getSemesterName={getSemesterName}
             getLevelBadgeColor={getLevelBadgeColor}
+          />
+        </TabsContent>
+
+        {/* Committees */}
+        <TabsContent value="committees" className="space-y-6">
+          <CommitteeAssignments
+            committees={transformedData.committees}
+            committeeAssignments={transformedData.committeeAssignments}
+            courses={transformedData.courses}
           />
         </TabsContent>
       </Tabs>

@@ -19,7 +19,7 @@ import {
   Trash2,
   FileSearch2,
 } from "lucide-react";
-import useUsers from "@/hooks/admin/useUser";
+import useUsers from "@/hooks/shared/useUser";
 import CustomDropdown from "@/components/commons/dropdown/CustomDropdown";
 import CustomDialog from "@/components/commons/dialog/CustomDialog";
 import { CustomAlertDialog } from "@/components/commons/alert-dialog/CustomAlertDialog";
@@ -169,7 +169,7 @@ const UserTable = () => {
   const roleColors: { [key: string]: string } = {
     Dean: "bg-green-200 text-green-800",
     Department: "bg-yellow-200 text-yellow-800",
-    Staff: "bg-orange-200 text-orange-800",
+    Faculty_Member: "bg-orange-200 text-orange-800",
   };
   return (
     <div className="w-full">

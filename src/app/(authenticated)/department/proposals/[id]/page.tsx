@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 
 import { ProgramHeader } from "@/components/commons/program-details/program-header";
 import { ProgramSummary } from "@/components/commons/program-details/program-summary";
@@ -14,14 +13,16 @@ import { CourseCategories } from "@/components/commons/program-details/course-ca
 import { ProgramStructure } from "@/components/commons/program-details/program-structure";
 import { CurriculumCourses } from "@/components/commons/program-details/curriculum-courses";
 import { MappingTable } from "@/components/commons/program-details/mapping-table";
-import { ApproveDialog } from "@/components/commons/program-details/approve-dialog";
-import { RejectDialog } from "@/components/commons/program-details/reject-dialog";
-import { ReviseDialog } from "@/components/commons/program-details/revise-dialog";
+
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
+import { CommitteeAssignments } from "@/components/commons/program-details/committee-assignments";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 import { useAuth } from "@/hooks/useAuth";
 
-// Import custom hooks and types
+import { toast } from "@/hooks/use-toast"; // Import toast at the top
+import useApi from "@/hooks/useApi"; // Import useApi at the top
+import { useQueryClient } from "@tanstack/react-query";
+
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import type { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 
@@ -42,30 +43,20 @@ export default function PendingProgramReviewPage() {
   const role = (session as Session)?.Role;
 
   const [activeTab, setActiveTab] = useState("overview");
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [reviseDialogOpen, setReviseDialogOpen] = useState(false);
-  const [feedback, setFeedback] = useState("");
-  const [revisionRequests, setRevisionRequests] = useState<
-    { section: string; details: string }[]
-  >([]);
-  const [currentSection, setCurrentSection] = useState("");
-  const [currentDetails, setCurrentDetails] = useState("");
+
   const [actionTaken, setActionTaken] = useState<string | null>(null);
 
-  // Get program proposal hooks
-  const { getProgramProposalFromCache, updateProgramProposal } =
-    useProgramProposals();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const api = useApi();
+  const queryClient = useQueryClient();
 
   // Fetch program proposal data
-  const {
-    data: programData,
-    error,
-    isLoading,
-  } = useQuery({
-    ...getProgramProposalFromCache(proposalId),
-    enabled: !!proposalId,
-  });
+  const { programProposals, isLoading, error } = useProgramProposals();
+
+  const programData = programProposals?.find(
+    (proposal) => proposal.id === proposalId
+  );
 
   // Transformed data for components
   const [transformedData, setTransformedData] = useState({
@@ -90,9 +81,21 @@ export default function PendingProgramReviewPage() {
     course_po_mappings: [] as {
       course_code: string;
       po_code: string;
-      ird: string[];
+      ied: string[];
     }[],
     missions: [] as { id: number; statement: string }[],
+    committees: [] as Array<{
+      id: string;
+      name: string;
+      email: string;
+      description: string;
+    }>,
+    committeeAssignments: [] as Array<{
+      committeeId: string;
+      courseId: string;
+      isCompleted: boolean;
+      isInRevision: boolean;
+    }>,
   });
 
   // Transform API data when it's loaded
@@ -101,7 +104,8 @@ export default function PendingProgramReviewPage() {
       programData &&
       programData.curriculum &&
       programData.peos &&
-      programData.pos
+      programData.pos &&
+      programData.committees
     ) {
       transformApiData(programData);
     }
@@ -211,7 +215,7 @@ export default function PendingProgramReviewPage() {
     const coursePOMappings: {
       course_code: string;
       po_code: string;
-      ird: string[];
+      ied: string[];
     }[] = [];
     data.curriculum.courses.forEach((course) => {
       course.po_mappings.forEach((mapping) => {
@@ -221,7 +225,7 @@ export default function PendingProgramReviewPage() {
           coursePOMappings.push({
             course_code: course.course.code,
             po_code: po.name,
-            ird: [mapping.ird], // Convert single IRD to array format
+            ied: mapping.ied, // Convert single IED to array format
           });
         }
       });
@@ -235,6 +239,33 @@ export default function PendingProgramReviewPage() {
       semester_name: course.semester.sem,
       units: Number.parseFloat(course.units),
     }));
+
+    const committees =
+      data.committees?.map((committee) => ({
+        id: committee.id.toString(),
+        name: `${committee.user.first_name} ${committee.user.last_name}`,
+        email: committee.user.email,
+        description: `Assigned by ${committee.assigned_by.first_name} ${committee.assigned_by.last_name}`,
+      })) || [];
+
+    // Transform committee assignments
+    const committeeAssignments: Array<{
+      committeeId: string;
+      courseId: string;
+      isCompleted: boolean;
+      isInRevision: boolean;
+    }> = [];
+
+    data.committees?.forEach((committee) => {
+      committee.assigned_courses.forEach((course) => {
+        committeeAssignments.push({
+          committeeId: committee.id.toString(),
+          courseId: course.course_code,
+          isCompleted: course.is_completed || false, // Default to false if not provided
+          isInRevision: course.is_in_revision || false, // Default to false if not provided
+        });
+      });
+    });
 
     // Set the transformed data
     setTransformedData({
@@ -258,6 +289,8 @@ export default function PendingProgramReviewPage() {
       po_ga_mappings: poGaMappings,
       course_po_mappings: coursePOMappings,
       missions: Array.from(uniqueMissions.values()),
+      committees,
+      committeeAssignments,
     });
   };
 
@@ -280,7 +313,7 @@ export default function PendingProgramReviewPage() {
     switch (level) {
       case "I":
         return "bg-blue-100 text-blue-800";
-      case "R":
+      case "E":
         return "bg-green-100 text-green-800";
       case "D":
         return "bg-purple-100 text-purple-800";
@@ -291,6 +324,7 @@ export default function PendingProgramReviewPage() {
 
   // Group curriculum courses by year-semester
   const groupedCourses: Record<string, CurriculumCourse[]> = {};
+
   transformedData.semesters.forEach((sem) => {
     const key = `${sem.year}-${sem.sem}`;
 
@@ -313,87 +347,6 @@ export default function PendingProgramReviewPage() {
         };
       });
   });
-
-  // Handle approve action
-  const handleApprove = () => {
-    setConfirmDialogOpen(true);
-  };
-
-  // Confirm approval
-  const confirmApprove = async () => {
-    try {
-      await updateProgramProposal.mutateAsync({
-        id: proposalId,
-        updatedData: { status: "approved" },
-      });
-      setConfirmDialogOpen(false);
-      setActionTaken("approved");
-    } catch (error) {
-      console.error("Error approving program:", error);
-    }
-  };
-
-  // Handle reject action
-  const handleReject = () => {
-    setRejectDialogOpen(true);
-  };
-
-  // Confirm rejection
-  const confirmReject = async () => {
-    try {
-      await updateProgramProposal.mutateAsync({
-        id: proposalId,
-        updatedData: { status: "rejected", comment: feedback },
-      });
-      setRejectDialogOpen(false);
-      setActionTaken("rejected");
-    } catch (error) {
-      console.error("Error rejecting program:", error);
-    }
-  };
-
-  // Handle revise action
-  const handleRevise = () => {
-    setReviseDialogOpen(true);
-  };
-
-  // Add revision request
-  const addRevisionRequest = () => {
-    if (currentSection && currentDetails) {
-      setRevisionRequests([
-        ...revisionRequests,
-        { section: currentSection, details: currentDetails },
-      ]);
-      setCurrentSection("");
-      setCurrentDetails("");
-    }
-  };
-
-  // Remove revision request
-  const removeRevisionRequest = (index: number) => {
-    const updatedRequests = [...revisionRequests];
-    updatedRequests.splice(index, 1);
-    setRevisionRequests(updatedRequests);
-  };
-
-  // Confirm revision request
-  const confirmRevise = async () => {
-    try {
-      // Format the revision requests into a comment
-      const revisionComment = revisionRequests
-        .map((req) => `${req.section}: ${req.details}`)
-        .join("\n\n");
-
-      await updateProgramProposal.mutateAsync({
-        id: proposalId,
-        updatedData: { status: "revision", comment: revisionComment },
-      });
-      setReviseDialogOpen(false);
-      setActionTaken("revision");
-    } catch (error) {
-      console.error("Error requesting revisions:", error);
-    }
-  };
 
   // Prepare data for mapping tables
   const preparePEOToMissionMapping = () => {
@@ -499,6 +452,46 @@ export default function PendingProgramReviewPage() {
   const poToGAMapping = preparePOToGAMapping();
   // const courseToPOMapping = prepareCourseToPOMapping();
 
+  // const handleSubmitForReview = () => {
+  //   alert(
+  //     "Program is ready for review! All courses have been completed by committee members."
+  //   );
+  // };
+  const handleSubmitForReview = async () => {
+    try {
+      setIsSubmitting(true);
+      // Call the API directly
+      await api.patch<{ data: ProgramProposalResponse }>(
+        `department/program-proposals/${proposalId}/check-ready-for-review`
+      );
+
+      // Handle success
+      toast({
+        title: "Success",
+        description: "Program has been submitted for review successfully.",
+        variant: "success",
+      });
+
+      // Refresh the page data
+      queryClient.invalidateQueries({ queryKey: ["program-proposals"] });
+      queryClient.invalidateQueries({
+        queryKey: ["program-proposal", proposalId],
+      });
+      setActionTaken("review");
+    } catch (error) {
+      console.error("Error submitting for review:", error);
+      setIsSubmitting(false);
+      toast({
+        title: "Submission Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to submit program for review. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Show loading state
   if (isLoading) {
     return (
@@ -539,9 +532,6 @@ export default function PendingProgramReviewPage() {
         programName={transformedData.program.name}
         programAbbreviation={transformedData.program.abbreviation}
         actionTaken={actionTaken || programData?.status || null}
-        onApprove={handleApprove}
-        onRevise={handleRevise}
-        onReject={handleReject}
         role={role}
       />
 
@@ -550,6 +540,7 @@ export default function PendingProgramReviewPage() {
         programAbbreviation={transformedData.program.abbreviation}
         curriculumName={transformedData.curriculum.name}
         totalCourses={transformedData.curriculum_courses.length}
+        status={programData?.status || ""}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
@@ -557,14 +548,16 @@ export default function PendingProgramReviewPage() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
           <TabsTrigger value="mappings">Mappings</TabsTrigger>
+          <TabsTrigger value="committees">Committees</TabsTrigger>
         </TabsList>
 
+        {/* Overview */}
         <TabsContent value="overview" className="space-y-6">
           <PEOSection peos={transformedData.peos} />
           <POSection pos={transformedData.pos} />
           <CourseCategories categories={transformedData.course_categories} />
         </TabsContent>
-
+        {/* Curriculum */}
         <TabsContent value="curriculum" className="space-y-6">
           <ProgramStructure
             semesters={transformedData.semesters}
@@ -578,6 +571,7 @@ export default function PendingProgramReviewPage() {
           />
         </TabsContent>
 
+        {/* Mappings */}
         <TabsContent value="mappings" className="space-y-6">
           <MappingTable
             title="PEO to Mission Mapping"
@@ -617,35 +611,41 @@ export default function PendingProgramReviewPage() {
             getLevelBadgeColor={getLevelBadgeColor}
           />
         </TabsContent>
+
+        {/* Committees */}
+        <TabsContent value="committees" className="space-y-6">
+          {programData?.committees && programData.committees.length > 0 ? (
+            <>
+              {/* Add committee data transformation to transformApiData function */}
+              <CommitteeAssignments
+                committees={transformedData.committees}
+                committeeAssignments={transformedData.committeeAssignments}
+                courses={transformedData.courses}
+                onSubmitForReview={handleSubmitForReview}
+                isSubmitting={isSubmitting}
+                showReadyForReviewButton={
+                  programData?.status === "pending" ||
+                  programData?.status === "revision"
+                }
+              />
+            </>
+          ) : (
+            <div className="text-center p-10 border rounded-lg bg-muted">
+              <h3 className="text-xl font-medium mb-2">
+                No Committee Assignments
+              </h3>
+              <p className="text-muted-foreground">
+                There are currently no committee members assigned to this
+                program proposal.
+              </p>
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
 
       {/* Dialogs */}
-      <ApproveDialog
-        open={confirmDialogOpen}
-        onOpenChange={setConfirmDialogOpen}
-        onConfirm={confirmApprove}
-      />
 
-      <RejectDialog
-        open={rejectDialogOpen}
-        onOpenChange={setRejectDialogOpen}
-        feedback={feedback}
-        setFeedback={setFeedback}
-        onConfirm={confirmReject}
-      />
-
-      <ReviseDialog
-        open={reviseDialogOpen}
-        onOpenChange={setReviseDialogOpen}
-        currentSection={currentSection}
-        setCurrentSection={setCurrentSection}
-        currentDetails={currentDetails}
-        setCurrentDetails={setCurrentDetails}
-        revisionRequests={revisionRequests}
-        addRevisionRequest={addRevisionRequest}
-        removeRevisionRequest={removeRevisionRequest}
-        onConfirm={confirmRevise}
-      />
+      {/* Submit for review Button Here */}
     </main>
   );
 }
