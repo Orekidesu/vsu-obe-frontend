@@ -20,7 +20,7 @@ interface CurriculumCoursesStepProps {
   courseCategories: CourseCategory[];
   yearSemesters: YearSemester[];
   curriculumCourses: CurriculumCourse[];
-  addCourse: (code: string, title: string) => number;
+  addCourse: (code: string, descriptive_title: string) => number;
   addCurriculumCourse: (
     courseId: number,
     categoryId: string,

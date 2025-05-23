@@ -13,6 +13,20 @@ const getCustomPathname = (path: string) => {
         return "Unknown Path";
     }
   }
+  if (path.startsWith("/dean")) {
+    switch (path) {
+      case "/dean":
+        return "Dashboard";
+      case "/dean/proposals/all-programs":
+        return "Program Proposals";
+      case "/dean/proposals/all-syllabi":
+        return "Syllabi Proposals";
+      case "/dean/settings":
+        return "Settings";
+      default:
+        return "Unknown Path";
+    }
+  }
 
   if (path.startsWith("/department")) {
     switch (path) {
@@ -37,6 +51,24 @@ const getCustomPathname = (path: string) => {
         if (path.startsWith("/department/programs")) {
           return "Programs";
         }
+        return "Dashboard";
+    }
+  }
+
+  if (path.startsWith("/faculty")) {
+    switch (path) {
+      case "/faculty":
+        return "Dashboard";
+      case "/faculty/courses":
+        return "Course Management";
+      case "/faculty/syllabi/all-syllabi":
+        return "All Syllabi";
+      case "/faculty/syllabi/archive":
+        return "Archived Syllabi";
+      case "/faculty/settings":
+        return "Settings";
+
+      default:
         return "Dashboard";
     }
   }

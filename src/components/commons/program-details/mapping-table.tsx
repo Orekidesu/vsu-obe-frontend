@@ -83,7 +83,7 @@ export function MappingTable({
                         (m) => m.rowId === row.id && m.colId === col.id
                       );
 
-                      // For contribution levels (IRD)
+                      // For contribution levels (IED)
                       const contribution = contributionLevels?.find(
                         (c) => c.rowId === row.id && c.colId === col.id
                       );

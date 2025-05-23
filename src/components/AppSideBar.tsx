@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import {
   LogOut,
@@ -8,7 +6,7 @@ import {
   LayoutDashboard,
   BookOpenText,
   ChevronDown,
-  LucideUsers,
+  // LucideUsers,
   GraduationCap,
   Settings,
 } from "lucide-react";
@@ -36,6 +34,7 @@ import {
 import handleLogout from "@/app/utils/handleLogout";
 import Image from "next/image";
 import vsuLogo from "../../public/assets/images/vsu_logo.png";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 
 type MenuItem = {
   title: string;
@@ -59,7 +58,18 @@ const roleMenuItems: Record<string, MenuItem[]> = {
       icon: Settings,
     },
   ],
-  Dean: [{ title: "Dashboard", url: "/dean/dashboard", icon: LayoutDashboard }],
+  Dean: [
+    { title: "Dashboard", url: "/dean", icon: LayoutDashboard },
+    {
+      title: "Proposals",
+      icon: BookOpenText,
+      submenus: [
+        { title: "All Programs", url: "/dean/proposals/all-programs" },
+        { title: "All Syllabi", url: "/dean/proposals/all-syllabi" },
+      ],
+    },
+    { title: "Settings", url: "/dean/settings", icon: Settings },
+  ],
   Department: [
     { title: "Dashboard", url: "/department", icon: LayoutDashboard },
     {
@@ -67,25 +77,43 @@ const roleMenuItems: Record<string, MenuItem[]> = {
       icon: BookOpenText,
       submenus: [
         { title: "All Programs", url: "/department/programs/all-programs" },
-        // { title: "Active Programs", url: "/department/programs/active" },
-        // { title: "Pending Programs", url: "/department/programs/pending" },
-        // { title: "Add Program", url: "/department/programs/add" },
         { title: "Archived", url: "/department/programs/archive" },
       ],
     },
     {
-      title: "Courses",
+      title: "Assign Courses",
       url: "/department/courses",
       icon: GraduationCap,
     },
-    {
-      title: "Committees",
-      url: "/department/committees",
-      icon: LucideUsers,
-    },
+    // {
+    //   title: "Committees",
+    //   url: "/department/committees",
+    //   icon: LucideUsers,
+    // },
     {
       title: "Settings",
       url: "/department/settings",
+      icon: Settings,
+    },
+  ],
+  Faculty_Member: [
+    { title: "Dashboard", url: "/faculty", icon: LayoutDashboard },
+    {
+      title: "Syllabi",
+      icon: BookOpenText,
+      submenus: [
+        { title: "All Syllabi", url: "/faculty/syllabi/all-syllabi" },
+        { title: "Archived", url: "/faculty/syllabi/archive" },
+      ],
+    },
+    {
+      title: "Manage Courses",
+      url: "/faculty/courses",
+      icon: GraduationCap,
+    },
+    {
+      title: "Settings",
+      url: "/faculty/settings",
       icon: Settings,
     },
   ],
@@ -93,12 +121,61 @@ const roleMenuItems: Record<string, MenuItem[]> = {
 
 interface AppSidebarProps {
   role: string;
-  session: { accessToken?: string };
+  session: Session;
 }
 
 const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
   const pathname = usePathname();
   const roleBasedMenu = roleMenuItems[role] || [];
+
+  // Generate personalized display info based on role
+  const getPersonalizedDisplay = () => {
+    if (role === "Admin") {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">Admin</p>
+        </div>
+      );
+    } else if (role === "Dean" && session.Faculty) {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">{`Dean`}</p>
+          <p className="text-sm font-thin pt-2 ">{`${session.Faculty.name}`}</p>
+        </div>
+      );
+    } else if (role === "Department" && session.Department) {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">{`Department`}</p>
+          <p className="text-sm font-thin pt-2 ">
+            {`${session.Department.name}`}
+          </p>
+          <p className="text-sm font-thin ">{` (${session.Department.abbreviation})`}</p>
+        </div>
+      );
+    } else if (role === "Faculty_Member" && session.Department) {
+      return (
+        <div className="flex flex-col items-center text-center">
+          <p className="font-semibold">{`Faculty Member`}</p>
+          <p className="text-sm font-thin pt-2 ">
+            {`${session.Department.name}`}
+          </p>
+          <p className="text-sm font-thin ">{` (${session.Department.abbreviation})`}</p>
+        </div>
+      );
+    }
+    // Fallback if no role-specific display is available
+    return (
+      <div className="flex flex-col items-center text-center">
+        <p className="font-semibold">{role}</p>
+        {session.First_Name && session.Last_Name && (
+          <p className="text-xs text-muted-foreground mt-1">
+            {`${session.First_Name} ${session.Last_Name}`}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   const renderMenuItem = (item: MenuItem) => (
     <SidebarMenuItem key={item.title}>
@@ -152,7 +229,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
             height={80}
             priority
           />
-          <p className="font-semibold">{role}</p>
+          {getPersonalizedDisplay()}
         </div>
       </SidebarHeader>
       <SidebarContent>

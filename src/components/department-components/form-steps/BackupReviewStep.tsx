@@ -718,7 +718,7 @@ export function ReviewStep({
                               key={`${course.id}-${course.yearSemesterId}`}
                             >
                               <TableCell>{course.code}</TableCell>
-                              <TableCell>{course.title}</TableCell>
+                              <TableCell>{course.descriptive_title}</TableCell>
                               <TableCell>
                                 {courseCategories.find(
                                   (category) =>
@@ -773,8 +773,8 @@ export function ReviewStep({
                     <span>Introductory</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-green-100 text-green-800">R</Badge>
-                    <span>Reinforcement</span>
+                    <Badge className="bg-green-100 text-green-800">E</Badge>
+                    <span>Enabling</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge className="bg-purple-100 text-purple-800">D</Badge>

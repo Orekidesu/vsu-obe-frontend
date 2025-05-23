@@ -81,10 +81,31 @@ export interface ProgramResponse {
       po_mappings: Array<{
         po_id: number;
         po_name: string;
-        ird: string;
+        ied: string;
       }>;
     }>;
   };
+  committees: Array<{
+    id: number;
+    user: {
+      id: number;
+      first_name: string;
+      last_name: string;
+      email: string;
+    };
+    assigned_by: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    };
+    assigned_courses: Array<{
+      curriculum_course_id: number;
+      course_code: string;
+      descriptive_title: string;
+      is_completed: boolean;
+      is_in_revision: boolean;
+    }>;
+  }>;
   proposal: {
     id: number;
     status: string;
@@ -93,4 +114,9 @@ export interface ProgramResponse {
     created_at: string;
     updated_at: string;
   };
+  // meta: {
+  //   total_pending: number;
+  //   total_active: number;
+  //   total_archived: number;
+  // };
 }

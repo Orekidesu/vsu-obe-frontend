@@ -2,27 +2,37 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Program, ProgramResponse } from "@/types/model/Program";
 import { APIError } from "@/app/utils/errorHandler";
 import useApi from "../useApi";
+import { useAuth } from "@/hooks/useAuth";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 
 interface DeleteProgramContext {
   previousPrograms?: Program[];
 }
 
-const usePrograms = () => {
+interface useProgramOptions {
+  role?: "dean" | "department";
+}
+
+const usePrograms = (options: useProgramOptions = {}) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { session } = useAuth();
+
+  const role =
+    options.role ||
+    ((session as Session)?.Role === "Department" ? "department" : "dean");
 
   // fetch programs
+  const endpoint = `${role}/programs`;
 
   const {
     data: programs,
     error,
     isLoading,
   } = useQuery({
-    queryKey: ["programs"],
+    queryKey: ["programs", role],
     queryFn: async () => {
-      const response = await api.get<{ data: ProgramResponse[] }>(
-        "department/programs"
-      );
+      const response = await api.get<{ data: ProgramResponse[] }>(endpoint);
 
       return response.data.data;
     },
@@ -35,7 +45,7 @@ const usePrograms = () => {
   // Create Program
   const createProgram = useMutation<void, APIError, Partial<Program>>({
     mutationFn: async (newProgram: Partial<Program>) => {
-      const response = await api.post("department/programs", newProgram);
+      const response = await api.post(endpoint, newProgram);
       return response.data;
     },
     onSuccess: () => {
@@ -50,7 +60,7 @@ const usePrograms = () => {
     queryKey: ["program", id],
     queryFn: async () => {
       const response = await api.get<{ data: ProgramResponse }>(
-        `department/programs/${id}`
+        `${endpoint}/${id}`
       );
       return response.data.data;
     },
@@ -59,7 +69,7 @@ const usePrograms = () => {
 
   const getProgramFromCache = (id: number) => {
     return {
-      queryKey: ["programs"],
+      queryKey: ["programs", role],
       select: (data: ProgramResponse[] | undefined) =>
         data?.find((program) => program.id === id),
       enabled: !!id,
@@ -74,7 +84,7 @@ const usePrograms = () => {
     { id: number; updatedData: Partial<Program> }
   >({
     mutationFn: async ({ id, updatedData }) => {
-      const response = await api.put(`department/programs/${id}`, updatedData);
+      const response = await api.put(`${endpoint}/${id}`, updatedData);
       return response.data;
     },
     onSuccess: () => {
@@ -93,7 +103,7 @@ const usePrograms = () => {
     DeleteProgramContext
   >({
     mutationFn: async (id) => {
-      await api.delete(`department/programs/${id}`);
+      await api.delete(`${endpoint}/${id}`);
     },
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["programs"] });

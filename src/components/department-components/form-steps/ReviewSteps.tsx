@@ -4,12 +4,22 @@ import { Mission } from "@/types/model/Mission";
 import { GraduateAttribute } from "@/types/model/GraduateAttributes";
 import { ProgramEducationalObjective } from "@/types/model/ProgramEducationalObjective";
 
+// import { Button } from "@/components/ui/button";
+// import {
+//   AccordionContent,
+//   AccordionItem,
+//   AccordionTrigger,
+// } from "@/components/ui/accordion";
+// import { ChevronRight, CheckCircle2 } from "lucide-react";
+
 import type {
   ProgramOutcome,
   YearSemester,
   CourseCategory,
   CurriculumCourse,
   CourseToPOMapping,
+  Committee,
+  // CommitteeCourseAssignment,
 } from "@/store/wizard-store";
 
 // Import sub-components
@@ -24,7 +34,14 @@ import { CurriculumStructureSection } from "./review-components/CurriculumStruct
 import { CourseCategoriesSection } from "./review-components/CourseCategorySection";
 import { CurriculumCoursesSection } from "./review-components/CurriculumCourseSection";
 import { CoursePOMappingSection } from "./review-components/CourseToPOSection";
+import { CommitteeSection } from "./review-components/CommitteeSection";
+import { CommitteeCourseAssignmentSection } from "./review-components/CommitteeCourseSection";
 import { FinalConfirmation } from "./review-components/FinalConfirmation";
+
+type CommitteeCourseAssignment = {
+  committeeId: number;
+  courseId: number;
+};
 
 interface ReviewStepProps {
   formType: string;
@@ -45,6 +62,12 @@ interface ReviewStepProps {
   gaToPEOMappings: { gaId: number; peoId: number }[];
   poToPEOMappings: { poId: number; peoId: number }[];
   poToGAMappings: { poId: number; gaId: number }[];
+  selectedCommittees: number[];
+  committees: Committee[];
+  committeeCourseAssignments: CommitteeCourseAssignment[];
+  isConfirmed: boolean;
+  setIsConfirmed: (value: boolean) => void;
+
   goToStep: (step: number) => void;
 }
 
@@ -67,6 +90,13 @@ export function ReviewStep({
   gaToPEOMappings,
   poToPEOMappings,
   poToGAMappings,
+  selectedCommittees,
+  committees,
+  committeeCourseAssignments,
+
+  isConfirmed,
+  setIsConfirmed,
+
   goToStep,
 }: ReviewStepProps) {
   const [expandedSections, setExpandedSections] = useState<string[]>([
@@ -163,8 +193,28 @@ export function ReviewStep({
             courseToPOMappings={courseToPOMappings}
             goToStep={goToStep}
           />
+          {/* Add a new section for committees in the ReviewStep component */}
+
+          <CommitteeSection
+            committees={committees}
+            selectedCommittees={selectedCommittees}
+            goToStep={goToStep}
+          />
+
+          {/* Committee Course Assignments Section */}
+          <CommitteeCourseAssignmentSection
+            committees={committees}
+            curriculumCourses={curriculumCourses}
+            yearSemesters={yearSemesters}
+            committeeCourseAssignments={committeeCourseAssignments}
+            goToStep={goToStep}
+          />
         </Accordion>
-        <FinalConfirmation />
+
+        <FinalConfirmation
+          isConfirmed={isConfirmed}
+          setIsConfirmed={setIsConfirmed}
+        />
       </div>
     </>
   );
