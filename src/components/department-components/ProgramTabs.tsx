@@ -27,6 +27,10 @@ export default function ProgramTabs() {
   const { session } = useAuth() as { session: Session | null };
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("active");
+  const [submittingProposalId, setSubmittingProposalId] = useState<
+    number | null
+  >(null);
+
   const api = useApi();
   const queryClient = useQueryClient();
 
@@ -98,6 +102,8 @@ export default function ProgramTabs() {
   // Handle submission for review
   const handleSubmitForReview = async (proposalId: number) => {
     try {
+      setSubmittingProposalId(proposalId); // Set the ID of the proposal being submitted
+
       await api.patch<{ data: ProgramProposalResponse }>(
         `department/program-proposals/${proposalId}/check-ready-for-review`
       );
@@ -106,7 +112,7 @@ export default function ProgramTabs() {
       toast({
         title: "Success",
         description: "Program has been submitted for review successfully.",
-        variant: "default",
+        variant: "success",
       });
       // Refresh the data
       queryClient.invalidateQueries({ queryKey: ["program-proposals"] });
@@ -125,6 +131,8 @@ export default function ProgramTabs() {
             : "Failed to submit program for review. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setSubmittingProposalId(null); // Reset the submitting state
     }
   };
 
@@ -251,6 +259,7 @@ export default function ProgramTabs() {
                     onViewDetails={handleViewDetails}
                     courseStats={calculateCourseStats(proposal)}
                     onSubmitForReview={handleSubmitForReview}
+                    isSubmitting={submittingProposalId === proposal.id}
                     // onReview={handleReview}
                   />
                 ))

@@ -12,7 +12,14 @@ import moment from "moment";
 import { ProgramResponse } from "@/types/model/Program";
 import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Clock, AlertCircle, Search, Check } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Search,
+  Check,
+  Loader2,
+} from "lucide-react";
 
 // Define types for the props
 export interface ProgramCardProps {
@@ -22,6 +29,7 @@ export interface ProgramCardProps {
   onViewDetails?: (id: number, type: "program" | "proposal") => void;
   onEdit?: (id: number) => void;
   onSubmitForReview?: (id: number) => void;
+  isSubmitting?: boolean;
   courseStats?: {
     completed: number;
     pending: number;
@@ -72,6 +80,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
   onViewDetails,
   onEdit,
   onSubmitForReview,
+  isSubmitting = false,
   courseStats,
   // onReview,
 }) => {
@@ -171,9 +180,22 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
 
         {/* Submit for Review button if all courses are completed */}
         {status === "pending" && allCoursesCompleted && onSubmitForReview && (
-          <Button onClick={() => onSubmitForReview(id)}>
-            <Check className="h-4 w-4 mr-2" />
-            Submit for Review
+          <Button
+            onClick={() => onSubmitForReview(id)}
+            className="bg-green-600 hover:bg-green-700"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <Check className="h-4 w-4 mr-2" />
+                Submit for Review
+              </>
+            )}
           </Button>
         )}
       </CardFooter>
