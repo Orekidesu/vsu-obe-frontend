@@ -12,7 +12,7 @@ import moment from "moment";
 import { ProgramResponse } from "@/types/model/Program";
 import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Clock, AlertCircle, Search } from "lucide-react";
+import { CheckCircle, Clock, AlertCircle, Search, Check } from "lucide-react";
 
 // Define types for the props
 export interface ProgramCardProps {
@@ -21,7 +21,13 @@ export interface ProgramCardProps {
   status: "active" | "pending" | "revision" | "review";
   onViewDetails?: (id: number, type: "program" | "proposal") => void;
   onEdit?: (id: number) => void;
-  onReview?: (id: number) => void;
+  onSubmitForReview?: (id: number) => void;
+  courseStats?: {
+    completed: number;
+    pending: number;
+    needsRevision: number;
+    total: number;
+  };
 }
 
 export function StatusBadge({
@@ -65,6 +71,8 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
   status,
   onViewDetails,
   onEdit,
+  onSubmitForReview,
+  courseStats,
   // onReview,
 }) => {
   // Handle both program and programProposal based on status
@@ -103,6 +111,9 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
       onViewDetails(id, isActiveProgram ? "program" : "proposal");
     }
   };
+  const allCoursesCompleted =
+    courseStats?.completed === courseStats?.total &&
+    (courseStats?.total || 0) > 0;
 
   return (
     <Card>
@@ -121,6 +132,33 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
             {dateLabel}: {formattedDate}
           </p>
         )}
+
+        {/* Show course status for pending proposals */}
+        {status === "pending" && courseStats && (
+          <div className="mt-3 space-y-1">
+            <h4 className="text-sm font-medium">Course Status:</h4>
+            <div className="grid grid-cols-3 gap-2 text-sm">
+              <div className="flex flex-col items-center p-2 bg-green-50 rounded-md">
+                <span className="font-medium text-green-700">
+                  {courseStats.completed}
+                </span>
+                <span className="text-xs text-gray-600">Completed</span>
+              </div>
+              <div className="flex flex-col items-center p-2 bg-amber-50 rounded-md">
+                <span className="font-medium text-amber-700">
+                  {courseStats.pending}
+                </span>
+                <span className="text-xs text-gray-600">Pending</span>
+              </div>
+              <div className="flex flex-col items-center p-2 bg-red-50 rounded-md">
+                <span className="font-medium text-red-700">
+                  {courseStats.needsRevision}
+                </span>
+                <span className="text-xs text-gray-600">Needs Revision</span>
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
         <Button variant="outline" onClick={handleViewDetails}>
@@ -131,9 +169,13 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
           <Button onClick={() => onEdit && onEdit(id)}>Edit Program</Button>
         )}
 
-        {/* {status === "pending" && (
-          <Button onClick={() => onReview && onReview(id)}>Review</Button>
-        )} */}
+        {/* Submit for Review button if all courses are completed */}
+        {status === "pending" && allCoursesCompleted && onSubmitForReview && (
+          <Button onClick={() => onSubmitForReview(id)}>
+            <Check className="h-4 w-4 mr-2" />
+            Submit for Review
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
