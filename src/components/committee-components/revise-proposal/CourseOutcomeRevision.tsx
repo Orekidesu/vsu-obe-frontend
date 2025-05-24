@@ -128,7 +128,7 @@ export function CourseOutcomesRevision() {
     setIsEditDialogOpen(true);
   };
 
-  const handleRemoveOutcome = (id: number) => {
+  const handleRemoveOutcome = (id: number | null) => {
     removeCourseOutcome(id);
   };
 
@@ -160,7 +160,7 @@ export function CourseOutcomesRevision() {
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                disabled={isModified}
+                disabled={!isModified}
                 className="text-gray-600"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
@@ -354,24 +354,29 @@ export function CourseOutcomesRevision() {
                                   Removing this course outcome will permanently
                                   delete all associated data:
                                 </div>
-                                <ul className="list-disc list-inside text-red-700 mt-1 space-y-0.5">
-                                  <li>CPA classification</li>
-                                  <li>ABCD model components</li>
-                                  <li>
-                                    All PO mappings (
-                                    {outcome.po_mappings.length} mapping
-                                    {outcome.po_mappings.length !== 1
-                                      ? "s"
-                                      : ""}
-                                    )
-                                  </li>
-                                  <li>
-                                    All assessment tasks (
-                                    {outcome.tla_tasks.length} task
-                                    {outcome.tla_tasks.length !== 1 ? "s" : ""})
-                                  </li>
-                                  <li>Teaching and learning methods</li>
-                                </ul>
+                                <div>
+                                  <ul className="list-disc list-inside text-red-700 mt-1 space-y-0.5">
+                                    <li>CPA classification</li>
+                                    <li>ABCD model components</li>
+                                    <li>
+                                      All PO mappings (
+                                      {outcome.po_mappings.length} mapping
+                                      {outcome.po_mappings.length !== 1
+                                        ? "s"
+                                        : ""}
+                                      )
+                                    </li>
+                                    <li>
+                                      All assessment tasks (
+                                      {outcome.tla_tasks.length} task
+                                      {outcome.tla_tasks.length !== 1
+                                        ? "s"
+                                        : ""}
+                                      )
+                                    </li>
+                                    <li>Teaching and learning methods</li>
+                                  </ul>
+                                </div>
                                 <div className="text-red-700 mt-2 font-medium">
                                   This action cannot be undone.
                                 </div>

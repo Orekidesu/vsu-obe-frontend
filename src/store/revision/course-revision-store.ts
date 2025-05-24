@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export interface CourseOutcome {
-  id: number;
+  id: number | null;
   name: string;
   statement: string;
   abcd: {
@@ -13,19 +13,19 @@ export interface CourseOutcome {
   cpa: string;
   po_mappings: Array<{
     po_id: number;
-    po_name: string;
-    po_statement: string;
+    po_name?: string;
+    po_statement?: string;
     ied: string;
   }>;
   tla_tasks: Array<{
-    id: number;
+    id?: number;
     at_code: string;
     at_name: string;
     at_tool: string;
     weight: string;
   }>;
   tla_assessment_method: {
-    id: number;
+    id?: number;
     teaching_methods: string[];
     learning_resources: string[];
   };
@@ -58,6 +58,38 @@ export interface CurriculumCourse {
   course_outcomes: CourseOutcome[];
 }
 
+// Payload interface for submission
+export interface CourseOutcomeSubmissionPayload {
+  course_outcomes: Array<{
+    id: number | null;
+    name: string;
+    statement: string;
+    abcd: {
+      audience: string;
+      behavior: string;
+      condition: string;
+      degree: string;
+    };
+    cpa: string;
+    po_mappings: Array<{
+      po_id: number;
+      ied: string;
+    }>;
+    tla_tasks: Array<{
+      id?: number;
+      at_code: string;
+      at_name: string;
+      at_tool: string;
+      weight: string;
+    }>;
+    tla_assessment_method: {
+      id?: number;
+      teaching_methods: string[];
+      learning_resources: string[];
+    };
+  }>;
+}
+
 interface CourseRevisionState {
   // Current course data
   currentCourse: CurriculumCourse | null;
@@ -68,18 +100,23 @@ interface CourseRevisionState {
   // Course outcomes
   courseOutcomes: CourseOutcome[];
 
-  // ===========Actions========== //
-
-  // Course Outcome actions
+  //=====================Actions=====================//
   setCurrentCourse: (course: CurriculumCourse) => void;
+
+  //=======Course Outcome actions=======//
   setCourseOutcomes: (outcomes: CourseOutcome[]) => void;
   addCourseOutcome: (outcome: Omit<CourseOutcome, "id">) => void;
-  updateCourseOutcome: (id: number, outcome: Partial<CourseOutcome>) => void;
-  removeCourseOutcome: (id: number) => void;
+  updateCourseOutcome: (
+    id: number | null,
+    outcome: Partial<CourseOutcome>
+  ) => void;
+  removeCourseOutcome: (id: number | null) => void;
 
+  //=======other actions=======//
   markSectionAsModified: (section: string) => void;
   resetStore: () => void;
   resetCourseOutcomes: () => void;
+  generateSubmissionPayload: () => CourseOutcomeSubmissionPayload;
 }
 
 export const useCourseRevisionStore = create<CourseRevisionState>(
@@ -101,10 +138,9 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
     },
 
     addCourseOutcome: (outcome) => {
-      const newId = Math.max(...get().courseOutcomes.map((co) => co.id), 0) + 1;
       const newOutcome: CourseOutcome = {
         ...outcome,
-        id: newId,
+        id: null, // New course outcomes have null id
       };
 
       set((state) => ({
@@ -116,7 +152,9 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
     updateCourseOutcome: (id, updates) => {
       set((state) => ({
         courseOutcomes: state.courseOutcomes.map((outcome) =>
-          outcome.id === id ? { ...outcome, ...updates } : outcome
+          outcome.id === id || (outcome.id === null && id === null)
+            ? { ...outcome, ...updates }
+            : outcome
         ),
       }));
       get().markSectionAsModified("course_outcomes");
@@ -125,7 +163,8 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
     removeCourseOutcome: (id) => {
       set((state) => ({
         courseOutcomes: state.courseOutcomes.filter(
-          (outcome) => outcome.id !== id
+          (outcome) =>
+            outcome.id !== id && !(outcome.id === null && id === null)
         ),
       }));
       get().markSectionAsModified("course_outcomes");
@@ -144,7 +183,7 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
         courseOutcomes: [],
       });
     },
-    // Reset Course Outcome
+
     resetCourseOutcomes: () => {
       const { currentCourse } = get();
       if (currentCourse) {
@@ -156,6 +195,44 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
         modifiedSections.delete("course_outcomes");
         set({ modifiedSections });
       }
+    },
+
+    generateSubmissionPayload: () => {
+      const { courseOutcomes } = get();
+
+      return {
+        course_outcomes: courseOutcomes.map((outcome) => ({
+          id: outcome.id,
+          name: outcome.name,
+          statement: outcome.statement,
+          abcd: {
+            audience: outcome.abcd.audience,
+            behavior: outcome.abcd.behavior,
+            condition: outcome.abcd.condition,
+            degree: outcome.abcd.degree,
+          },
+          cpa: outcome.cpa,
+          po_mappings: outcome.po_mappings.map((mapping) => ({
+            po_id: mapping.po_id,
+            ied: mapping.ied,
+          })),
+          tla_tasks: outcome.tla_tasks.map((task) => ({
+            ...(task.id && { id: task.id }),
+            at_code: task.at_code,
+            at_name: task.at_name,
+            at_tool: task.at_tool,
+            weight: task.weight,
+          })),
+          tla_assessment_method: {
+            ...(outcome.tla_assessment_method.id && {
+              id: outcome.tla_assessment_method.id,
+            }),
+            teaching_methods: outcome.tla_assessment_method.teaching_methods,
+            learning_resources:
+              outcome.tla_assessment_method.learning_resources,
+          },
+        })),
+      };
     },
   })
 );

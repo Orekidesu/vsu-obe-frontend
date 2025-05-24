@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -95,13 +93,24 @@ export function CurriculumCourseRevisionWizard({
     setIsSubmitting(true);
 
     try {
+      // Generate the submission payload
+      const payload = useCourseRevisionStore
+        .getState()
+        .generateSubmissionPayload();
+
+      console.log(
+        "Submitting course revisions payload:",
+        JSON.stringify(payload, null, 2)
+      );
+
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
+
       setSubmitSuccess(true);
 
       // Redirect after a delay
       setTimeout(() => {
-        router.push("/my-courses");
+        router.push("/faculty/all-courses");
       }, 3000);
     } catch (error) {
       console.error("Error submitting revisions:", error);
@@ -162,6 +171,16 @@ export function CurriculumCourseRevisionWizard({
               Your course revisions have been submitted and will be reviewed by
               the appropriate personnel.
             </p>
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <p className="text-sm text-gray-600 mb-2">
+                <strong>Submission Summary:</strong>
+              </p>
+              <p className="text-sm text-gray-600">
+                Course outcomes and all associated data (ABCD model, CPA
+                classification, PO mappings, TLA tasks, and assessment methods)
+                have been successfully updated.
+              </p>
+            </div>
             <Button onClick={handleBackToCourses}>Return to Courses</Button>
           </CardContent>
         </Card>
