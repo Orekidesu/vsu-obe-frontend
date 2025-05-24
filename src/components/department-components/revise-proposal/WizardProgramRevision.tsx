@@ -38,15 +38,17 @@ import { CurriculumRevision } from "./CurriculumRevision";
 import { CourseCategoriesRevision } from "./CourseCategoryRevision";
 import { CurriculumCoursesRevision } from "./CurriculumCourseRevision";
 import { CoursePOMappingRevision } from "./CoursePOMappingRevision";
-import { RevisionReview } from "./ReviewRevision";
+import { ProgramRevisionReview } from "./ReviewRevision";
 
 import useDepartmentRevision from "@/hooks/shared/useDepartmentRevision";
 
-interface RevisionWizardProps {
+interface ProgramRevisionWizardProps {
   proposalId: string;
 }
 
-export function RevisionWizard({ proposalId }: RevisionWizardProps) {
+export function ProgramRevisionWizard({
+  proposalId,
+}: ProgramRevisionWizardProps) {
   const router = useRouter();
   const [isRevising, setIsRevising] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -490,7 +492,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         {isRevising ? (
           <div className=" mx-auto">
             {isReviewing ? (
-              <RevisionReview
+              <ProgramRevisionReview
                 onGoBack={handleGoBackFromReview}
                 onSubmit={handleSubmitRevisions}
                 isSubmitting={isSubmitting}
