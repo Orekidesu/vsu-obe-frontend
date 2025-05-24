@@ -68,14 +68,18 @@ interface CourseRevisionState {
   // Course outcomes
   courseOutcomes: CourseOutcome[];
 
-  // Actions
+  // ===========Actions========== //
+
+  // Course Outcome actions
   setCurrentCourse: (course: CurriculumCourse) => void;
   setCourseOutcomes: (outcomes: CourseOutcome[]) => void;
   addCourseOutcome: (outcome: Omit<CourseOutcome, "id">) => void;
   updateCourseOutcome: (id: number, outcome: Partial<CourseOutcome>) => void;
   removeCourseOutcome: (id: number) => void;
+
   markSectionAsModified: (section: string) => void;
   resetStore: () => void;
+  resetCourseOutcomes: () => void;
 }
 
 export const useCourseRevisionStore = create<CourseRevisionState>(
@@ -139,6 +143,19 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
         modifiedSections: new Set(),
         courseOutcomes: [],
       });
+    },
+    // Reset Course Outcome
+    resetCourseOutcomes: () => {
+      const { currentCourse } = get();
+      if (currentCourse) {
+        set({
+          courseOutcomes: currentCourse.course_outcomes || [],
+        });
+        // Remove the section from modified sections
+        const modifiedSections = new Set(get().modifiedSections);
+        modifiedSections.delete("course_outcomes");
+        set({ modifiedSections });
+      }
     },
   })
 );

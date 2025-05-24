@@ -136,46 +136,46 @@ export const sampleCourseRevisionData = {
       created_at: "2025-05-20T08:30:00.000000Z",
       version: 2,
     },
-    {
-      id: 62,
-      section: "abcd_model",
-      details:
-        "The ABCD model components need to be revised to align with electrical engineering learning objectives. Ensure the audience, behavior, condition, and degree are appropriate for engineering students.",
-      created_at: "2025-05-20T08:30:00.000000Z",
-      version: 2,
-    },
-    {
-      id: 63,
-      section: "cpa_classification",
-      details:
-        "The CPA classification needs to be reviewed and updated to reflect the appropriate cognitive level for electrical engineering fundamentals. Consider if 'C' (Comprehension) is the most appropriate level.",
-      created_at: "2025-05-20T08:30:00.000000Z",
-      version: 2,
-    },
-    {
-      id: 64,
-      section: "co_po_mapping",
-      details:
-        "The Course Outcome to Program Outcome mappings need to be revised to ensure proper alignment with electrical engineering program outcomes. Verify that the IED levels are appropriate for this foundational course.",
-      created_at: "2025-05-20T08:30:00.000000Z",
-      version: 2,
-    },
-    {
-      id: 65,
-      section: "tla_tasks",
-      details:
-        "The TLA tasks need to be updated to reflect appropriate assessment methods for electrical engineering. 'Critique Assignment 1' is not suitable for this course. Consider laboratory exercises, problem-solving assignments, or technical reports.",
-      created_at: "2025-05-20T08:30:00.000000Z",
-      version: 2,
-    },
-    {
-      id: 66,
-      section: "assessment_method",
-      details:
-        "The assessment methods need to be revised to include appropriate teaching and learning resources for electrical engineering. Replace art-related methods with engineering-focused approaches such as laboratory work, simulations, and technical problem-solving.",
-      created_at: "2025-05-20T08:30:00.000000Z",
-      version: 2,
-    },
+    // {
+    //   id: 62,
+    //   section: "abcd_model",
+    //   details:
+    //     "The ABCD model components need to be revised to align with electrical engineering learning objectives. Ensure the audience, behavior, condition, and degree are appropriate for engineering students.",
+    //   created_at: "2025-05-20T08:30:00.000000Z",
+    //   version: 2,
+    // },
+    // {
+    //   id: 63,
+    //   section: "cpa_classification",
+    //   details:
+    //     "The CPA classification needs to be reviewed and updated to reflect the appropriate cognitive level for electrical engineering fundamentals. Consider if 'C' (Comprehension) is the most appropriate level.",
+    //   created_at: "2025-05-20T08:30:00.000000Z",
+    //   version: 2,
+    // },
+    // {
+    //   id: 64,
+    //   section: "co_po_mapping",
+    //   details:
+    //     "The Course Outcome to Program Outcome mappings need to be revised to ensure proper alignment with electrical engineering program outcomes. Verify that the IED levels are appropriate for this foundational course.",
+    //   created_at: "2025-05-20T08:30:00.000000Z",
+    //   version: 2,
+    // },
+    // {
+    //   id: 65,
+    //   section: "tla_tasks",
+    //   details:
+    //     "The TLA tasks need to be updated to reflect appropriate assessment methods for electrical engineering. 'Critique Assignment 1' is not suitable for this course. Consider laboratory exercises, problem-solving assignments, or technical reports.",
+    //   created_at: "2025-05-20T08:30:00.000000Z",
+    //   version: 2,
+    // },
+    // {
+    //   id: 66,
+    //   section: "assessment_method",
+    //   details:
+    //     "The assessment methods need to be revised to include appropriate teaching and learning resources for electrical engineering. Replace art-related methods with engineering-focused approaches such as laboratory work, simulations, and technical problem-solving.",
+    //   created_at: "2025-05-20T08:30:00.000000Z",
+    //   version: 2,
+    // },
   ],
   message: "Course-level revisions fetched successfully.",
 };

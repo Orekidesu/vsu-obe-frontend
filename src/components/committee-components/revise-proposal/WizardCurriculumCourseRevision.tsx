@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +32,9 @@ import {
   getSemesterDisplayName,
 } from "@/store/revision/sample-data/courseData";
 
+import { CourseOutcomesRevision } from "./CourseOutcomeRevision";
+import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
+
 interface CurriculumCourseRevisionWizardProps {
   curriculumCourseId: string;
 }
@@ -50,6 +53,12 @@ export function CurriculumCourseRevisionWizard({
     (course) => course.id.toString() === curriculumCourseId
   );
   const { revisions } = sampleCourseRevisionData;
+
+  useEffect(() => {
+    if (courseData && !isRevising) {
+      useCourseRevisionStore.getState().setCurrentCourse(courseData);
+    }
+  }, [courseData, isRevising]);
 
   // Start the revision process
   const handleStartRevision = () => {
@@ -104,19 +113,23 @@ export function CurriculumCourseRevisionWizard({
   const getCurrentRevisionComponent = () => {
     const currentRevision = revisions[currentStep];
 
-    // For now, return a placeholder component
-    // We'll implement the actual revision components in the next steps
-    return (
-      <div className="p-8 text-center">
-        <BookOpen className="mx-auto h-12 w-12 text-blue-500 mb-4" />
-        <h3 className="text-lg font-medium">Revision Component</h3>
-        <p className="text-gray-600 mt-2">
-          The revision component for &quot;
-          {getCourseRevisionSectionDisplayName(currentRevision.section)}&quot;
-          will be implemented here.
-        </p>
-      </div>
-    );
+    switch (currentRevision.section) {
+      case "course_outcomes":
+        return <CourseOutcomesRevision />;
+      default:
+        // For other sections, return a placeholder component
+        return (
+          <div className="p-8 text-center">
+            <BookOpen className="mx-auto h-12 w-12 text-blue-500 mb-4" />
+            <h3 className="text-lg font-medium">Revision Component</h3>
+            <p className="text-gray-600 mt-2">
+              The revision component for &quot;
+              {getCourseRevisionSectionDisplayName(currentRevision.section)}
+              &quot; will be implemented here.
+            </p>
+          </div>
+        );
+    }
   };
 
   if (!courseData) {
