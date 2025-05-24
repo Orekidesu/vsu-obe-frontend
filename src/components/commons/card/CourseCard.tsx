@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export type CourseStatus = "pending" | "revision";
+export type CourseStatus = "completed" | "pending" | "revision";
 
 export interface CourseCardProps {
   id: string;

@@ -4,11 +4,11 @@ import { CourseCard } from "@/components/commons/card/CourseCard";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+// import { useState } from "react";
 
 export function CourseTabs() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("pending");
+  // const [activeTab, setActiveTab] = useState("completed");
 
   // Fetch curriculum courses from API
   const { curriculumCourses, isLoading, error } = useCurriculumCourses();
@@ -45,7 +45,7 @@ export function CourseTabs() {
   };
 
   const handleRevise = (courseId: string) => {
-    router.push(`/faculty/course-details/${courseId}/edit-course`);
+    router.push(`/faculty/course-details/${courseId}/edit-details`);
   };
 
   return (
@@ -55,9 +55,9 @@ export function CourseTabs() {
       </div>
 
       <Tabs
-        defaultValue="pending"
+        defaultValue="completed"
         className="mb-8"
-        onValueChange={(value) => setActiveTab(value)}
+        // onValueChange={(value) => setActiveTab(value)}
       >
         <TabsList className="grid w-full grid-cols-3 mb-8 sticky">
           <TabsTrigger className="flex items-center gap-2" value="completed">
@@ -118,7 +118,7 @@ export function CourseTabs() {
                     course.semester.sem
                   )}
                   units={Number(course.units)}
-                  status="pending" // We're using this for styling only
+                  status="completed"
                   actionText="View Details"
                   onAction={() => handleAddDetails(course.id.toString())}
                 />
