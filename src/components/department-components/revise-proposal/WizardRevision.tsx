@@ -18,10 +18,7 @@ import { format } from "date-fns";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Import data and store
-import {
-  // sampleRevisionData,
-  getSectionDisplayName,
-} from "@/store/revision/sample-data/data";
+import { getSectionDisplayName } from "@/store/revision/sample-data/data";
 import {
   useRevisionStore,
   type RevisionSection,
@@ -224,8 +221,13 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
             case "curriculum_courses":
               // First, identify which category IDs are actually new (have string IDs)
               const newCategoryIds = new Set();
+              const existingCategoryIds = new Set();
+
+              // Collect all existing category IDs
               state.course_categories.forEach((category) => {
-                if (
+                if (typeof category.id === "number") {
+                  existingCategoryIds.add(category.id);
+                } else if (
                   typeof category.id === "string" &&
                   /^\d+$/.test(category.id)
                 ) {
@@ -247,13 +249,21 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
 
                 // Only add "new_" prefix to course_category_id if it's actually a reference
                 // to a newly created category (in the newCategoryIds set)
-                if (
-                  item.course_category_id &&
-                  typeof item.course_category_id === "string" &&
-                  /^\d+$/.test(item.course_category_id) &&
-                  newCategoryIds.has(item.course_category_id)
-                ) {
-                  updatedItem.course_category_id = `new_${item.course_category_id}`;
+                if (item.course_category_id) {
+                  if (
+                    typeof item.course_category_id === "string" &&
+                    /^\d+$/.test(item.course_category_id)
+                  ) {
+                    // Check if this string matches an existing numeric category ID
+                    const numericId = parseInt(item.course_category_id, 10);
+                    if (existingCategoryIds.has(numericId)) {
+                      // Convert back to number if it matches an existing category
+                      updatedItem.course_category_id = numericId;
+                    } else if (newCategoryIds.has(item.course_category_id)) {
+                      // It's a reference to a newly created category
+                      updatedItem.course_category_id = `new_${item.course_category_id}`;
+                    }
+                  }
                 }
 
                 return updatedItem;
