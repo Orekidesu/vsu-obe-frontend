@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, Clock, FileEdit, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { toast } from "@/hooks/use-toast";
 import ProgramCard from "../commons/card/ProgramCard";
 import usePrograms from "@/hooks/shared/useProgram";
 import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
@@ -16,6 +16,9 @@ import {
   getDepartmentProgramIds,
 } from "@/app/utils/department/programFilter";
 import { Badge } from "@/components/ui/badge";
+import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
+import useApi from "@/hooks/useApi";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ProgramTabs() {
   const { programs = [], isLoading: programsLoading } = usePrograms();
@@ -24,6 +27,12 @@ export default function ProgramTabs() {
   const { session } = useAuth() as { session: Session | null };
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("active");
+  const [submittingProposalId, setSubmittingProposalId] = useState<
+    number | null
+  >(null);
+
+  const api = useApi();
+  const queryClient = useQueryClient();
 
   // Make sure we have session and Department.id before filtering
   const departmentId = session?.Department?.id;
@@ -42,7 +51,10 @@ export default function ProgramTabs() {
 
   // Get pending proposals
   const pendingProposals = departmentProposals.filter(
-    (proposal) => proposal?.status === "pending"
+    (proposal) =>
+      proposal?.status === "pending" ||
+      (proposal?.status === "revision" &&
+        proposal?.department_revision_required === false)
   );
   // Get for review proposals
   const forReviewProposals = departmentProposals.filter(
@@ -51,10 +63,79 @@ export default function ProgramTabs() {
 
   // Get revision proposals
   const revisionProposals = departmentProposals.filter(
-    (proposal) => proposal?.status === "revision"
+    (proposal) =>
+      proposal?.status === "revision" &&
+      proposal?.department_revision_required === true
   );
 
-  console.log(departmentProposals);
+  // console.log(departmentProposals);
+  // Calculate course statistics for a proposal
+  const calculateCourseStats = (proposal: ProgramProposalResponse) => {
+    // Initialize counters
+    let completed = 0;
+    let needsRevision = 0;
+    let total = 0;
+
+    // Loop through all committees to find their assigned courses
+    proposal.committees.forEach((committee) => {
+      committee.assigned_courses.forEach((course) => {
+        total++;
+        if (course.is_completed) {
+          completed++;
+        } else if (course.is_in_revision) {
+          needsRevision++;
+        }
+      });
+    });
+
+    // Calculate pending (not completed and not in revision)
+    const pending = total - completed - needsRevision;
+
+    return {
+      completed,
+      pending,
+      needsRevision,
+      total,
+    };
+  };
+
+  // Handle submission for review
+  const handleSubmitForReview = async (proposalId: number) => {
+    try {
+      setSubmittingProposalId(proposalId); // Set the ID of the proposal being submitted
+
+      await api.patch<{ data: ProgramProposalResponse }>(
+        `department/program-proposals/${proposalId}/check-ready-for-review`
+      );
+
+      // Show success toast
+      toast({
+        title: "Success",
+        description: "Program has been submitted for review successfully.",
+        variant: "success",
+      });
+      // Refresh the data
+      queryClient.invalidateQueries({ queryKey: ["program-proposals"] });
+      queryClient.invalidateQueries({
+        queryKey: ["program-proposal", proposalId],
+      });
+
+      // Optionally refresh data or redirect
+    } catch (error) {
+      console.error("Error submitting for review:", error);
+      toast({
+        title: "Submission Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to submit program for review. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmittingProposalId(null); // Reset the submitting state
+    }
+  };
+
   const handleViewDetails = (id: number, type: "program" | "proposal") => {
     if (type === "program") {
       router.push(`/department/programs/${id}`);
@@ -176,6 +257,9 @@ export default function ProgramTabs() {
                     programProposal={proposal}
                     status="pending"
                     onViewDetails={handleViewDetails}
+                    courseStats={calculateCourseStats(proposal)}
+                    onSubmitForReview={handleSubmitForReview}
+                    isSubmitting={submittingProposalId === proposal.id}
                     // onReview={handleReview}
                   />
                 ))
