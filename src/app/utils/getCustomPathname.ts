@@ -59,7 +59,7 @@ const getCustomPathname = (path: string) => {
     switch (path) {
       case "/faculty":
         return "Dashboard";
-      case "/faculty/courses":
+      case "/faculty/all-courses":
         return "Course Management";
       case "/faculty/syllabi/all-syllabi":
         return "All Syllabi";

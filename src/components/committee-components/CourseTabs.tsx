@@ -50,7 +50,7 @@ export function CourseTabs() {
   // Handlers for course actions
   // In your CourseTabs.tsx where the "Add Details" button is clicked
   const handleAddDetails = (courseId: string) => {
-    router.push(`/faculty/courses/course-details/${courseId}`);
+    router.push(`/faculty/course-details/${courseId}`);
   };
 
   const handleRevise = (courseId: string) => {
@@ -65,7 +65,8 @@ export function CourseTabs() {
       </div>
 
       <Tabs defaultValue="pending" className="mb-8">
-        <TabsList className="grid w-full grid-cols-2 mb-8 sticky">
+        <TabsList className="grid w-full grid-cols-3 mb-8 sticky">
+          <TabsTrigger value="completed">Completed</TabsTrigger>
           <TabsTrigger value="pending">Pending Details</TabsTrigger>
           <TabsTrigger value="revision">Needs Revision</TabsTrigger>
         </TabsList>
