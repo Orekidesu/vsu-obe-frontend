@@ -207,7 +207,7 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
         });
         // Remove the section from modified sections
         const modifiedSections = new Set(get().modifiedSections);
-        modifiedSections.delete("cpa_classification");
+        modifiedSections.delete("cpa");
         set({ modifiedSections });
       }
     },
