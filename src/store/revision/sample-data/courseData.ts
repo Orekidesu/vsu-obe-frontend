@@ -26,7 +26,7 @@ export const sampleCurriculumCourseData = {
       },
       units: "3.00",
       is_in_revision: true,
-      is_completed: true,
+      is_completed: false,
       course_outcomes: [
         {
           id: 49,
@@ -113,8 +113,8 @@ export const sampleCurriculumCourseData = {
         sem: "second",
       },
       units: "4.00",
-      is_in_revision: false,
-      is_completed: true,
+      is_in_revision: true,
+      is_completed: false,
       course_outcomes: [],
     },
   ],
