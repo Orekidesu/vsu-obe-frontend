@@ -185,14 +185,14 @@ export const sampleCourseRevisionData = {
     //   created_at: "2025-05-20T08:30:00.000000Z",
     //   version: 2,
     // },
-    // {
-    //   id: 64,
-    //   section: "po_mappings",
-    //   details:
-    //     "The Course Outcome to Program Outcome mappings need to be revised to ensure proper alignment with electrical engineering program outcomes. Verify that the IED levels are appropriate for this foundational course.",
-    //   created_at: "2025-05-20T08:30:00.000000Z",
-    //   version: 2,
-    // },
+    {
+      id: 64,
+      section: "po_mappings",
+      details:
+        "The Course Outcome to Program Outcome mappings need to be revised to ensure proper alignment with electrical engineering program outcomes. Verify that the IED levels are appropriate for this foundational course.",
+      created_at: "2025-05-20T08:30:00.000000Z",
+      version: 2,
+    },
     {
       id: 65,
       section: "tla_tasks",
