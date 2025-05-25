@@ -32,29 +32,10 @@ import {
   AlertCircle,
   CheckCircle2,
 } from "lucide-react";
+import { TLASummaryTable } from "./tla-task-components/TLASummary";
 
 // Assessment tool options
-const defaultAssessmentTools = [
-  "Marking Scheme",
-  "Rubric",
-  "Checklist",
-  "Portfolio",
-  "Presentation",
-  "Project",
-  "Laboratory Exercise",
-  "Case Study",
-  "Simulation",
-  "Peer Assessment",
-  "Self Assessment",
-  "Oral Examination",
-  "Written Examination",
-  "Practical Examination",
-  "Research Paper",
-  "Field Work",
-  "Internship",
-  "Thesis",
-  "Capstone Project",
-];
+const defaultAssessmentTools = ["Marking Scheme", "Rubric", "Project"];
 
 interface TLATask {
   id?: number;
@@ -484,7 +465,7 @@ export function TLATasksRevision() {
       </Tabs>
 
       {/* TLA Plan Summary */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>TLA Plan Summary</CardTitle>
           <p className="text-sm text-gray-600">
@@ -567,7 +548,13 @@ export function TLATasksRevision() {
             </TableBody>
           </Table>
         </CardContent>
-      </Card>
+      </Card> */}
+      <TLASummaryTable
+        courseOutcomes={courseOutcomes}
+        calculateCOWeight={calculateCOWeight}
+        totalWeight={totalWeight}
+        isTotalWeightValid={totalWeight === 100}
+      />
 
       {/* Reset Button */}
       <div className="flex justify-end">
