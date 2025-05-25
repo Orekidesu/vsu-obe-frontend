@@ -39,6 +39,7 @@ const defaultTeachingMethods = [
   "Laboratory",
   "Flipped Classroom",
   "Experiments",
+  "Gallery Visits",
 ];
 
 const defaultLearningResources = [
@@ -52,6 +53,8 @@ const defaultLearningResources = [
   "Online Tutorials",
   "Software",
   "Lab Manuals",
+  "Visual References",
+  "Online Collections",
 ];
 
 interface TLAMethodsRevisionProps {
@@ -79,7 +82,7 @@ export function TLAMethodsRevision({
   const [newLearningResource, setNewLearningResource] = useState("");
 
   // Check if TLA methods have been modified
-  const isModified = modifiedSections.has("tla_methods");
+  const isModified = modifiedSections.has("tla_assessment_method");
 
   // Validation function
   const validateTLAMethods = useCallback(() => {
@@ -152,7 +155,7 @@ export function TLAMethodsRevision({
       },
     });
 
-    markSectionAsModified("tla_methods");
+    markSectionAsModified("tla_assessment_method");
   };
 
   // Update learning resources for the selected course outcome
@@ -175,7 +178,7 @@ export function TLAMethodsRevision({
       },
     });
 
-    markSectionAsModified("tla_methods");
+    markSectionAsModified("tla_assessment_method");
   };
 
   // Add custom teaching method

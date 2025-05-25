@@ -426,7 +426,7 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
             : outcome
         ),
       }));
-      get().markSectionAsModified("tla_methods");
+      get().markSectionAsModified("tla_assessment_method");
     },
 
     addCustomTeachingMethod: (method) => {
@@ -486,7 +486,7 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
         });
 
         const modifiedSections = new Set(get().modifiedSections);
-        modifiedSections.delete("tla_methods");
+        modifiedSections.delete("tla_assessment_method");
         set({ modifiedSections });
       }
     },
