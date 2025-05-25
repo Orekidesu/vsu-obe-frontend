@@ -34,6 +34,7 @@ import { CourseOutcomesRevision } from "./CourseOutcomeRevision";
 import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
 import { ABCDModelRevision } from "./ABCDModelRevision";
 import { CPAClassificationRevision } from "./CPAClassificationRevision";
+import { COPOMappingRevision } from "./COPOMappingRevision";
 
 interface CurriculumCourseRevisionWizardProps {
   curriculumCourseId: string;
@@ -131,6 +132,8 @@ export function CurriculumCourseRevisionWizard({
         return <ABCDModelRevision />;
       case "cpa":
         return <CPAClassificationRevision />;
+      case "po_mappings":
+        return <COPOMappingRevision />;
       default:
         // For other sections, return a placeholder component
         return (

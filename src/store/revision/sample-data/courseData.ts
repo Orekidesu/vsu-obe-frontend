@@ -121,6 +121,39 @@ export const sampleCurriculumCourseData = {
   message: "Curriculum courses retrieved successfully",
 };
 
+export const sampleProgramOutcomes = [
+  {
+    id: 79,
+    name: "PO1",
+    statement:
+      "Apply knowledge of mathematics, science, and engineering to solve complex electrical engineering problems.",
+  },
+  {
+    id: 80,
+    name: "PO2",
+    statement:
+      "Design and conduct experiments, as well as analyze and interpret data.",
+  },
+  {
+    id: 81,
+    name: "PO3",
+    statement:
+      "Function effectively on multidisciplinary teams and communicate effectively.",
+  },
+  {
+    id: 82,
+    name: "PO4",
+    statement:
+      "Create computer-based systems applying mathematical foundations, algorithmic principles, and computer science theory and demonstrating comprehension of the tradeoffs involved in design choices.",
+  },
+  {
+    id: 83,
+    name: "PO5",
+    statement:
+      "Analyze information security issues related to the design, development, and use of information systems using critical thinking skills to identify vulnerabilities and threats.",
+  },
+];
+
 // Sample course revision data
 export const sampleCourseRevisionData = {
   curriculum_course_id: 103,
@@ -152,14 +185,14 @@ export const sampleCourseRevisionData = {
       created_at: "2025-05-20T08:30:00.000000Z",
       version: 2,
     },
-    // {
-    //   id: 64,
-    //   section: "co_po_mappings",
-    //   details:
-    //     "The Course Outcome to Program Outcome mappings need to be revised to ensure proper alignment with electrical engineering program outcomes. Verify that the IED levels are appropriate for this foundational course.",
-    //   created_at: "2025-05-20T08:30:00.000000Z",
-    //   version: 2,
-    // },
+    {
+      id: 64,
+      section: "po_mappings",
+      details:
+        "The Course Outcome to Program Outcome mappings need to be revised to ensure proper alignment with electrical engineering program outcomes. Verify that the IED levels are appropriate for this foundational course.",
+      created_at: "2025-05-20T08:30:00.000000Z",
+      version: 2,
+    },
     // {
     //   id: 65,
     //   section: "tla_tasks",
@@ -186,7 +219,7 @@ export const getCourseRevisionSectionDisplayName = (sectionKey: string) => {
     course_outcomes: "Course Outcomes",
     abcd: "ABCD Model",
     cpa: "CPA Classification",
-    co_po_mappings: "Course Outcome to PO Mapping",
+    po_mappings: "Course Outcome to PO Mapping",
     tla_tasks: "TLA Tasks",
     assessment_methods: "Assessment Method",
   };

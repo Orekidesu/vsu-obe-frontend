@@ -118,6 +118,7 @@ interface CourseRevisionState {
   resetCourseOutcomes: () => void;
   resetABCDModels: () => void;
   resetCPAClassifications: () => void;
+  resetCOPOMappings: () => void;
   generateSubmissionPayload: () => CourseOutcomeSubmissionPayload;
 }
 
@@ -285,6 +286,47 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
         // Remove only the ABCD section from modified sections
         const modifiedSections = new Set(get().modifiedSections);
         modifiedSections.delete("course_outcomes"); // Remove this if only ABCD was modified
+        set({ modifiedSections });
+      }
+    },
+    resetCOPOMappings: () => {
+      const { currentCourse, courseOutcomes } = get();
+      if (currentCourse) {
+        // Reset only CO-PO mapping data while preserving other modifications
+        const originalOutcomes = currentCourse.course_outcomes || [];
+
+        set({
+          courseOutcomes: courseOutcomes.map((outcome) => {
+            // Find the original outcome by ID
+            const originalOutcome = originalOutcomes.find(
+              (orig) => orig.id === outcome.id
+            );
+
+            if (originalOutcome) {
+              // Reset only PO mappings, keep other modifications
+              return {
+                ...outcome,
+                po_mappings: originalOutcome.po_mappings.map((mapping) => ({
+                  ...mapping,
+                })),
+              };
+            }
+
+            // For new outcomes (negative IDs), reset PO mappings to empty
+            if (outcome.id && outcome.id < 0) {
+              return {
+                ...outcome,
+                po_mappings: [],
+              };
+            }
+
+            return outcome;
+          }),
+        });
+
+        // Remove only the CO-PO mapping section from modified sections
+        const modifiedSections = new Set(get().modifiedSections);
+        modifiedSections.delete("po_mappings");
         set({ modifiedSections });
       }
     },
