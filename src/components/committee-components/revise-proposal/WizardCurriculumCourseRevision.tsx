@@ -158,7 +158,7 @@ export function CurriculumCourseRevisionWizard({
       case "tla_tasks":
         return <TLATasksRevision onValidityChange={setIsCurrentStepValid} />;
       case "tla_assessment_method":
-        return <TLAMethodsRevision />;
+        return <TLAMethodsRevision onValidityChange={setIsCurrentStepValid} />;
       default:
         // For other sections, return a placeholder component
         // Set the current step as valid immediately

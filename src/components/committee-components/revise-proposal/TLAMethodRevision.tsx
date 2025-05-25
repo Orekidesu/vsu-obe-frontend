@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, AlertTriangle, RotateCcw } from "lucide-react";
@@ -54,7 +54,13 @@ const defaultLearningResources = [
   "Lab Manuals",
 ];
 
-export function TLAMethodsRevision() {
+interface TLAMethodsRevisionProps {
+  onValidityChange?: (isValid: boolean) => void;
+}
+
+export function TLAMethodsRevision({
+  onValidityChange,
+}: TLAMethodsRevisionProps) {
   const {
     courseOutcomes,
     updateCourseOutcome,
@@ -74,6 +80,26 @@ export function TLAMethodsRevision() {
 
   // Check if TLA methods have been modified
   const isModified = modifiedSections.has("tla_methods");
+
+  // Validation function
+  const validateTLAMethods = useCallback(() => {
+    // Each CO must have at least one teaching method and one learning resource
+    return courseOutcomes.every((outcome) => {
+      const hasMethods =
+        (outcome.tla_assessment_method?.teaching_methods?.length || 0) > 0;
+      const hasResources =
+        (outcome.tla_assessment_method?.learning_resources?.length || 0) > 0;
+      return hasMethods && hasResources;
+    });
+  }, [courseOutcomes]);
+
+  // Update validity whenever course outcomes change
+  useEffect(() => {
+    if (onValidityChange) {
+      const isValid = validateTLAMethods();
+      onValidityChange(isValid);
+    }
+  }, [courseOutcomes, onValidityChange, validateTLAMethods]);
 
   // Helper functions
   const getAllTeachingMethods = () => {
@@ -181,6 +207,17 @@ export function TLAMethodsRevision() {
 
   const totalCounts = calculateTotalCounts();
 
+  // Calculate validity status for UI indicators
+  const validOutcomesCount = courseOutcomes.filter((outcome) => {
+    const hasMethods =
+      (outcome.tla_assessment_method?.teaching_methods?.length || 0) > 0;
+    const hasResources =
+      (outcome.tla_assessment_method?.learning_resources?.length || 0) > 0;
+    return hasMethods && hasResources;
+  }).length;
+
+  const isAllValid = validOutcomesCount === courseOutcomes.length;
+
   return (
     <div className="space-y-6">
       {/* Header with modification status */}
@@ -227,6 +264,22 @@ export function TLAMethodsRevision() {
         teachingMethodsCount={totalCounts.teachingMethods}
         learningResourcesCount={totalCounts.learningResources}
       />
+
+      {/* Completion status */}
+      <div className="flex items-center justify-between text-sm">
+        <span>
+          Progress: {validOutcomesCount} of {courseOutcomes.length} completed
+        </span>
+        {!isAllValid && (
+          <div className="flex items-center gap-2 text-amber-600">
+            <AlertTriangle className="w-4 h-4" />
+            <span>
+              All course outcomes must have at least one teaching method and one
+              learning resource
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Tabs for Course Outcomes */}
       <Tabs
@@ -281,8 +334,6 @@ export function TLAMethodsRevision() {
 
       {/* Summary Table */}
       <TLAMethodSummaryTable courseOutcomes={courseOutcomes} />
-
-      {/* Reset Button - only show when modified */}
     </div>
   );
 }
