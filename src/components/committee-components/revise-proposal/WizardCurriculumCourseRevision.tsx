@@ -148,7 +148,9 @@ export function CurriculumCourseRevisionWizard({
       case "abcd":
         return <ABCDModelRevision onValidityChange={setIsCurrentStepValid} />;
       case "cpa":
-        return <CPAClassificationRevision />;
+        return (
+          <CPAClassificationRevision onValidityChange={setIsCurrentStepValid} />
+        );
       case "po_mappings":
         return <COPOMappingRevision />;
       default:

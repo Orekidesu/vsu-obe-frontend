@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -22,8 +20,13 @@ import {
   useCourseRevisionStore,
   type CourseOutcome,
 } from "@/store/revision/course-revision-store";
+interface CPAClassificationRevisionProps {
+  onValidityChange?: (isValid: boolean) => void;
+}
 
-export function CPAClassificationRevision() {
+export function CPAClassificationRevision({
+  onValidityChange,
+}: CPAClassificationRevisionProps) {
   const {
     courseOutcomes,
     modifiedSections,
@@ -45,15 +48,25 @@ export function CPAClassificationRevision() {
     resetCPAClassifications();
   };
 
-  const getCompletedCount = () => {
+  const getCompletedCount = useCallback(() => {
     return courseOutcomes.filter(
       (outcome) => outcome.cpa && outcome.cpa.trim() !== ""
     ).length;
-  };
+  }, [courseOutcomes]);
 
   const isOutcomeComplete = (outcome: CourseOutcome) => {
     return outcome.cpa && outcome.cpa.trim() !== "";
   };
+
+  useEffect(() => {
+    const completedCount = getCompletedCount();
+    const isValid =
+      courseOutcomes.length > 0 && completedCount === courseOutcomes.length;
+
+    if (onValidityChange) {
+      onValidityChange(isValid);
+    }
+  }, [courseOutcomes, onValidityChange, getCompletedCount]);
 
   if (courseOutcomes.length === 0) {
     return (
