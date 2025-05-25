@@ -33,6 +33,7 @@ import {
 import { CourseOutcomesRevision } from "./CourseOutcomeRevision";
 import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
 import { ABCDModelRevision } from "./ABCDModelRevision";
+import { CPAClassificationRevision } from "./CPAClassificationRevision";
 
 interface CurriculumCourseRevisionWizardProps {
   curriculumCourseId: string;
@@ -126,8 +127,10 @@ export function CurriculumCourseRevisionWizard({
     switch (currentRevision.section) {
       case "course_outcomes":
         return <CourseOutcomesRevision />;
-      case "abcd_model":
+      case "abcd":
         return <ABCDModelRevision />;
+      case "cpa":
+        return <CPAClassificationRevision />;
       default:
         // For other sections, return a placeholder component
         return (
