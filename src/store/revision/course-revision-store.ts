@@ -116,6 +116,7 @@ interface CourseRevisionState {
   markSectionAsModified: (section: string) => void;
   resetStore: () => void;
   resetCourseOutcomes: () => void;
+  resetCPAClassifications: () => void;
   generateSubmissionPayload: () => CourseOutcomeSubmissionPayload;
 }
 
@@ -138,9 +139,12 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
     },
 
     addCourseOutcome: (outcome) => {
+      // Generate a unique temporary ID (negative to avoid collisions with server IDs)
+      const tempId = -Date.now();
+
       const newOutcome: CourseOutcome = {
         ...outcome,
-        id: null, // New course outcomes have null id
+        id: tempId, // Use temporary negative ID instead of null
       };
 
       set((state) => ({
@@ -163,8 +167,7 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
     removeCourseOutcome: (id) => {
       set((state) => ({
         courseOutcomes: state.courseOutcomes.filter(
-          (outcome) =>
-            outcome.id !== id && !(outcome.id === null && id === null)
+          (outcome) => outcome.id !== id
         ),
       }));
       get().markSectionAsModified("course_outcomes");
@@ -196,13 +199,25 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
         set({ modifiedSections });
       }
     },
+    resetCPAClassifications: () => {
+      const { currentCourse } = get();
+      if (currentCourse) {
+        set({
+          courseOutcomes: currentCourse.course_outcomes || [],
+        });
+        // Remove the section from modified sections
+        const modifiedSections = new Set(get().modifiedSections);
+        modifiedSections.delete("cpa_classification");
+        set({ modifiedSections });
+      }
+    },
 
     generateSubmissionPayload: () => {
       const { courseOutcomes } = get();
 
       return {
         course_outcomes: courseOutcomes.map((outcome) => ({
-          id: outcome.id,
+          id: outcome.id && outcome.id > 0 ? outcome.id : null,
           name: outcome.name,
           statement: outcome.statement,
           abcd: {
