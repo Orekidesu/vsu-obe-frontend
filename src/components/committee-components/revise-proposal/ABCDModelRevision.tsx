@@ -50,7 +50,7 @@ export function ABCDModelRevision() {
   const [isEditing, setIsEditing] = useState(false);
 
   // Check if this section has been modified
-  const isModified = modifiedSections.has("course_outcomes");
+  const isModified = modifiedSections.has("abcd");
 
   // Form state for editing ABCD model
   const [formData, setFormData] = useState({
