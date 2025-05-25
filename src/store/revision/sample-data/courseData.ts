@@ -201,14 +201,14 @@ export const sampleCourseRevisionData = {
       created_at: "2025-05-20T08:30:00.000000Z",
       version: 2,
     },
-    // {
-    //   id: 66,
-    //   section: "assessment_methods",
-    //   details:
-    //     "The assessment methods need to be revised to include appropriate teaching and learning resources for electrical engineering. Replace art-related methods with engineering-focused approaches such as laboratory work, simulations, and technical problem-solving.",
-    //   created_at: "2025-05-20T08:30:00.000000Z",
-    //   version: 2,
-    // },
+    {
+      id: 66,
+      section: "tla_assessment_method",
+      details:
+        "The assessment methods need to be revised to include appropriate teaching and learning resources for electrical engineering. Replace art-related methods with engineering-focused approaches such as laboratory work, simulations, and technical problem-solving.",
+      created_at: "2025-05-20T08:30:00.000000Z",
+      version: 2,
+    },
   ],
   message: "Course-level revisions fetched successfully.",
 };
@@ -221,7 +221,7 @@ export const getCourseRevisionSectionDisplayName = (sectionKey: string) => {
     cpa: "CPA Classification",
     po_mappings: "Course Outcome to PO Mapping",
     tla_tasks: "TLA Tasks",
-    assessment_methods: "Assessment Method",
+    tla_assessment_method: "Assessment Method",
   };
   return sectionNames[sectionKey] || sectionKey;
 };

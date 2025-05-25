@@ -336,7 +336,7 @@ export function ReviseDialog({
                         CO to PO Mapping
                       </SelectItem>
                       <SelectItem value="tla_tasks">TLA Task</SelectItem>
-                      <SelectItem value="tla_assessment_methods">
+                      <SelectItem value="tla_assessment_method">
                         Assessment Methods
                       </SelectItem>
                     </SelectContent>
