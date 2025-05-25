@@ -24,13 +24,6 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
-import {
   Edit,
   Target,
   BookOpen,
@@ -392,23 +385,8 @@ export function ABCDModelRevision() {
                         }
                         onClick={saveChanges}
                       >
-                        {!currentOutcome ||
-                        !isFormDataValid(currentOutcome, formData) ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Save className="h-4 w-4 mr-2" />
-                                <span>Save Changes</span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                ABCD components must be distinct,
-                                non-overlapping, and present in the CO statement
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          "Save Changes"
-                        )}
+                        <Save className="h-4 w-4 mr-2" />
+                        Save Changes
                       </Button>
                     </div>
                   ) : (
