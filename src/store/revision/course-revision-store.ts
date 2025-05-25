@@ -52,7 +52,7 @@ export interface CurriculumCourse {
     year: number;
     sem: string;
   };
-  units: string;
+  units: string | number;
   is_in_revision: boolean;
   is_completed: boolean;
   course_outcomes: CourseOutcome[];

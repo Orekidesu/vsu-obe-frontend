@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,16 +20,18 @@ import {
   BookOpen,
   Clock,
   Users,
+  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 
 // Import data
 import {
-  sampleCurriculumCourseData,
   sampleCourseRevisionData,
   getCourseRevisionSectionDisplayName,
   getSemesterDisplayName,
 } from "@/store/revision/sample-data/courseData";
+
+import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 
 import { CourseOutcomesRevision } from "./CourseOutcomeRevision";
 import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
@@ -49,15 +52,25 @@ export function CurriculumCourseRevisionWizard({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Get course data (in a real app, this would be fetched based on courseId)
-  const courseData = sampleCurriculumCourseData.data.find(
-    (course) => course.id.toString() === curriculumCourseId
+  const { getCurriculumCourse, isLoading } = useCurriculumCourses({
+    includeOutcomes: true,
+  });
+
+  const courseId = parseInt(curriculumCourseId, 10);
+  const { data: courseData, error } = useQuery(
+    getCurriculumCourse(courseId, true)
   );
   const { revisions } = sampleCourseRevisionData;
 
   useEffect(() => {
     if (courseData && !isRevising) {
-      useCourseRevisionStore.getState().setCurrentCourse(courseData);
+      // Ensure course_outcomes is always an array by providing default if undefined
+      const courseWithOutcomes = {
+        ...courseData,
+        course_outcomes: courseData.course_outcomes || [],
+      };
+
+      useCourseRevisionStore.getState().setCurrentCourse(courseWithOutcomes);
     }
   }, [courseData, isRevising]);
 
@@ -68,7 +81,7 @@ export function CurriculumCourseRevisionWizard({
 
   // Go back to the course list or dashboard
   const handleBackToCourses = () => {
-    router.push("/all-courses");
+    router.push("/faculty/all-courses");
   };
 
   // Go to the next step in the revision process
@@ -150,19 +163,32 @@ export function CurriculumCourseRevisionWizard({
     }
   };
 
-  if (!courseData) {
+  // Loading state
+  if (isLoading || !courseData) {
+    return (
+      <div className="container mx-auto h-[500px] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary mb-4" />
+          <h2 className="text-xl font-medium">Loading course data...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <Card className="max-w-3xl mx-auto">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="mx-auto h-16 w-16 text-red-500 mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Course Not Found</h2>
-            <p className="text-gray-600 mb-6">
-              The requested course could not be found.
-            </p>
-            <Button onClick={handleBackToCourses}>Return to Courses</Button>
-          </CardContent>
-        </Card>
+        <div className="flex justify-center items-center">
+          <AlertCircle className="mx-auto h-16 w-16 text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Course Not Found</h2>
+          <p className="text-gray-600 mb-6">
+            {error
+              ? `Error: ${error.message}`
+              : "The requested course could not be found."}
+          </p>
+          <Button onClick={handleBackToCourses}>Return to Courses</Button>
+        </div>
       </div>
     );
   }
@@ -336,7 +362,7 @@ export function CurriculumCourseRevisionWizard({
                 <div>
                   <p className="text-sm text-gray-500">Course Outcomes</p>
                   <p className="font-medium">
-                    {courseData.course_outcomes.length}
+                    {courseData?.course_outcomes?.length}
                   </p>
                 </div>
                 <div>
