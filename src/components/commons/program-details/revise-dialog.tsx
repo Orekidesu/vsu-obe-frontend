@@ -330,7 +330,7 @@ export function ReviseDialog({
                       <SelectItem value="course_outcomes">
                         Course Outcomes
                       </SelectItem>
-                      <SelectItem value="abcd_model">ABCD Model</SelectItem>
+                      <SelectItem value="abcd">ABCD Model</SelectItem>
                       <SelectItem value="cpa">CPA Classification</SelectItem>
                       <SelectItem value="po_mappings">
                         CO to PO Mapping
