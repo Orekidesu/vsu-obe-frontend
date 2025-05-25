@@ -231,12 +231,12 @@ export function TLAMethodsRevision() {
       <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-sm">
-            📚 Teaching Methods: {totalCounts.teachingMethods}
+            Teaching Methods: {totalCounts.teachingMethods}
           </Badge>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-sm">
-            📖 Learning Resources: {totalCounts.learningResources}
+            Learning Resources: {totalCounts.learningResources}
           </Badge>
         </div>
       </div>
