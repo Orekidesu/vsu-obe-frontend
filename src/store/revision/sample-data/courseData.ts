@@ -161,14 +161,14 @@ export const sampleCourseRevisionData = {
   course_title: "Fundamentals of Electrical Engineering",
   version: 2,
   revisions: [
-    {
-      id: 61,
-      section: "course_outcomes",
-      details:
-        "The course outcomes need to be more specific to electrical engineering fundamentals. The current outcome about 'Art Analysis and Criticism' is not appropriate for an electrical engineering course. Please revise to focus on electrical engineering concepts.",
-      created_at: "2025-05-20T08:30:00.000000Z",
-      version: 2,
-    },
+    // {
+    //   id: 61,
+    //   section: "course_outcomes",
+    //   details:
+    //     "The course outcomes need to be more specific to electrical engineering fundamentals. The current outcome about 'Art Analysis and Criticism' is not appropriate for an electrical engineering course. Please revise to focus on electrical engineering concepts.",
+    //   created_at: "2025-05-20T08:30:00.000000Z",
+    //   version: 2,
+    // },
     // {
     //   id: 62,
     //   section: "abcd",
@@ -185,22 +185,22 @@ export const sampleCourseRevisionData = {
     //   created_at: "2025-05-20T08:30:00.000000Z",
     //   version: 2,
     // },
-    {
-      id: 64,
-      section: "po_mappings",
-      details:
-        "The Course Outcome to Program Outcome mappings need to be revised to ensure proper alignment with electrical engineering program outcomes. Verify that the IED levels are appropriate for this foundational course.",
-      created_at: "2025-05-20T08:30:00.000000Z",
-      version: 2,
-    },
     // {
-    //   id: 65,
-    //   section: "tla_tasks",
+    //   id: 64,
+    //   section: "po_mappings",
     //   details:
-    //     "The TLA tasks need to be updated to reflect appropriate assessment methods for electrical engineering. 'Critique Assignment 1' is not suitable for this course. Consider laboratory exercises, problem-solving assignments, or technical reports.",
+    //     "The Course Outcome to Program Outcome mappings need to be revised to ensure proper alignment with electrical engineering program outcomes. Verify that the IED levels are appropriate for this foundational course.",
     //   created_at: "2025-05-20T08:30:00.000000Z",
     //   version: 2,
     // },
+    {
+      id: 65,
+      section: "tla_tasks",
+      details:
+        "The TLA tasks need to be updated to reflect appropriate assessment methods for electrical engineering. 'Critique Assignment 1' is not suitable for this course. Consider laboratory exercises, problem-solving assignments, or technical reports.",
+      created_at: "2025-05-20T08:30:00.000000Z",
+      version: 2,
+    },
     // {
     //   id: 66,
     //   section: "assessment_methods",

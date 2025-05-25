@@ -38,6 +38,7 @@ import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
 import { ABCDModelRevision } from "./ABCDModelRevision";
 import { CPAClassificationRevision } from "./CPAClassificationRevision";
 import { COPOMappingRevision } from "./COPOMappingRevision";
+import { TLATasksRevision } from "./TLATaskRevision";
 
 interface CurriculumCourseRevisionWizardProps {
   curriculumCourseId: string;
@@ -153,6 +154,8 @@ export function CurriculumCourseRevisionWizard({
         );
       case "po_mappings":
         return <COPOMappingRevision onValidityChange={setIsCurrentStepValid} />;
+      case "tla_tasks":
+        return <TLATasksRevision />;
       default:
         // For other sections, return a placeholder component
         // Set the current step as valid immediately
