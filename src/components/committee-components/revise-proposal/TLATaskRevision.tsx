@@ -28,6 +28,9 @@ import {
   CheckCircle,
   Info,
   RotateCcw,
+  Calculator,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 
 // Assessment tool options
@@ -203,24 +206,24 @@ export function TLATasksRevision() {
         </AlertDescription>
         <div className="flex items-center  pt-1 gap-2 rounded-lg">
           <div className="flex items-center gap-2">
-            <Badge
-              variant={totalWeight === 100 ? "default" : "destructive"}
-              className="text-sm"
-            >
+            <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+              <Calculator className="h-3 w-3 mr-1" />
               Total Weight: {totalWeight.toFixed(1)}%
             </Badge>
           </div>
           <div className="flex items-center ">
             {totalWeight === 100 ? (
               <Badge className="bg-green-500 text-white">
-                Total weight must be 100%
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Weight is valid
               </Badge>
             ) : (
               <Badge
                 variant="outline"
                 className="text-amber-600 border-amber-600"
               >
-                ⚠ Total weight must be 100%
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Total weight must be 100%
               </Badge>
             )}
           </div>
