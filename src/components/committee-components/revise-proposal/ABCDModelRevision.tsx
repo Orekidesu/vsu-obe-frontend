@@ -43,7 +43,7 @@ export function ABCDModelRevision() {
     courseOutcomes,
     modifiedSections,
     updateCourseOutcome,
-    resetCourseOutcomes,
+    resetABCDModels,
   } = useCourseRevisionStore();
 
   const [activeTab, setActiveTab] = useState(0);
@@ -142,7 +142,7 @@ export function ABCDModelRevision() {
   };
 
   const handleReset = () => {
-    resetCourseOutcomes();
+    resetABCDModels();
     setIsEditing(false);
     resetForm();
   };

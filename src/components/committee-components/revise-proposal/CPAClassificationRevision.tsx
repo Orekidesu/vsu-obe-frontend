@@ -6,8 +6,22 @@ import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { CheckCircle, RotateCcw, Info, Brain, Hand, Heart } from "lucide-react";
-import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
+import {
+  useCourseRevisionStore,
+  type CourseOutcome,
+} from "@/store/revision/course-revision-store";
 
 export function CPAClassificationRevision() {
   const {
@@ -28,13 +42,7 @@ export function CPAClassificationRevision() {
   };
 
   const handleReset = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to reset all CPA classifications? This will restore the original classifications and cannot be undone."
-      )
-    ) {
-      resetCPAClassifications();
-    }
+    resetCPAClassifications();
   };
 
   const getCompletedCount = () => {
@@ -43,7 +51,7 @@ export function CPAClassificationRevision() {
     ).length;
   };
 
-  const isOutcomeComplete = (outcome: any) => {
+  const isOutcomeComplete = (outcome: CourseOutcome) => {
     return outcome.cpa && outcome.cpa.trim() !== "";
   };
 
@@ -107,12 +115,33 @@ export function CPAClassificationRevision() {
             )}
           </h3>
         </div>
-        {isModified && (
-          <Button variant="outline" size="sm" onClick={handleReset}>
-            <RotateCcw className="h-4 w-4 mr-2" />
-            Reset Changes
-          </Button>
-        )}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" disabled={!isModified}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Reset Changes
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset CPA Classifications</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to reset all changes to the CPA
+                classifications? This will restore the original classifications
+                and cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleReset}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Reset Changes
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Progress */}

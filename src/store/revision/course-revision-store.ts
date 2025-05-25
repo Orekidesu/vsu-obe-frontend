@@ -116,6 +116,7 @@ interface CourseRevisionState {
   markSectionAsModified: (section: string) => void;
   resetStore: () => void;
   resetCourseOutcomes: () => void;
+  resetABCDModels: () => void;
   resetCPAClassifications: () => void;
   generateSubmissionPayload: () => CourseOutcomeSubmissionPayload;
 }
@@ -200,14 +201,90 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
       }
     },
     resetCPAClassifications: () => {
-      const { currentCourse } = get();
+      const { currentCourse, courseOutcomes } = get();
       if (currentCourse) {
+        // Reset only CPA data while preserving other modifications
+        const originalOutcomes = currentCourse.course_outcomes || [];
+
         set({
-          courseOutcomes: currentCourse.course_outcomes || [],
+          courseOutcomes: courseOutcomes.map((outcome) => {
+            // Find the original outcome by ID
+            const originalOutcome = originalOutcomes.find(
+              (orig) => orig.id === outcome.id
+            );
+
+            if (originalOutcome) {
+              // Reset only CPA data, keep other modifications
+              return {
+                ...outcome,
+                cpa: originalOutcome.cpa,
+              };
+            }
+
+            // For new outcomes (negative IDs), reset CPA to empty
+            if (outcome.id && outcome.id < 0) {
+              return {
+                ...outcome,
+                cpa: "",
+              };
+            }
+
+            return outcome;
+          }),
         });
-        // Remove the section from modified sections
+
+        // Remove only the CPA section from modified sections
         const modifiedSections = new Set(get().modifiedSections);
         modifiedSections.delete("cpa");
+        set({ modifiedSections });
+      }
+    },
+    resetABCDModels: () => {
+      const { currentCourse, courseOutcomes } = get();
+      if (currentCourse) {
+        // Reset only ABCD data while preserving other modifications
+        const originalOutcomes = currentCourse.course_outcomes || [];
+
+        set({
+          courseOutcomes: courseOutcomes.map((outcome) => {
+            // Find the original outcome by ID
+            const originalOutcome = originalOutcomes.find(
+              (orig) => orig.id === outcome.id
+            );
+
+            if (originalOutcome) {
+              // Reset only ABCD data, keep other modifications
+              return {
+                ...outcome,
+                abcd: {
+                  audience: originalOutcome.abcd.audience,
+                  behavior: originalOutcome.abcd.behavior,
+                  condition: originalOutcome.abcd.condition,
+                  degree: originalOutcome.abcd.degree,
+                },
+              };
+            }
+
+            // For new outcomes (negative IDs), reset ABCD to empty
+            if (outcome.id && outcome.id < 0) {
+              return {
+                ...outcome,
+                abcd: {
+                  audience: "",
+                  behavior: "",
+                  condition: "",
+                  degree: "",
+                },
+              };
+            }
+
+            return outcome;
+          }),
+        });
+
+        // Remove only the ABCD section from modified sections
+        const modifiedSections = new Set(get().modifiedSections);
+        modifiedSections.delete("course_outcomes"); // Remove this if only ABCD was modified
         set({ modifiedSections });
       }
     },
