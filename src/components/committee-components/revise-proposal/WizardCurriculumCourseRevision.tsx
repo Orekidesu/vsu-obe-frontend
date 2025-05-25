@@ -152,7 +152,7 @@ export function CurriculumCourseRevisionWizard({
           <CPAClassificationRevision onValidityChange={setIsCurrentStepValid} />
         );
       case "po_mappings":
-        return <COPOMappingRevision />;
+        return <COPOMappingRevision onValidityChange={setIsCurrentStepValid} />;
       default:
         // For other sections, return a placeholder component
         // Set the current step as valid immediately

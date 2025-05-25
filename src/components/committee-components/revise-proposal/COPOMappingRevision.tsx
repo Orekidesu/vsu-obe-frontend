@@ -52,7 +52,13 @@ const contributionLevels = [
   },
 ];
 
-export function COPOMappingRevision() {
+interface COPOMappingRevisionProps {
+  onValidityChange?: (isValid: boolean) => void;
+}
+
+export function COPOMappingRevision({
+  onValidityChange,
+}: COPOMappingRevisionProps) {
   const {
     currentCourse,
     courseOutcomes,
@@ -102,6 +108,17 @@ export function COPOMappingRevision() {
   ).length;
 
   const totalOutcomes = courseOutcomes.length;
+
+  // Validate that all COs are mapped to at least one PO
+  useEffect(() => {
+    // Valid if there are outcomes and all are mapped
+    const isValid = totalOutcomes > 0 && completedOutcomes === totalOutcomes;
+
+    // Report validity state to parent component
+    if (onValidityChange) {
+      onValidityChange(isValid);
+    }
+  }, [completedOutcomes, totalOutcomes, onValidityChange]);
 
   // Handle PO mapping update
   const handlePOMappingUpdate = (
