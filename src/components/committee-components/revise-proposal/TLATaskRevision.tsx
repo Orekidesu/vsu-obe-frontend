@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -86,14 +86,14 @@ export function TLATasksRevision({ onValidityChange }: TLATasksRevisionProps) {
   };
 
   // Calculate total weight across all course outcomes
-  const calculateTotalWeight = () => {
+  const calculateTotalWeight = useCallback(() => {
     return courseOutcomes.reduce((total, outcome) => {
       const outcomeWeight = outcome.tla_tasks.reduce((sum, task) => {
         return sum + (Number.parseFloat(task.weight) || 0);
       }, 0);
       return total + outcomeWeight;
     }, 0);
-  };
+  }, [courseOutcomes]);
 
   // Calculate weight for a specific course outcome
   const calculateCOWeight = (coIndex: number) => {
@@ -121,12 +121,12 @@ export function TLATasksRevision({ onValidityChange }: TLATasksRevisionProps) {
     return { status: "warning", text: "No tasks defined", icon: AlertTriangle };
   };
 
-  const everyCoHasTasks = () => {
+  const everyCoHasTasks = useCallback(() => {
     return courseOutcomes.every((outcome) => outcome.tla_tasks.length > 0);
-  };
+  }, [courseOutcomes]);
 
   // Validate TLA tasks
-  const validateTLATasks = () => {
+  const validateTLATasks = useCallback(() => {
     const totalWeight = calculateTotalWeight();
     const allCOsHaveTasks = everyCoHasTasks();
 
@@ -134,7 +134,7 @@ export function TLATasksRevision({ onValidityChange }: TLATasksRevisionProps) {
     // 1. Total weight must be exactly 100%
     // 2. Each CO must have at least one assessment task
     return Math.abs(totalWeight - 100) < 0.01 && allCOsHaveTasks;
-  };
+  }, [calculateTotalWeight, everyCoHasTasks]);
 
   // Update validity whenever relevant data changes
   useEffect(() => {
@@ -142,7 +142,7 @@ export function TLATasksRevision({ onValidityChange }: TLATasksRevisionProps) {
       const isValid = validateTLATasks();
       onValidityChange(isValid);
     }
-  }, [courseOutcomes, onValidityChange]);
+  }, [onValidityChange, validateTLATasks]);
 
   // Add a new empty task row to the selected course outcome
   const handleAddTask = () => {
