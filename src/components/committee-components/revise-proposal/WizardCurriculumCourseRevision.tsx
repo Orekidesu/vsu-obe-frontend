@@ -155,7 +155,7 @@ export function CurriculumCourseRevisionWizard({
       case "po_mappings":
         return <COPOMappingRevision onValidityChange={setIsCurrentStepValid} />;
       case "tla_tasks":
-        return <TLATasksRevision />;
+        return <TLATasksRevision onValidityChange={setIsCurrentStepValid} />;
       default:
         // For other sections, return a placeholder component
         // Set the current step as valid immediately
