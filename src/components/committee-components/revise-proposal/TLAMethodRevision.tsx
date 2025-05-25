@@ -2,32 +2,17 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckCircle, AlertTriangle, RotateCcw } from "lucide-react";
 import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
-import {
-  Plus,
-  AlertTriangle,
-  CheckCircle,
-  Info,
-  RotateCcw,
-  BookOpen,
-  Users,
-} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-// Default teaching methods
+// Import modular components
+import { TLAMethodInstructions } from "./tla-method-components/TLAMethodInstructions";
+import { TLAMethodTabContent } from "./tla-method-components/TLAMethodTabContent";
+import { TLAMethodSummaryTable } from "./tla-method-components/TLAMethodSummaryTable";
+
+// Default teaching methods and learning resources
 const defaultTeachingMethods = [
   "Lecture",
   "Demonstration",
@@ -45,7 +30,6 @@ const defaultTeachingMethods = [
   "Experiments",
 ];
 
-// Default learning resources
 const defaultLearningResources = [
   "Textbooks",
   "Lecture Notes",
@@ -60,8 +44,13 @@ const defaultLearningResources = [
 ];
 
 export function TLAMethodsRevision() {
-  const { courseOutcomes, updateCourseOutcome, resetTLATasks } =
-    useCourseRevisionStore();
+  const {
+    courseOutcomes,
+    updateCourseOutcome,
+    resetTLAMethods,
+    modifiedSections,
+    markSectionAsModified,
+  } = useCourseRevisionStore();
   const [selectedCOIndex, setSelectedCOIndex] = useState(0);
   const [customTeachingMethods, setCustomTeachingMethods] = useState<string[]>(
     []
@@ -71,16 +60,15 @@ export function TLAMethodsRevision() {
   >([]);
   const [newTeachingMethod, setNewTeachingMethod] = useState("");
   const [newLearningResource, setNewLearningResource] = useState("");
-  const [isAddingTeachingMethod, setIsAddingTeachingMethod] = useState(false);
-  const [isAddingLearningResource, setIsAddingLearningResource] =
-    useState(false);
 
-  // Get all available teaching methods (default + custom)
+  // Check if TLA methods have been modified
+  const isModified = modifiedSections.has("tla_methods");
+
+  // Helper functions
   const getAllTeachingMethods = () => {
     return [...defaultTeachingMethods, ...customTeachingMethods];
   };
 
-  // Get all available learning resources (default + custom)
   const getAllLearningResources = () => {
     return [...defaultLearningResources, ...customLearningResources];
   };
@@ -107,37 +95,6 @@ export function TLAMethodsRevision() {
     };
   };
 
-  // Get status for a course outcome
-  const getCOStatus = (coIndex: number) => {
-    const outcome = courseOutcomes[coIndex];
-    if (!outcome?.tla_assessment_method) {
-      return { status: "warning", text: "None selected", icon: AlertTriangle };
-    }
-
-    const hasTeachingMethods =
-      outcome.tla_assessment_method.teaching_methods?.length > 0;
-    const hasLearningResources =
-      outcome.tla_assessment_method.learning_resources?.length > 0;
-
-    if (hasTeachingMethods && hasLearningResources) {
-      return { status: "success", text: "Complete", icon: CheckCircle };
-    }
-
-    return { status: "warning", text: "Incomplete", icon: AlertTriangle };
-  };
-
-  // Get selected count for teaching methods
-  const getSelectedTeachingMethodsCount = (coIndex: number) => {
-    const outcome = courseOutcomes[coIndex];
-    return outcome?.tla_assessment_method?.teaching_methods?.length || 0;
-  };
-
-  // Get selected count for learning resources
-  const getSelectedLearningResourcesCount = (coIndex: number) => {
-    const outcome = courseOutcomes[coIndex];
-    return outcome?.tla_assessment_method?.learning_resources?.length || 0;
-  };
-
   // Update teaching methods for the selected course outcome
   const handleTeachingMethodChange = (method: string, checked: boolean) => {
     const selectedOutcome = courseOutcomes[selectedCOIndex];
@@ -157,6 +114,8 @@ export function TLAMethodsRevision() {
           selectedOutcome.tla_assessment_method?.learning_resources || [],
       },
     });
+
+    markSectionAsModified("tla_methods");
   };
 
   // Update learning resources for the selected course outcome
@@ -178,6 +137,8 @@ export function TLAMethodsRevision() {
         learning_resources: updatedResources,
       },
     });
+
+    markSectionAsModified("tla_methods");
   };
 
   // Add custom teaching method
@@ -188,7 +149,6 @@ export function TLAMethodsRevision() {
       handleTeachingMethodChange(method, true);
     }
     setNewTeachingMethod("");
-    setIsAddingTeachingMethod(false);
   };
 
   // Add custom learning resource
@@ -199,12 +159,11 @@ export function TLAMethodsRevision() {
       handleLearningResourceChange(resource, true);
     }
     setNewLearningResource("");
-    setIsAddingLearningResource(false);
   };
 
   // Reset to original state
   const handleReset = () => {
-    resetTLATasks();
+    resetTLAMethods();
     setCustomTeachingMethods([]);
     setCustomLearningResources([]);
   };
@@ -213,384 +172,92 @@ export function TLAMethodsRevision() {
 
   return (
     <div className="space-y-6">
-      {/* Header Alert */}
-      <Alert className="bg-amber-50 border-amber-200">
-        <Info className="h-4 w-4 text-amber-600" />
-        <AlertDescription className="text-amber-800">
-          <strong>Teaching Methods and Learning Resources</strong>
-          <br />
-          Select teaching methods and learning resources for each Course
-          Outcome.
-          <br />
-          Each CO must have at least one teaching method and one learning
-          resource.
-        </AlertDescription>
-      </Alert>
-
-      {/* Summary Counts */}
-      <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-sm">
-            Teaching Methods: {totalCounts.teachingMethods}
+      {/* Header with modification status */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">
+          Teaching Methods & Learning Resources
+        </h2>
+        {isModified && (
+          <Badge className="bg-green-500 text-white">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Modified
           </Badge>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-sm">
-            Learning Resources: {totalCounts.learningResources}
-          </Badge>
-        </div>
+        )}
       </div>
 
-      {/* Course Outcome Tabs */}
+      {/* Instructions */}
+      <TLAMethodInstructions
+        teachingMethodsCount={totalCounts.teachingMethods}
+        learningResourcesCount={totalCounts.learningResources}
+      />
+
+      {/* Tabs for Course Outcomes */}
       <Tabs
         value={selectedCOIndex.toString()}
         onValueChange={(value) => setSelectedCOIndex(Number.parseInt(value))}
       >
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 mb-4">
           {courseOutcomes.map((outcome, index) => {
-            const status = getCOStatus(index);
-            const StatusIcon = status.icon;
+            const hasMethods =
+              (outcome.tla_assessment_method?.teaching_methods?.length || 0) >
+              0;
+            const hasResources =
+              (outcome.tla_assessment_method?.learning_resources?.length || 0) >
+              0;
+            const isValid = hasMethods && hasResources;
+
             return (
               <TabsTrigger
                 key={index}
                 value={index.toString()}
-                className="flex items-center gap-2"
+                className="relative"
               >
-                <StatusIcon
-                  className={`h-4 w-4 ${status.status === "success" ? "text-green-500" : "text-amber-500"}`}
-                />
                 CO{index + 1}
+                {isValid ? (
+                  <CheckCircle className="h-3 w-3 text-green-500 absolute -top-1 -right-1" />
+                ) : (
+                  <AlertTriangle className="h-3 w-3 text-amber-500 absolute -top-1 -right-1" />
+                )}
               </TabsTrigger>
             );
           })}
         </TabsList>
 
         {courseOutcomes.map((outcome, coIndex) => (
-          <TabsContent key={coIndex} value={coIndex.toString()}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Course Outcome {coIndex + 1}</CardTitle>
-                <p className="text-sm text-gray-600">{outcome.statement}</p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Teaching Methods Section */}
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="h-5 w-5 text-blue-600" />
-                        <h3 className="text-lg font-medium">
-                          Teaching Methods
-                        </h3>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getSelectedTeachingMethodsCount(coIndex) > 0 ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            {getSelectedTeachingMethodsCount(coIndex)} selected
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="outline"
-                            className="text-amber-600 border-amber-600"
-                          >
-                            None selected
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {getAllTeachingMethods().map((method) => {
-                        const isSelected =
-                          outcome.tla_assessment_method?.teaching_methods?.includes(
-                            method
-                          ) || false;
-                        return (
-                          <div
-                            key={method}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={`teaching-${coIndex}-${method}`}
-                              checked={isSelected}
-                              onCheckedChange={(checked) =>
-                                handleTeachingMethodChange(
-                                  method,
-                                  checked as boolean
-                                )
-                              }
-                            />
-                            <label
-                              htmlFor={`teaching-${coIndex}-${method}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {method}
-                            </label>
-                          </div>
-                        );
-                      })}
-
-                      {/* Add new teaching method */}
-                      {isAddingTeachingMethod ? (
-                        <div className="flex gap-2 mt-2">
-                          <Input
-                            value={newTeachingMethod}
-                            onChange={(e) =>
-                              setNewTeachingMethod(e.target.value)
-                            }
-                            placeholder="Enter new teaching method"
-                            className="flex-1"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                handleAddTeachingMethod();
-                              } else if (e.key === "Escape") {
-                                setIsAddingTeachingMethod(false);
-                                setNewTeachingMethod("");
-                              }
-                            }}
-                          />
-                          <Button size="sm" onClick={handleAddTeachingMethod}>
-                            Add
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setIsAddingTeachingMethod(false);
-                              setNewTeachingMethod("");
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsAddingTeachingMethod(true)}
-                          className="w-full mt-2 text-blue-600 border-blue-200 hover:bg-blue-50"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add new teaching method...
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Learning Resources Section */}
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-green-600" />
-                        <h3 className="text-lg font-medium">
-                          Learning Resources
-                        </h3>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getSelectedLearningResourcesCount(coIndex) > 0 ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            {getSelectedLearningResourcesCount(coIndex)}{" "}
-                            selected
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="outline"
-                            className="text-amber-600 border-amber-600"
-                          >
-                            None selected
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {getAllLearningResources().map((resource) => {
-                        const isSelected =
-                          outcome.tla_assessment_method?.learning_resources?.includes(
-                            resource
-                          ) || false;
-                        return (
-                          <div
-                            key={resource}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={`resource-${coIndex}-${resource}`}
-                              checked={isSelected}
-                              onCheckedChange={(checked) =>
-                                handleLearningResourceChange(
-                                  resource,
-                                  checked as boolean
-                                )
-                              }
-                            />
-                            <label
-                              htmlFor={`resource-${coIndex}-${resource}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {resource}
-                            </label>
-                          </div>
-                        );
-                      })}
-
-                      {/* Add new learning resource */}
-                      {isAddingLearningResource ? (
-                        <div className="flex gap-2 mt-2">
-                          <Input
-                            value={newLearningResource}
-                            onChange={(e) =>
-                              setNewLearningResource(e.target.value)
-                            }
-                            placeholder="Enter new learning resource"
-                            className="flex-1"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                handleAddLearningResource();
-                              } else if (e.key === "Escape") {
-                                setIsAddingLearningResource(false);
-                                setNewLearningResource("");
-                              }
-                            }}
-                          />
-                          <Button size="sm" onClick={handleAddLearningResource}>
-                            Add
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setIsAddingLearningResource(false);
-                              setNewLearningResource("");
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsAddingLearningResource(true)}
-                          className="w-full mt-2 text-green-600 border-green-200 hover:bg-green-50"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add new learning resource...
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+          <TLAMethodTabContent
+            key={coIndex}
+            outcome={outcome}
+            coIndex={coIndex}
+            allTeachingMethods={getAllTeachingMethods()}
+            allLearningResources={getAllLearningResources()}
+            handleTeachingMethodChange={handleTeachingMethodChange}
+            handleLearningResourceChange={handleLearningResourceChange}
+            newTeachingMethod={newTeachingMethod}
+            setNewTeachingMethod={setNewTeachingMethod}
+            handleAddTeachingMethod={handleAddTeachingMethod}
+            newLearningResource={newLearningResource}
+            setNewLearningResource={setNewLearningResource}
+            handleAddLearningResource={handleAddLearningResource}
+          />
         ))}
       </Tabs>
 
-      {/* Teaching and Learning Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Teaching and Learning Summary</CardTitle>
-          <p className="text-sm text-gray-600">
-            Overview of teaching methods and learning resources across course
-            outcomes
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>CO</TableHead>
-                <TableHead>CO Statement</TableHead>
-                <TableHead>Teaching Methods</TableHead>
-                <TableHead>Learning Resources</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {courseOutcomes.map((outcome, index) => {
-                const status = getCOStatus(index);
-                const teachingMethods =
-                  outcome.tla_assessment_method?.teaching_methods || [];
-                const learningResources =
-                  outcome.tla_assessment_method?.learning_resources || [];
+      {/* Summary Table */}
+      <TLAMethodSummaryTable courseOutcomes={courseOutcomes} />
 
-                return (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">CO{index + 1}</TableCell>
-                    <TableCell className="max-w-md">
-                      <div className="truncate" title={outcome.statement}>
-                        {outcome.statement}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {teachingMethods.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {teachingMethods.map((method, methodIndex) => (
-                            <Badge
-                              key={methodIndex}
-                              variant="outline"
-                              className="text-xs"
-                            >
-                              {method}
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-gray-500 text-sm">
-                          None selected
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {learningResources.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {learningResources.map((resource, resourceIndex) => (
-                            <Badge
-                              key={resourceIndex}
-                              variant="outline"
-                              className="text-xs"
-                            >
-                              {resource}
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-gray-500 text-sm">
-                          None selected
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          status.status === "success"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-amber-100 text-amber-800"
-                        }
-                      >
-                        {status.text}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Reset Button */}
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          onClick={handleReset}
-          className="text-gray-600"
-        >
-          <RotateCcw className="h-4 w-4 mr-2" />
-          Reset to Original
-        </Button>
-      </div>
+      {/* Reset Button - only show when modified */}
+      {isModified && (
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            onClick={handleReset}
+            className="text-gray-600"
+          >
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Reset to Original
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
