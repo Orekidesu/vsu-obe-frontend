@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,12 +20,44 @@ import {
 import {
   useCourseRevisionStore,
   type CourseOutcome,
+  type ProgramOutcome,
 } from "@/store/revision/course-revision-store";
-import { sampleProgramOutcomes } from "@/store/revision/sample-data/courseData";
+import useCoursePO from "@/hooks/shared/useCoursePO";
+
+// Define contribution levels with colors and descriptions
+const contributionLevels = [
+  {
+    value: "I",
+    label: "Introductory",
+    description: "The outcome is introduced",
+    color: "bg-yellow-100 text-yellow-800 border-yellow-300",
+  },
+  {
+    value: "E",
+    label: "Enabling",
+    description: "The outcome is emphasized",
+    color: "bg-green-100 text-green-800 border-green-300",
+  },
+  {
+    value: "D",
+    label: "Development",
+    description: "The outcome is demonstrated",
+    color: "bg-purple-100 text-purple-800 border-purple-300",
+  },
+  {
+    value: "None",
+    label: "None",
+    description: "No contribution",
+    color: "bg-gray-100 text-gray-800 border-gray-300",
+  },
+];
 
 export function COPOMappingRevision() {
   const {
+    currentCourse,
     courseOutcomes,
+    programOutcomes,
+    setProgramOutcomes,
     updateCourseOutcome,
     modifiedSections,
     resetCOPOMappings,
@@ -33,8 +65,36 @@ export function COPOMappingRevision() {
   } = useCourseRevisionStore();
 
   const [activeTab, setActiveTab] = useState(0);
+  const courseId = currentCourse?.id;
+
+  // Fetch program outcomes with their available contribution levels
+  const { coursePOs, isLoading: poLoading } = useCoursePO(courseId);
+
+  // Initialize program outcomes from API
+  useEffect(() => {
+    if (!poLoading && coursePOs && coursePOs.length > 0) {
+      // Transform the API response to match our ProgramOutcome interface
+      const formattedPOs = coursePOs.map((po) => ({
+        id: po.id,
+        name: po.name || `PO${po.id}`,
+        statement: po.statement,
+        availableContributionLevels: po.ied || ["I", "E", "D"], // Use API's ied property
+      }));
+
+      setProgramOutcomes(formattedPOs);
+    }
+  }, [poLoading, coursePOs, setProgramOutcomes]);
 
   const isModified = modifiedSections.has("po_mappings");
+
+  // Check if a contribution level is available for a specific PO
+  const isContributionLevelAvailable = (
+    po: ProgramOutcome | undefined,
+    level: string
+  ): boolean => {
+    if (!po || level === "None") return true; // "None" is always available
+    return po.availableContributionLevels?.includes(level) ?? true;
+  };
 
   // Calculate completion statistics
   const completedOutcomes = courseOutcomes.filter((outcome) =>
@@ -66,7 +126,7 @@ export function COPOMappingRevision() {
       }
     } else {
       // Add or update mapping
-      const poData = sampleProgramOutcomes.find((po) => po.id === poId);
+      const poData = programOutcomes.find((po) => po.id === poId);
       if (existingMappingIndex !== -1) {
         // Update existing mapping
         updatedMappings[existingMappingIndex] = {
@@ -110,6 +170,19 @@ export function COPOMappingRevision() {
     );
   };
 
+  // Loading state
+  if (poLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>Loading program outcomes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No course outcomes case
   if (courseOutcomes.length === 0) {
     return (
       <div className="space-y-6">
@@ -189,33 +262,14 @@ export function COPOMappingRevision() {
               for every Program Outcome. Unavailable options will be disabled.
             </p>
             <div className="flex gap-4 mt-2">
-              <div className="flex items-center gap-1">
-                <Badge
-                  variant="outline"
-                  className="bg-yellow-100 text-yellow-800 border-yellow-300"
-                >
-                  I
-                </Badge>
-                <span className="text-sm">Introductory</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Badge
-                  variant="outline"
-                  className="bg-green-100 text-green-800 border-green-300"
-                >
-                  E
-                </Badge>
-                <span className="text-sm">Enabling</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Badge
-                  variant="outline"
-                  className="bg-purple-100 text-purple-800 border-purple-300"
-                >
-                  D
-                </Badge>
-                <span className="text-sm">Development</span>
-              </div>
+              {contributionLevels.slice(0, 3).map((level) => (
+                <div key={level.value} className="flex items-center gap-1">
+                  <Badge variant="outline" className={level.color}>
+                    {level.value}
+                  </Badge>
+                  <span className="text-sm">{level.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </AlertDescription>
@@ -293,9 +347,6 @@ export function COPOMappingRevision() {
                         PO #
                       </th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
-                        PO Name
-                      </th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
                         Statement
                       </th>
                       <th className="px-4 py-3 text-center text-sm font-medium text-gray-900">
@@ -304,35 +355,50 @@ export function COPOMappingRevision() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {sampleProgramOutcomes.map((po) => {
+                    {programOutcomes.map((po) => {
                       const currentMapping = getCurrentMapping(
                         currentOutcome.id,
                         po.id
                       );
+
                       return (
                         <tr key={po.id} className="hover:bg-gray-50">
                           <td className="px-4 py-3 text-sm font-medium">
                             {po.name}
                           </td>
-                          <td className="px-4 py-3 text-sm">{po.name}</td>
                           <td className="px-4 py-3 text-sm text-gray-600">
                             {po.statement}
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-center gap-2">
-                              {["I", "E", "D", "None"].map((level) => (
+                              {contributionLevels.map((level) => (
                                 <label
-                                  key={level}
-                                  className="flex items-center gap-1 cursor-pointer"
+                                  key={level.value}
+                                  className={`flex items-center gap-1 ${
+                                    !isContributionLevelAvailable(
+                                      po,
+                                      level.value
+                                    )
+                                      ? "opacity-50 cursor-not-allowed"
+                                      : "cursor-pointer"
+                                  }`}
+                                  title={
+                                    !isContributionLevelAvailable(
+                                      po,
+                                      level.value
+                                    )
+                                      ? `${level.value} is not available for this Program Outcome`
+                                      : level.description
+                                  }
                                 >
                                   <input
                                     type="radio"
                                     name={`po-${po.id}`}
-                                    value={level}
+                                    value={level.value}
                                     checked={
-                                      level === "None"
+                                      level.value === "None"
                                         ? currentMapping === ""
-                                        : currentMapping === level
+                                        : currentMapping === level.value
                                     }
                                     onChange={(e) =>
                                       handlePOMappingUpdate(
@@ -344,19 +410,25 @@ export function COPOMappingRevision() {
                                       )
                                     }
                                     className="text-blue-600"
+                                    disabled={
+                                      !isContributionLevelAvailable(
+                                        po,
+                                        level.value
+                                      )
+                                    }
                                   />
                                   <span
                                     className={`text-sm ${
-                                      level === "I"
+                                      level.value === "I"
                                         ? "text-yellow-700"
-                                        : level === "E"
+                                        : level.value === "E"
                                           ? "text-green-700"
-                                          : level === "D"
+                                          : level.value === "D"
                                             ? "text-purple-700"
                                             : "text-gray-700"
                                     }`}
                                   >
-                                    {level}
+                                    {level.value}
                                   </span>
                                 </label>
                               ))}
@@ -389,12 +461,15 @@ export function COPOMappingRevision() {
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
                     CO Name
                   </th>
-                  {sampleProgramOutcomes.map((po) => (
+                  {programOutcomes.map((po) => (
                     <th
                       key={po.id}
                       className="px-4 py-3 text-center text-sm font-medium text-gray-900"
                     >
                       {po.name}
+                      <div className="text-xs font-normal mt-1">
+                        {po.availableContributionLevels.join(", ")}
+                      </div>
                     </th>
                   ))}
                 </tr>
@@ -403,9 +478,9 @@ export function COPOMappingRevision() {
                 {courseOutcomes.map((outcome, index) => (
                   <tr key={outcome.id || index} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm font-medium">
-                      {outcome.name}
+                      {outcome.name || `CO ${index + 1}`}
                     </td>
-                    {sampleProgramOutcomes.map((po) => {
+                    {programOutcomes.map((po) => {
                       const mapping = getCurrentMapping(outcome.id, po.id);
                       return (
                         <td key={po.id} className="px-4 py-3 text-center">

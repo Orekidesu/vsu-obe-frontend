@@ -31,6 +31,13 @@ export interface CourseOutcome {
   };
 }
 
+export interface ProgramOutcome {
+  id: number;
+  name: string;
+  statement: string;
+  availableContributionLevels: string[]; // Add this property
+}
+
 export interface CurriculumCourse {
   id: number;
   curriculum: {
@@ -56,6 +63,8 @@ export interface CurriculumCourse {
   is_in_revision: boolean;
   is_completed: boolean;
   course_outcomes: CourseOutcome[];
+
+  //
 }
 
 // Payload interface for submission
@@ -112,6 +121,10 @@ interface CourseRevisionState {
   ) => void;
   removeCourseOutcome: (id: number | null) => void;
 
+  //======Program outcome actions=======//
+  programOutcomes: ProgramOutcome[];
+  setProgramOutcomes: (outcomes: ProgramOutcome[]) => void;
+
   //=======other actions=======//
   markSectionAsModified: (section: string) => void;
   resetStore: () => void;
@@ -127,6 +140,12 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
     currentCourse: null,
     modifiedSections: new Set(),
     courseOutcomes: [],
+    programOutcomes: [], // Add this missing property
+
+    // Add this missing method
+    setProgramOutcomes: (outcomes) => {
+      set({ programOutcomes: outcomes });
+    },
 
     setCurrentCourse: (course) => {
       set({
@@ -240,6 +259,7 @@ export const useCourseRevisionStore = create<CourseRevisionState>(
         set({ modifiedSections });
       }
     },
+
     resetABCDModels: () => {
       const { currentCourse, courseOutcomes } = get();
       if (currentCourse) {
