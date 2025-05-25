@@ -183,6 +183,18 @@ export function TLAMethodsRevision() {
             Modified
           </Badge>
         )}
+        {isModified && (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              onClick={handleReset}
+              className="text-gray-600"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Reset to Original
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Instructions */}
@@ -246,18 +258,6 @@ export function TLAMethodsRevision() {
       <TLAMethodSummaryTable courseOutcomes={courseOutcomes} />
 
       {/* Reset Button - only show when modified */}
-      {isModified && (
-        <div className="flex justify-end">
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            className="text-gray-600"
-          >
-            <RotateCcw className="h-4 w-4 mr-2" />
-            Reset to Original
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
