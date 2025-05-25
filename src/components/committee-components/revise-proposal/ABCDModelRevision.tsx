@@ -401,11 +401,8 @@ export function ABCDModelRevision() {
                                 <span>Save Changes</span>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>
-                                  ABCD components must be distinct,
-                                  non-overlapping, and present in the CO
-                                  statement
-                                </p>
+                                ABCD components must be distinct,
+                                non-overlapping, and present in the CO statement
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

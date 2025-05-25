@@ -340,45 +340,49 @@ export function CourseOutcomesRevision() {
                             Remove Course Outcome
                           </AlertDialogTitle>
                         </AlertDialogHeader>
-                        <AlertDialogDescription className="space-y-3">
-                          Are you sure you want to remove &quot;{outcome.name}
-                          &quot;?
-                          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                            <div className="flex items-start">
-                              <AlertTriangle className="h-4 w-4 text-red-600 mr-2 mt-0.5 flex-shrink-0" />
-                              <div className="text-sm">
-                                <div className="font-medium text-red-800">
-                                  Warning: Data Loss
-                                </div>
-                                <div className="text-red-700">
-                                  Removing this course outcome will permanently
-                                  delete all associated data:
-                                </div>
-                                <div>
-                                  <ul className="list-disc list-inside text-red-700 mt-1 space-y-0.5">
-                                    <li>CPA classification</li>
-                                    <li>ABCD model components</li>
-                                    <li>
-                                      All PO mappings (
-                                      {outcome.po_mappings.length} mapping
-                                      {outcome.po_mappings.length !== 1
-                                        ? "s"
-                                        : ""}
-                                      )
-                                    </li>
-                                    <li>
-                                      All assessment tasks (
-                                      {outcome.tla_tasks.length} task
-                                      {outcome.tla_tasks.length !== 1
-                                        ? "s"
-                                        : ""}
-                                      )
-                                    </li>
-                                    <li>Teaching and learning methods</li>
-                                  </ul>
-                                </div>
-                                <div className="text-red-700 mt-2 font-medium">
-                                  This action cannot be undone.
+                        <AlertDialogDescription asChild>
+                          <div className="space-y-3">
+                            <p>
+                              Are you sure you want to remove &quot;
+                              {outcome.name}&quot;?
+                            </p>
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                              <div className="flex items-start">
+                                <AlertTriangle className="h-4 w-4 text-red-600 mr-2 mt-0.5 flex-shrink-0" />
+                                <div className="text-sm">
+                                  <div className="font-medium text-red-800">
+                                    Warning: Data Loss
+                                  </div>
+                                  <div className="text-red-700">
+                                    Removing this course outcome will
+                                    permanently delete all associated data:
+                                  </div>
+                                  <div>
+                                    <ul className="list-disc list-inside text-red-700 mt-1 space-y-0.5">
+                                      <li>CPA classification</li>
+                                      <li>ABCD model components</li>
+                                      <li>
+                                        All PO mappings (
+                                        {outcome.po_mappings.length} mapping
+                                        {outcome.po_mappings.length !== 1
+                                          ? "s"
+                                          : ""}
+                                        )
+                                      </li>
+                                      <li>
+                                        All assessment tasks (
+                                        {outcome.tla_tasks.length} task
+                                        {outcome.tla_tasks.length !== 1
+                                          ? "s"
+                                          : ""}
+                                        )
+                                      </li>
+                                      <li>Teaching and learning methods</li>
+                                    </ul>
+                                  </div>
+                                  <div className="text-red-700 mt-2 font-medium">
+                                    This action cannot be undone.
+                                  </div>
                                 </div>
                               </div>
                             </div>
