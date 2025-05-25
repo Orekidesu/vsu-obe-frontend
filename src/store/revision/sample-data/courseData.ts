@@ -161,14 +161,14 @@ export const sampleCourseRevisionData = {
   course_title: "Fundamentals of Electrical Engineering",
   version: 2,
   revisions: [
-    // {
-    //   id: 61,
-    //   section: "course_outcomes",
-    //   details:
-    //     "The course outcomes need to be more specific to electrical engineering fundamentals. The current outcome about 'Art Analysis and Criticism' is not appropriate for an electrical engineering course. Please revise to focus on electrical engineering concepts.",
-    //   created_at: "2025-05-20T08:30:00.000000Z",
-    //   version: 2,
-    // },
+    {
+      id: 61,
+      section: "course_outcomes",
+      details:
+        "The course outcomes need to be more specific to electrical engineering fundamentals. The current outcome about 'Art Analysis and Criticism' is not appropriate for an electrical engineering course. Please revise to focus on electrical engineering concepts.",
+      created_at: "2025-05-20T08:30:00.000000Z",
+      version: 2,
+    },
     // {
     //   id: 62,
     //   section: "abcd",

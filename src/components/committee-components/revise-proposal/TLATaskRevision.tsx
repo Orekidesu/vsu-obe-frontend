@@ -459,18 +459,11 @@ export function TLATasksRevision({ onValidityChange }: TLATasksRevisionProps) {
                                 <Select
                                   value={task.at_tool}
                                   onValueChange={(value) => {
-                                    if (value === "add-custom") {
-                                      setIsAddingCustomTool((prev) => ({
-                                        ...prev,
-                                        [toolKey]: true,
-                                      }));
-                                    } else {
-                                      handleUpdateTask(
-                                        taskIndex,
-                                        "at_tool",
-                                        value
-                                      );
-                                    }
+                                    handleUpdateTask(
+                                      taskIndex,
+                                      "at_tool",
+                                      value
+                                    );
                                   }}
                                 >
                                   <SelectTrigger>
@@ -482,12 +475,36 @@ export function TLATasksRevision({ onValidityChange }: TLATasksRevisionProps) {
                                         {tool}
                                       </SelectItem>
                                     ))}
-                                    <SelectItem
-                                      value="add-custom"
-                                      className="text-blue-600 font-medium"
-                                    >
-                                      Add custom tool...
-                                    </SelectItem>
+                                    <div className="p-2 border-t">
+                                      <Input
+                                        placeholder="Add custom tool..."
+                                        className="h-8"
+                                        onKeyDown={(e) => {
+                                          if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            const input = e.currentTarget;
+                                            const value = input.value.trim();
+                                            if (
+                                              value &&
+                                              !getAllAssessmentTools().includes(
+                                                value
+                                              )
+                                            ) {
+                                              setCustomTools((prev) => [
+                                                ...prev,
+                                                value,
+                                              ]);
+                                              handleUpdateTask(
+                                                taskIndex,
+                                                "at_tool",
+                                                value
+                                              );
+                                              input.value = "";
+                                            }
+                                          }
+                                        }}
+                                      />
+                                    </div>
                                   </SelectContent>
                                 </Select>
                               )}
