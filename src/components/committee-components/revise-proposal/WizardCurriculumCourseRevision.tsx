@@ -32,6 +32,7 @@ import {
 
 import { CourseOutcomesRevision } from "./CourseOutcomeRevision";
 import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
+import { ABCDModelRevision } from "./ABCDModelRevision";
 
 interface CurriculumCourseRevisionWizardProps {
   curriculumCourseId: string;
@@ -65,7 +66,7 @@ export function CurriculumCourseRevisionWizard({
 
   // Go back to the course list or dashboard
   const handleBackToCourses = () => {
-    router.push("/my-courses");
+    router.push("/all-courses");
   };
 
   // Go to the next step in the revision process
@@ -125,6 +126,8 @@ export function CurriculumCourseRevisionWizard({
     switch (currentRevision.section) {
       case "course_outcomes":
         return <CourseOutcomesRevision />;
+      case "abcd_model":
+        return <ABCDModelRevision />;
       default:
         // For other sections, return a placeholder component
         return (

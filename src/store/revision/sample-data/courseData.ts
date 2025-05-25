@@ -136,14 +136,14 @@ export const sampleCourseRevisionData = {
       created_at: "2025-05-20T08:30:00.000000Z",
       version: 2,
     },
-    // {
-    //   id: 62,
-    //   section: "abcd_model",
-    //   details:
-    //     "The ABCD model components need to be revised to align with electrical engineering learning objectives. Ensure the audience, behavior, condition, and degree are appropriate for engineering students.",
-    //   created_at: "2025-05-20T08:30:00.000000Z",
-    //   version: 2,
-    // },
+    {
+      id: 62,
+      section: "abcd_model",
+      details:
+        "The ABCD model components need to be revised to align with electrical engineering learning objectives. Ensure the audience, behavior, condition, and degree are appropriate for engineering students.",
+      created_at: "2025-05-20T08:30:00.000000Z",
+      version: 2,
+    },
     // {
     //   id: 63,
     //   section: "cpa_classification",
