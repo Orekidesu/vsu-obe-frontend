@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -48,7 +48,13 @@ import {
   type CourseOutcome,
 } from "@/store/revision/course-revision-store";
 
-export function CourseOutcomesRevision() {
+interface CourseOutcomesRevisionProps {
+  onValidityChange?: (isValid: boolean) => void;
+}
+
+export function CourseOutcomesRevision({
+  onValidityChange,
+}: CourseOutcomesRevisionProps) {
   const {
     courseOutcomes,
     // currentCourse,
@@ -72,6 +78,16 @@ export function CourseOutcomesRevision() {
     name: "",
     statement: "",
   });
+
+  // Report validity to parent component
+  useEffect(() => {
+    // Valid when at least one course outcome exists
+    const isValid = courseOutcomes.length > 0;
+
+    if (onValidityChange) {
+      onValidityChange(isValid);
+    }
+  }, [courseOutcomes.length, onValidityChange]);
 
   const resetForm = () => {
     setFormData({

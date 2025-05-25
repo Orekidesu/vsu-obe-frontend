@@ -1,6 +1,6 @@
 import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -38,7 +38,13 @@ import {
   type CourseOutcome,
 } from "@/store/revision/course-revision-store";
 
-export function ABCDModelRevision() {
+interface ABCDModelRevisionProps {
+  onValidityChange?: (isValid: boolean) => void;
+}
+
+export function ABCDModelRevision({
+  onValidityChange,
+}: ABCDModelRevisionProps) {
   const {
     courseOutcomes,
     modifiedSections,
@@ -189,6 +195,17 @@ export function ABCDModelRevision() {
   };
 
   const completedOutcomes = courseOutcomes.filter(isABCDComplete).length;
+
+  // Report validity to parent component
+  useEffect(() => {
+    // Valid when all outcomes have complete ABCD models and we have at least one outcome
+    const isValid =
+      completedOutcomes === courseOutcomes.length && courseOutcomes.length > 0;
+
+    if (onValidityChange) {
+      onValidityChange(isValid);
+    }
+  }, [completedOutcomes, courseOutcomes.length, onValidityChange]);
 
   const currentOutcome = courseOutcomes[activeTab];
   const currentData = isEditing ? formData : currentOutcome?.abcd;

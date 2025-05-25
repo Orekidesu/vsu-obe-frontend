@@ -52,6 +52,8 @@ export function CurriculumCourseRevisionWizard({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  const [isCurrentStepValid, setIsCurrentStepValid] = useState(false);
+
   const { getCurriculumCourse, isLoading } = useCurriculumCourses({
     includeOutcomes: true,
   });
@@ -140,15 +142,21 @@ export function CurriculumCourseRevisionWizard({
 
     switch (currentRevision.section) {
       case "course_outcomes":
-        return <CourseOutcomesRevision />;
+        return (
+          <CourseOutcomesRevision onValidityChange={setIsCurrentStepValid} />
+        );
       case "abcd":
-        return <ABCDModelRevision />;
+        return <ABCDModelRevision onValidityChange={setIsCurrentStepValid} />;
       case "cpa":
         return <CPAClassificationRevision />;
       case "po_mappings":
         return <COPOMappingRevision />;
       default:
         // For other sections, return a placeholder component
+        // Set the current step as valid immediately
+        // We need to do this outside of the component rendering function
+        setIsCurrentStepValid(true);
+
         return (
           <div className="p-8 text-center">
             <BookOpen className="mx-auto h-12 w-12 text-blue-500 mb-4" />
@@ -253,8 +261,12 @@ export function CurriculumCourseRevisionWizard({
               </Button>
               <Button
                 onClick={handleNextStep}
-                disabled={isSubmitting}
-                className="bg-green-600 hover:bg-green-700"
+                disabled={isSubmitting || !isCurrentStepValid}
+                className={`${
+                  isCurrentStepValid
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
               >
                 {isSubmitting ? (
                   <span className="flex items-center">
