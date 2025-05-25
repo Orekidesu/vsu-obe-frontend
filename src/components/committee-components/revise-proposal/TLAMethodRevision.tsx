@@ -11,6 +11,17 @@ import { Badge } from "@/components/ui/badge";
 import { TLAMethodInstructions } from "./tla-method-components/TLAMethodInstructions";
 import { TLAMethodTabContent } from "./tla-method-components/TLAMethodTabContent";
 import { TLAMethodSummaryTable } from "./tla-method-components/TLAMethodSummaryTable";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Default teaching methods and learning resources
 const defaultTeachingMethods = [
@@ -173,28 +184,42 @@ export function TLAMethodsRevision() {
   return (
     <div className="space-y-6">
       {/* Header with modification status */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">
-          Teaching Methods & Learning Resources
-        </h2>
-        {isModified && (
-          <Badge className="bg-green-500 text-white">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            Modified
-          </Badge>
-        )}
-        {isModified && (
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              onClick={handleReset}
-              className="text-gray-600"
-            >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Reset to Original
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold">
+            Teaching Methods & Learning Resources
+          </h2>
+          {isModified && (
+            <Badge variant="secondary" className="bg-green-100 text-green-800">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Modified
+            </Badge>
+          )}
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" disabled={!isModified}>
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset Changes
             </Button>
-          </div>
-        )}
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Reset Teaching & Learning Methods
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                This will reset all teaching methods and learning resources to
+                their original state. Any changes you&apos;ve made will be lost.
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleReset}>Reset</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Instructions */}
