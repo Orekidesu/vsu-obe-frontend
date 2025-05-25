@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,17 @@ import {
   AlertCircle,
   CheckCircle2,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { TLASummaryTable } from "./tla-task-components/TLASummary";
 
 // Assessment tool options
@@ -45,9 +56,18 @@ interface TLATask {
   weight: string;
 }
 
-export function TLATasksRevision() {
-  const { courseOutcomes, updateCourseOutcome, resetTLATasks } =
-    useCourseRevisionStore();
+interface TLATasksRevisionProps {
+  onValidityChange?: (isValid: boolean) => void;
+}
+
+export function TLATasksRevision({ onValidityChange }: TLATasksRevisionProps) {
+  const {
+    courseOutcomes,
+    updateCourseOutcome,
+    resetTLATasks,
+    modifiedSections,
+    markSectionAsModified,
+  } = useCourseRevisionStore();
   const [selectedCOIndex, setSelectedCOIndex] = useState(0);
   const [customTools, setCustomTools] = useState<string[]>([]);
   const [isAddingCustomTool, setIsAddingCustomTool] = useState<{
@@ -56,6 +76,9 @@ export function TLATasksRevision() {
   const [customToolInput, setCustomToolInput] = useState<{
     [key: string]: string;
   }>({});
+
+  // Check if this section has been modified
+  const isModified = modifiedSections.has("tla_tasks");
 
   // Get all available assessment tools (default + custom)
   const getAllAssessmentTools = () => {
@@ -98,6 +121,29 @@ export function TLATasksRevision() {
     return { status: "warning", text: "No tasks defined", icon: AlertTriangle };
   };
 
+  const everyCoHasTasks = () => {
+    return courseOutcomes.every((outcome) => outcome.tla_tasks.length > 0);
+  };
+
+  // Validate TLA tasks
+  const validateTLATasks = () => {
+    const totalWeight = calculateTotalWeight();
+    const allCOsHaveTasks = everyCoHasTasks();
+
+    // Validation rules:
+    // 1. Total weight must be exactly 100%
+    // 2. Each CO must have at least one assessment task
+    return Math.abs(totalWeight - 100) < 0.01 && allCOsHaveTasks;
+  };
+
+  // Update validity whenever relevant data changes
+  useEffect(() => {
+    if (onValidityChange) {
+      const isValid = validateTLATasks();
+      onValidityChange(isValid);
+    }
+  }, [courseOutcomes, onValidityChange]);
+
   // Add a new empty task row to the selected course outcome
   const handleAddTask = () => {
     const selectedOutcome = courseOutcomes[selectedCOIndex];
@@ -116,6 +162,7 @@ export function TLATasksRevision() {
     updateCourseOutcome(selectedOutcome.id, {
       tla_tasks: updatedTasks,
     });
+    markSectionAsModified("tla_tasks");
   };
 
   // Remove a task from the selected course outcome
@@ -130,6 +177,7 @@ export function TLATasksRevision() {
     updateCourseOutcome(selectedOutcome.id, {
       tla_tasks: updatedTasks,
     });
+    markSectionAsModified("tla_tasks");
   };
 
   // Update a task in the selected course outcome
@@ -148,6 +196,7 @@ export function TLATasksRevision() {
     updateCourseOutcome(selectedOutcome.id, {
       tla_tasks: updatedTasks,
     });
+    markSectionAsModified("tla_tasks");
   };
 
   // Handle custom tool addition
@@ -175,11 +224,44 @@ export function TLATasksRevision() {
   return (
     <div className="space-y-6">
       {/* Header Alert */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold">CO-PO Mapping</h2>
+          {isModified && (
+            <Badge variant="secondary" className="bg-green-100 text-green-800">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Modified
+            </Badge>
+          )}
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" disabled={!isModified}>
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset Changes
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset TLA Tasks</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will reset all Teaching, Learning, and Assessment tasks to
+                their original state. Any changes you&apos;ve made will be lost.
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleReset}>Reset</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+
       <Alert className="bg-amber-50 border-amber-200">
         <Info className="h-4 w-4 text-amber-600" />
+        <strong>Teaching, Learning, and Assessment (TLA) Plan</strong>
         <AlertDescription className="text-amber-800">
-          <strong>Teaching, Learning, and Assessment (TLA) Plan</strong>
-          <br />
           Define assessment tasks for each Course Outcome. Each CO must have at
           least one assessment task.
           <br />
@@ -472,18 +554,6 @@ export function TLATasksRevision() {
         totalWeight={totalWeight}
         isTotalWeightValid={totalWeight === 100}
       />
-
-      {/* Reset Button */}
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          onClick={handleReset}
-          className="text-gray-600"
-        >
-          <RotateCcw className="h-4 w-4 mr-2" />
-          Reset to Original
-        </Button>
-      </div>
     </div>
   );
 }

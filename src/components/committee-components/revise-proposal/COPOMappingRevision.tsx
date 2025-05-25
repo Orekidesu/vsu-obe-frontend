@@ -235,32 +235,30 @@ export function COPOMappingRevision({
             </Badge>
           )}
         </div>
-        {isModified && (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset Changes
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Reset CO-PO Mappings</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will reset all CO-PO mappings to their original state.
-                  Any changes you&apos;ve made will be lost. This action cannot
-                  be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={resetCOPOMappings}>
-                  Reset
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" disabled={!isModified}>
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset Changes
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset CO-PO Mappings</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will reset all CO-PO mappings to their original state. Any
+                changes you&apos;ve made will be lost. This action cannot be
+                undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={resetCOPOMappings}>
+                Reset
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Instructions */}
