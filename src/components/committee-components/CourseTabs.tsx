@@ -41,7 +41,11 @@ export function CourseTabs() {
 
   // Handlers for course actions
   const handleAddDetails = (courseId: string) => {
-    router.push(`/faculty/all-courses/${courseId}`);
+    router.push(`/faculty/course-details/${courseId}`);
+  };
+
+  const handleViewDetails = (courseID: string) => {
+    router.push(`/faculty/all-courses/${courseID}`);
   };
 
   const handleRevise = (courseId: string) => {
@@ -120,7 +124,7 @@ export function CourseTabs() {
                   units={Number(course.units)}
                   status="completed"
                   actionText="View Details"
-                  onAction={() => handleAddDetails(course.id.toString())}
+                  onAction={() => handleViewDetails(course.id.toString())}
                 />
               ))}
             </div>
