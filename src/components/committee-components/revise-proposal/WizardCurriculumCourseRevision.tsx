@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+
 import {
   Card,
   CardContent,
@@ -26,7 +28,6 @@ import { format } from "date-fns";
 
 // Import data
 import {
-  sampleCourseRevisionData,
   getCourseRevisionSectionDisplayName,
   getSemesterDisplayName,
 } from "@/store/revision/sample-data/courseData";
@@ -74,10 +75,10 @@ export function CurriculumCourseRevisionWizard({
     revisionData,
     error: revisionError,
     isLoading: isLoadingRevisions,
+    submitRevisions,
   } = useCourseRevision(courseId);
 
-  const revisions =
-    revisionData?.revisions || sampleCourseRevisionData.revisions;
+  const revisions = revisionData?.revisions || [];
 
   useEffect(() => {
     if (courseData && !isRevising) {
@@ -148,19 +149,15 @@ export function CurriculumCourseRevisionWizard({
     setIsSubmitting(true);
 
     try {
-      // Generate the submission payload
+      // Generate the submission payload using the store
       const payload = useCourseRevisionStore
         .getState()
         .generateSubmissionPayload();
 
-      console.log(
-        "Submitting course revisions payload:",
-        JSON.stringify(payload, null, 2)
-      );
+      // Use the mutation from the hook to submit the revisions
+      await submitRevisions.mutateAsync(payload);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      // Set success state
       setSubmitSuccess(true);
 
       // Redirect after a delay
@@ -169,6 +166,11 @@ export function CurriculumCourseRevisionWizard({
       }, 3000);
     } catch (error) {
       console.error("Error submitting revisions:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit revisions. Please try again.",
+        variant: "destructive",
+      });
       setIsSubmitting(false);
     }
   };
