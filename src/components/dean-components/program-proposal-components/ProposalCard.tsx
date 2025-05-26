@@ -87,7 +87,7 @@ export function ProposalCard({
           <Button
             size="sm"
             className="bg-primary hover:bg-primary/90"
-            onClick={() => onViewDetails && onViewDetails(proposal)}
+            onClick={() => onApprove && onApprove(proposal)}
           >
             <History className="h-4 w-4 mr-2" />
             Approve Changes
