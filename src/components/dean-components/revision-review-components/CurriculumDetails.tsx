@@ -43,43 +43,6 @@ export function CurriculumDetails({
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">
-            Course Overview
-          </label>
-          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-2xl font-bold text-orange-700">
-                  {courses.length}
-                </p>
-                <p className="text-sm text-orange-600">Total Courses</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-orange-700">
-                  {
-                    new Set(courses.map((course) => course.code.split(" ")[0]))
-                      .size
-                  }
-                </p>
-                <p className="text-sm text-orange-600">Course Prefixes</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-orange-700">
-                  {
-                    courses.filter(
-                      (course) =>
-                        course.code.includes("101") ||
-                        course.code.includes("102")
-                    ).length
-                  }
-                </p>
-                <p className="text-sm text-orange-600">Foundation Courses</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
             Sample Courses
           </label>
           <div className="space-y-2 max-h-40 overflow-y-auto">
