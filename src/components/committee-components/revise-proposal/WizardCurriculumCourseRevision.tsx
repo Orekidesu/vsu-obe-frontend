@@ -32,6 +32,7 @@ import {
 } from "@/store/revision/sample-data/courseData";
 
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
+import useCourseRevision from "@/hooks/shared/useCourseRevision";
 
 import { CourseOutcomesRevision } from "./CourseOutcomeRevision";
 import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
@@ -55,20 +56,28 @@ export function CurriculumCourseRevisionWizard({
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-
   const [showReview, setShowReview] = useState(false);
-
   const [isCurrentStepValid, setIsCurrentStepValid] = useState(false);
 
-  const { getCurriculumCourse, isLoading } = useCurriculumCourses({
-    includeOutcomes: true,
-  });
+  // Get the curriculum course data
+  const { getCurriculumCourse, isLoading: isLoadingCourse } =
+    useCurriculumCourses({
+      includeOutcomes: true,
+    });
 
   const courseId = parseInt(curriculumCourseId, 10);
-  const { data: courseData, error } = useQuery(
+  const { data: courseData, error: courseError } = useQuery(
     getCurriculumCourse(courseId, true)
   );
-  const { revisions } = sampleCourseRevisionData;
+  // Get the revision data using the API hook
+  const {
+    revisionData,
+    error: revisionError,
+    isLoading: isLoadingRevisions,
+  } = useCourseRevision(courseId);
+
+  const revisions =
+    revisionData?.revisions || sampleCourseRevisionData.revisions;
 
   useEffect(() => {
     if (courseData && !isRevising) {
@@ -206,28 +215,64 @@ export function CurriculumCourseRevisionWizard({
   };
 
   // Loading state
-  if (isLoading || !courseData) {
+  if (isLoadingCourse || isLoadingRevisions) {
     return (
       <div className="container mx-auto h-[500px] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary mb-4" />
-          <h2 className="text-xl font-medium">Loading course data...</h2>
+          <h2 className="text-xl font-medium">
+            Loading course and revision data...
+          </h2>
         </div>
       </div>
     );
   }
 
   // Error state
-  if (error) {
+  if (courseError || revisionError) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-center items-center">
-          <AlertCircle className="mx-auto h-16 w-16 text-red-500 mb-4" />
+        <div className="flex flex-col justify-center items-center">
+          <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Error Loading Data</h2>
+          <p className="text-gray-600 mb-6 text-center">
+            {courseError
+              ? `Error loading course: ${courseError.message}`
+              : revisionError
+                ? `Error loading revisions: ${revisionError.message}`
+                : "The requested data could not be found."}
+          </p>
+          <Button onClick={handleBackToCourses}>Return to Courses</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // If no course data
+  if (!courseData) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex flex-col justify-center items-center">
+          <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
           <h2 className="text-2xl font-bold mb-2">Course Not Found</h2>
-          <p className="text-gray-600 mb-6">
-            {error
-              ? `Error: ${error.message}`
-              : "The requested course could not be found."}
+          <p className="text-gray-600 mb-6 text-center">
+            The requested course could not be found.
+          </p>
+          <Button onClick={handleBackToCourses}>Return to Courses</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // If no revisions found
+  if (!revisions || revisions.length === 0) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex flex-col justify-center items-center">
+          <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">No Revisions Required</h2>
+          <p className="text-gray-600 mb-6 text-center">
+            This course currently has no revision requests.
           </p>
           <Button onClick={handleBackToCourses}>Return to Courses</Button>
         </div>

@@ -157,8 +157,6 @@ export const sampleProgramOutcomes = [
 // Sample course revision data
 export const sampleCourseRevisionData = {
   curriculum_course_id: 103,
-  course_code: "EE 101",
-  course_title: "Fundamentals of Electrical Engineering",
   version: 2,
   revisions: [
     {
