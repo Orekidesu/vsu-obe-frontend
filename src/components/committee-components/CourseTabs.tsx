@@ -41,7 +41,7 @@ export function CourseTabs() {
 
   // Handlers for course actions
   const handleAddDetails = (courseId: string) => {
-    router.push(`/faculty/course-details/${courseId}`);
+    router.push(`/faculty/all-courses/${courseId}`);
   };
 
   const handleRevise = (courseId: string) => {

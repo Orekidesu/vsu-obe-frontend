@@ -27,6 +27,8 @@ export interface CourseOutcome {
   cpa: "C" | "P" | "A";
   po_mappings: Array<{
     po_id: number;
+    po_name?: string; // Add this missing property
+    po_statement?: string;
     ied: string;
   }>;
   tla_tasks: Array<{
