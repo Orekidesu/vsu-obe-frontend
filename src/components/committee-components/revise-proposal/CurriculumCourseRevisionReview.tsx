@@ -90,7 +90,7 @@ export function CourseRevisionReview({
         return <Users className="h-4 w-4" />;
       case "tla_tasks":
         return <ClipboardList className="h-4 w-4" />;
-      case "tla_assessment_methods":
+      case "tla_assessment_method":
         return <Lightbulb className="h-4 w-4" />;
       default:
         return <BookOpen className="h-4 w-4" />;
@@ -113,7 +113,7 @@ export function CourseRevisionReview({
           0
         );
         return `Assessment tasks have been updated with ${totalTasks} total tasks across all course outcomes.`;
-      case "tla_assessment_methods":
+      case "tla_assessment_method":
         const totalMethods = courseOutcomes.reduce(
           (sum, co) => sum + co.tla_assessment_method.teaching_methods.length,
           0
