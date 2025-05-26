@@ -41,6 +41,8 @@ import { COPOMappingRevision } from "./COPOMappingRevision";
 import { TLATasksRevision } from "./TLATaskRevision";
 import { TLAMethodsRevision } from "./TLAMethodRevision";
 
+import { CourseRevisionReview } from "./CurriculumCourseRevisionReview";
+
 interface CurriculumCourseRevisionWizardProps {
   curriculumCourseId: string;
 }
@@ -53,6 +55,8 @@ export function CurriculumCourseRevisionWizard({
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const [showReview, setShowReview] = useState(false);
 
   const [isCurrentStepValid, setIsCurrentStepValid] = useState(false);
 
@@ -93,18 +97,40 @@ export function CurriculumCourseRevisionWizard({
     if (currentStep < revisions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Submit the revisions
-      handleSubmitRevisions();
+      // Show review page
+      setShowReview(true);
     }
   };
 
   // Go to the previous step in the revision process
   const handlePreviousStep = () => {
+    if (showReview) {
+      setShowReview(false);
+      return;
+    }
+
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else {
       // Go back to the revision details
       setIsRevising(false);
+    }
+  };
+
+  // Handle back from review
+  const handleBackFromReview = () => {
+    setShowReview(false);
+  };
+
+  // Add this function after the handleBackFromReview function
+  const handleEditSection = (section: string) => {
+    // Find the step index for the given section
+    const stepIndex = revisions.findIndex(
+      (revision) => revision.section === section
+    );
+    if (stepIndex !== -1) {
+      setCurrentStep(stepIndex);
+      setShowReview(false);
     }
   };
 
@@ -235,6 +261,13 @@ export function CurriculumCourseRevisionWizard({
             <Button onClick={handleBackToCourses}>Return to Courses</Button>
           </CardContent>
         </Card>
+      ) : showReview ? (
+        <CourseRevisionReview
+          onBack={handleBackFromReview}
+          onSubmit={handleSubmitRevisions}
+          isSubmitting={isSubmitting}
+          onEditSection={handleEditSection}
+        />
       ) : isRevising ? (
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center mb-6">
@@ -267,7 +300,7 @@ export function CurriculumCourseRevisionWizard({
               <Button variant="outline" onClick={handlePreviousStep}>
                 Back
               </Button>
-              <Button
+              {/* <Button
                 onClick={handleNextStep}
                 disabled={isSubmitting || !isCurrentStepValid}
                 className={`${
@@ -305,6 +338,14 @@ export function CurriculumCourseRevisionWizard({
                 ) : (
                   "Submit Revisions"
                 )}
+              </Button> */}
+
+              <Button
+                disabled={!isCurrentStepValid}
+                onClick={handleNextStep}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {currentStep < revisions.length - 1 ? "Next" : "Review Changes"}
               </Button>
             </CardFooter>
           </Card>
