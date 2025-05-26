@@ -9,6 +9,8 @@ import { createProgramOutcomeSlice } from "./program-outcome-slice";
 import { createMappingSlice } from "./mapping-slice";
 
 import { createCommitteeSlice } from "./committee-slice";
+import { createUISlice } from "./ui-slice";
+
 import {
   predefinedYearSemesters,
   createProgramTemplates,
@@ -46,6 +48,7 @@ export const useWizardStore = create<WizardState>()(
       ...createProgramOutcomeSlice(set, get, api),
       ...createMappingSlice(set, get, api),
       ...createCommitteeSlice(set, get, api),
+      ...createUISlice(set, get, api), // Add this line
 
       // Graduate attributes are not in a slice
       graduateAttributes: [],
@@ -84,6 +87,8 @@ export const useWizardStore = create<WizardState>()(
         poToGAMappings: state.poToGAMappings,
         selectedCommittees: state.selectedCommittees,
         committeeCourseAssignments: state.committeeCourseAssignments,
+        currentStep: state.currentStep,
+        // formType: state.formType,
       }),
     }
   )
