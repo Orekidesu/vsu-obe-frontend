@@ -303,6 +303,7 @@ export default function WizardFormProgram() {
     setCurriculumName("");
     setYearSemesters([]);
     // pwede mag add later
+    localStorage.removeItem("program-wizard-storage");
   };
   // Calculate progress percentage
   const progressValue = (step / 16) * 100;
