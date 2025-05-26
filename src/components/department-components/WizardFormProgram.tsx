@@ -46,7 +46,7 @@ import { ReviewStep } from "./form-steps/ReviewSteps";
 import useCourses from "@/hooks/department/useCourse";
 
 export default function WizardFormProgram() {
-  const [step, setStep] = useState(1);
+  // const [step, setStep] = useState(1);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   const [, setFormError] = useFormErrorState<
@@ -113,6 +113,8 @@ export default function WizardFormProgram() {
     assignCourseToCommittee,
     removeCourseAssignment,
     getCommitteeForCourse,
+    currentStep,
+    setCurrentStep,
   } = useWizardStore();
 
   const { programs, isLoading: programsLoading } = usePrograms();
@@ -199,14 +201,14 @@ export default function WizardFormProgram() {
   }, [fetchedUsers, setCommittees]);
 
   const handleNext = () => {
-    setStep(step + 1);
+    setCurrentStep(currentStep + 1);
   };
 
   const handleBack = () => {
-    setStep(step - 1);
+    setCurrentStep(currentStep - 1);
   };
   const goToStep = (stepNumber: number) => {
-    setStep(stepNumber);
+    setCurrentStep(stepNumber);
   };
   const handleSubmit = async () => {
     // Create form data object from wizard store state
@@ -294,7 +296,7 @@ export default function WizardFormProgram() {
   };
 
   const resetForm = () => {
-    setStep(1);
+    setCurrentStep(1);
     setFormType("");
     setProgramName("");
     setProgramAbbreviation("");
@@ -303,12 +305,13 @@ export default function WizardFormProgram() {
     setCurriculumName("");
     setYearSemesters([]);
     // pwede mag add later
+    localStorage.removeItem("program-wizard-storage");
   };
   // Calculate progress percentage
-  const progressValue = (step / 16) * 100;
+  const progressValue = (currentStep / 16) * 100;
   const isStepValid = () => {
-    if (step === 1) return !!formType;
-    if (step === 2) {
+    if (currentStep === 1) return !!formType;
+    if (currentStep === 2) {
       if (formType === "new") {
         // Check if program already exists
         // const programExists = activePrograms.some(
@@ -325,25 +328,25 @@ export default function WizardFormProgram() {
         return !!selectedProgram;
       }
     }
-    if (step === 3) {
+    if (currentStep === 3) {
       return (
         peos.length > 0 && peos.every((peo) => peo.statement.trim() !== "")
       );
     }
-    if (step === 4) {
+    if (currentStep === 4) {
       // At least one mapping per PEO is required
       return peos.every((peo) =>
         peoToMissionMappings.some((mapping) => mapping.peoId === peo.id)
       );
     }
-    if (step === 5) {
+    if (currentStep === 5) {
       // At least one GA to PEO mapping per GA is required
       return graduateAttributes.every((ga) =>
         gaToPEOMappings.some((mapping) => mapping.gaId === ga.id)
       );
     }
 
-    if (step === 6) {
+    if (currentStep === 6) {
       return (
         programOutcomes.length > 0 &&
         programOutcomes.every(
@@ -352,35 +355,35 @@ export default function WizardFormProgram() {
       );
     }
 
-    if (step === 7) {
+    if (currentStep === 7) {
       // Each PO should map to at least one PEO
       return programOutcomes.every((po) =>
         poToPEOMappings.some((mapping) => mapping.poId === po.id)
       );
     }
-    if (step === 8) {
+    if (currentStep === 8) {
       // At least one PO to GA mapping per PO is required
       return programOutcomes.every((po) =>
         poToGAMappings.some((mapping) => mapping.poId === po.id)
       );
     }
-    if (step === 9) {
+    if (currentStep === 9) {
       // Curriculum name and academic year are required
       return !!curriculumName && /^\d{4}-\d{4}$/.test(academicYear);
     }
-    if (step === 10) {
+    if (currentStep === 10) {
       // At least one year-semester combination is required
       return yearSemesters.length > 0;
     }
-    if (step === 11) {
+    if (currentStep === 11) {
       // At least one course category is required
       return courseCategories.length > 0;
     }
-    // if (step === 12) {
+    // if (currentStep === 12) {
     //   // At least one curriculum course is required
     //   return curriculumCourses.length > 0;
     // }
-    if (step === 12) {
+    if (currentStep === 12) {
       // First check if we have any courses at all
       if (curriculumCourses.length === 0) {
         return false;
@@ -397,15 +400,15 @@ export default function WizardFormProgram() {
       );
     }
 
-    if (step === 13) {
+    if (currentStep === 13) {
       // At least one course to PO mapping is required
       return courseToPOMappings.length > 0;
     }
-    if (step === 14) {
+    if (currentStep === 14) {
       // At least one committee is required
       return selectedCommittees.length > 0;
     }
-    if (step === 15) {
+    if (currentStep === 15) {
       // All courses must be assigned to committees
       return (
         curriculumCourses.length > 0 &&
@@ -416,8 +419,8 @@ export default function WizardFormProgram() {
         )
       );
     }
-    if (step === 16) {
-      // Review step is always valid
+    if (currentStep === 16) {
+      // Review currentStep is always valid
       return isConfirmed;
     }
 
@@ -430,12 +433,12 @@ export default function WizardFormProgram() {
       </h1>
 
       {/* Step 1: Select form type */}
-      {step === 1 && (
+      {currentStep === 1 && (
         <FormTypeStep formType={formType} setFormType={setFormType} />
       )}
 
       {/* Step 2: New program details */}
-      {step === 2 && formType === "new" && (
+      {currentStep === 2 && formType === "new" && (
         <NewProgramStep
           programName={programName}
           programAbbreviation={programAbbreviation}
@@ -447,7 +450,7 @@ export default function WizardFormProgram() {
       )}
 
       {/* Step 2: Select program to update */}
-      {step === 2 && formType === "update" && (
+      {currentStep === 2 && formType === "update" && (
         <UpdateProgramStep
           selectedProgram={selectedProgram}
           setSelectedProgram={setSelectedProgram}
@@ -457,7 +460,7 @@ export default function WizardFormProgram() {
       )}
 
       {/* Step 3: Program Educational Objectives */}
-      {step === 3 && (
+      {currentStep === 3 && (
         <PEOsStep
           peos={peos}
           addPEO={addPEO}
@@ -467,7 +470,7 @@ export default function WizardFormProgram() {
       )}
 
       {/* Step 4: PEOs to Mission Mapping */}
-      {step === 4 && (
+      {currentStep === 4 && (
         <PEOToMission
           peos={peos}
           missions={missions || []}
@@ -478,7 +481,7 @@ export default function WizardFormProgram() {
       )}
 
       {/* Step 5: Graduate Attributes to PEOs Mapping */}
-      {step === 5 && (
+      {currentStep === 5 && (
         <GAToPEOMappingStep
           peos={peos}
           graduateAttributes={graduateAttributes}
@@ -489,7 +492,7 @@ export default function WizardFormProgram() {
       )}
 
       {/* Step 6: Program Outcomes */}
-      {step === 6 && (
+      {currentStep === 6 && (
         <ProgramOutcomeStep
           programOutcomes={programOutcomes}
           addProgramOutcome={addProgramOutcome}
@@ -498,7 +501,7 @@ export default function WizardFormProgram() {
         />
       )}
       {/* Step 7: Program Outcomes to PEOs Mapping */}
-      {step === 7 && (
+      {currentStep === 7 && (
         <POToPEOMappingStep
           peos={peos}
           programOutcomes={programOutcomes}
@@ -507,7 +510,7 @@ export default function WizardFormProgram() {
         />
       )}
       {/* Step 8: Program Outcomes to Graduate Attributes Mapping */}
-      {step === 8 && (
+      {currentStep === 8 && (
         <POToGAMappingStep
           programOutcomes={programOutcomes}
           graduateAttributes={graduateAttributes}
@@ -516,7 +519,7 @@ export default function WizardFormProgram() {
         />
       )}
       {/* Step 9: Curriculum Details */}
-      {step === 9 && (
+      {currentStep === 9 && (
         <CurriculumStep
           programAbbreviation={programAbbreviation}
           curriculumName={curriculumName}
@@ -526,7 +529,7 @@ export default function WizardFormProgram() {
         />
       )}
       {/* Step 10: Year and Semester Selection */}
-      {step === 10 && (
+      {currentStep === 10 && (
         <YearSemesterStep
           yearSemesters={yearSemesters}
           programTemplates={programTemplates}
@@ -535,7 +538,7 @@ export default function WizardFormProgram() {
         />
       )}
       {/* Step 11: Course Categories */}
-      {step === 11 && (
+      {currentStep === 11 && (
         <CourseCategoriesStep
           courseCategories={courseCategories}
           addCourseCategory={addCourseCategory}
@@ -546,7 +549,7 @@ export default function WizardFormProgram() {
         />
       )}
       {/* Step 12: Curriculum Courses */}
-      {step === 12 && (
+      {currentStep === 12 && (
         <CurriculumCoursesStep
           premadeCourses={fetchedCourses || []}
           courseCategories={courseCategories}
@@ -560,7 +563,7 @@ export default function WizardFormProgram() {
         />
       )}
       {/* Step 13: Course to PO Mapping */}
-      {step === 13 && (
+      {currentStep === 13 && (
         <CourseToPOMappingStep
           curriculumCourses={curriculumCourses}
           programOutcomes={programOutcomes}
@@ -569,7 +572,7 @@ export default function WizardFormProgram() {
         />
       )}
       {/* Step 14: Committee Assignment */}
-      {step === 14 && (
+      {currentStep === 14 && (
         <CommitteeAssignmentStep
           committees={committees}
           selectedCommittees={selectedCommittees}
@@ -580,7 +583,7 @@ export default function WizardFormProgram() {
         />
       )}
       {/* Step 15: Committee Course Assignment */}
-      {step === 15 && (
+      {currentStep === 15 && (
         <CommitteeCourseAssignmentStep
           committees={committees}
           selectedCommittees={selectedCommittees}
@@ -594,7 +597,7 @@ export default function WizardFormProgram() {
       )}
 
       {/* Step 16: Review */}
-      {step === 16 && (
+      {currentStep === 16 && (
         <ReviewStep
           formType={formType}
           programName={programName}
@@ -630,14 +633,14 @@ export default function WizardFormProgram() {
 
       {/* Navigation buttons */}
       <div className="flex justify-between mt-8">
-        {step > 1 && (
+        {currentStep > 1 && (
           <Button variant="outline" onClick={handleBack}>
             Back
           </Button>
         )}
 
         <div className="ml-auto">
-          {step < 16 && (
+          {currentStep < 16 && (
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
@@ -647,7 +650,7 @@ export default function WizardFormProgram() {
             </Button>
           )}
 
-          {step === 16 && (
+          {currentStep === 16 && (
             <Button
               onClick={handleSubmit}
               disabled={!isStepValid()}

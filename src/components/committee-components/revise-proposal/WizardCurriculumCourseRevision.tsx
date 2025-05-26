@@ -42,7 +42,6 @@ import { CPAClassificationRevision } from "./CPAClassificationRevision";
 import { COPOMappingRevision } from "./COPOMappingRevision";
 import { TLATasksRevision } from "./TLATaskRevision";
 import { TLAMethodsRevision } from "./TLAMethodRevision";
-
 import { CourseRevisionReview } from "./CurriculumCourseRevisionReview";
 
 interface CurriculumCourseRevisionWizardProps {
@@ -53,11 +52,11 @@ export function CurriculumCourseRevisionWizard({
   curriculumCourseId,
 }: CurriculumCourseRevisionWizardProps) {
   const router = useRouter();
-  const [isRevising, setIsRevising] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  // const [isRevising, setIsRevising] = useState(false);
+  // const [currentStep, setCurrentStep] = useState(0);
+  // const [showReview, setShowReview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [showReview, setShowReview] = useState(false);
   const [isCurrentStepValid, setIsCurrentStepValid] = useState(false);
 
   // Get the curriculum course data
@@ -78,6 +77,18 @@ export function CurriculumCourseRevisionWizard({
     submitRevisions,
   } = useCourseRevision(courseId);
 
+  // Get state and actions from the store
+  const {
+    currentStep,
+    isRevising,
+    showReview,
+    setCurrentStep,
+    setIsRevising,
+    setShowReview,
+    setCurrentCourse,
+    resetStore,
+  } = useCourseRevisionStore();
+
   const revisions = revisionData?.revisions || [];
 
   useEffect(() => {
@@ -88,9 +99,9 @@ export function CurriculumCourseRevisionWizard({
         course_outcomes: courseData.course_outcomes || [],
       };
 
-      useCourseRevisionStore.getState().setCurrentCourse(courseWithOutcomes);
+      setCurrentCourse(courseWithOutcomes);
     }
-  }, [courseData, isRevising]);
+  }, [courseData, isRevising, setCurrentCourse]);
 
   // Start the revision process
   const handleStartRevision = () => {
@@ -159,6 +170,9 @@ export function CurriculumCourseRevisionWizard({
 
       // Set success state
       setSubmitSuccess(true);
+
+      // Clear localStorage when successful
+      resetStore();
 
       // Redirect after a delay
       setTimeout(() => {

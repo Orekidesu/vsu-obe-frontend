@@ -50,11 +50,19 @@ export function ProgramRevisionWizard({
   proposalId,
 }: ProgramRevisionWizardProps) {
   const router = useRouter();
-  const [isRevising, setIsRevising] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Initialize the store with sample data
+  const {
+    currentStep,
+    isRevising,
+    isReviewing,
+    setCurrentStep,
+    setIsRevising,
+    setIsReviewing,
+    initializeData,
+    modifiedSections,
+  } = useRevisionStore();
 
-  const [isReviewing, setIsReviewing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get the proposal from API using cache
   const { getProgramProposalFromCache, submitDepartmentRevisions } =
@@ -71,9 +79,6 @@ export function ProgramRevisionWizard({
   const { data: proposalData, isLoading: isLoadingProposal } = useQuery(
     getProgramProposalFromCache(proposalIdNumber)
   );
-
-  // Initialize the store with sample data
-  const { initializeData, modifiedSections } = useRevisionStore();
 
   useEffect(() => {
     if (proposalData) {
@@ -355,6 +360,8 @@ export function ProgramRevisionWizard({
         description: "Your revisions have been submitted successfully.",
         variant: "success",
       });
+
+      localStorage.removeItem("program-revision-storage");
 
       // Log submission details for debugging
       console.group("Revision Submission Details");
