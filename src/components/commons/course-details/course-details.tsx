@@ -486,7 +486,7 @@ export function CurriculumCourseDetails({
                         <h5 className="text-sm font-medium text-muted-foreground mb-2">
                           Course Outcomes
                         </h5>
-                        {course.course_outcomes?.map((outcome) => {
+                        {course.course_outcomes?.map((outcome, index) => {
                           const outcomeWeight =
                             outcome.tla_tasks?.reduce(
                               (sum, task) =>
@@ -498,7 +498,10 @@ export function CurriculumCourseDetails({
                               key={outcome.id}
                               className="flex items-center justify-between py-2"
                             >
-                              <span className="text-sm">{outcome.name}</span>
+                              <span className="text-sm">
+                                <span className="font-bold">{`CO ${index + 1}. `}</span>
+                                {outcome.name}
+                              </span>
                               <Badge variant="outline">
                                 {outcomeWeight.toFixed(2)}%
                               </Badge>
