@@ -594,7 +594,6 @@ export default function ProgramReviewPage({
 
   // Transform revision requests to match the API format
   const transformRevisionData = (requests: RevisionRequest[]) => {
-    // Add explicit type definition for the result object
     const result: {
       status: string;
       department_level: Array<{ section: string; details: string }>;
@@ -611,22 +610,10 @@ export default function ProgramReviewPage({
 
     requests.forEach((request) => {
       if (request.type === "section") {
-        // Convert kebab-case to snake_case and handle pluralization
-        let sectionName = request.section.replace(/-/g, "_");
-
-        // Add 's' to the end if it doesn't already have one
-        if (
-          !sectionName.endsWith("s") &&
-          !["curriculum", "program"].includes(sectionName.toLowerCase())
-        ) {
-          sectionName += "s";
-        }
-
-        result.department_level.push({
-          section: sectionName,
-          details: request.details,
-        });
+        // Handle program-level revisions
+        // ...
       } else if (request.type === "course") {
+        // Handle course-level revisions
         result.committee_level.push({
           curriculum_course_id: parseInt(request.courseId || "0"),
           section: request.courseSection || "",

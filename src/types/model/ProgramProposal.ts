@@ -16,6 +16,9 @@ export interface ProgramProposalResponse {
   status: string;
   comment: string | null;
   version: number;
+  department_revision_required: boolean;
+  committee_revision_required: boolean;
+  has_revision_record?: boolean;
   created_at: string;
   updated_at: string;
   proposed_by: {

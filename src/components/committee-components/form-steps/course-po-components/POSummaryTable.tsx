@@ -60,10 +60,10 @@ export function POSummaryTable({
           <Table className="border">
             <TableHeader>
               <TableRow>
-                <TableHead className="border">CO</TableHead>
+                <TableHead className="border">CO Name</TableHead>
                 {programOutcomes.map((po) => (
                   <TableHead key={po.id} className="border text-center">
-                    PO{po.id}
+                    {po.name}
                     <div className="text-xs font-normal mt-1">
                       {po.availableContributionLevels?.join(", ") || "I, E, D"}
                     </div>
@@ -75,7 +75,7 @@ export function POSummaryTable({
               {courseOutcomes.map((co) => (
                 <TableRow key={co.id}>
                   <TableCell className="border font-medium">
-                    CO{co.id}
+                    {co.name}
                   </TableCell>
                   {programOutcomes.map((po) => {
                     const level = getContributionLevel(co.id, po.id);

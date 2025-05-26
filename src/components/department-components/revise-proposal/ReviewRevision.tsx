@@ -43,7 +43,7 @@ interface RevisionReviewProps {
   }>;
 }
 
-export function RevisionReview({
+export function ProgramRevisionReview({
   onGoBack,
   onSubmit,
   isSubmitting,

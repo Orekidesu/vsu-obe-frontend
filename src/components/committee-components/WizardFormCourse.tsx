@@ -181,7 +181,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       setCurrentStep(currentStep - 1);
     } else {
       // Go back to the courses page
-      router.push("/faculty/courses");
+      router.push("/faculty/all-courses");
     }
   };
 
@@ -266,7 +266,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
 
       // Reset store and navigate on success
       resetStore();
-      router.push("/faculty/courses");
+      router.push("/faculty/all-courses");
     } catch (error) {
       console.error("Error submitting course details:", error);
       // Error is already handled by the submitCurriculumCourseDetailsHandler
@@ -366,7 +366,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         </p>
         <Button
           className="mt-4"
-          onClick={() => router.push("/faculty/courses")}
+          onClick={() => router.push("/faculty/all-courses")}
         >
           Return to Courses
         </Button>

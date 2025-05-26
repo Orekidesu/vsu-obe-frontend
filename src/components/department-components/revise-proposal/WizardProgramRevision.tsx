@@ -13,21 +13,12 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  ArrowLeft,
-  ClipboardList,
-  AlertCircle,
-  CheckCircle2,
-  Loader2,
-} from "lucide-react";
+import { ArrowLeft, ClipboardList, AlertCircle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Import data and store
-import {
-  // sampleRevisionData,
-  getSectionDisplayName,
-} from "@/store/revision/sample-data/data";
+import { getSectionDisplayName } from "@/store/revision/sample-data/data";
 import {
   useRevisionStore,
   type RevisionSection,
@@ -47,20 +38,22 @@ import { CurriculumRevision } from "./CurriculumRevision";
 import { CourseCategoriesRevision } from "./CourseCategoryRevision";
 import { CurriculumCoursesRevision } from "./CurriculumCourseRevision";
 import { CoursePOMappingRevision } from "./CoursePOMappingRevision";
-import { RevisionReview } from "./ReviewRevision";
+import { ProgramRevisionReview } from "./ReviewRevision";
 
 import useDepartmentRevision from "@/hooks/shared/useDepartmentRevision";
 
-interface RevisionWizardProps {
+interface ProgramRevisionWizardProps {
   proposalId: string;
 }
 
-export function RevisionWizard({ proposalId }: RevisionWizardProps) {
+export function ProgramRevisionWizard({
+  proposalId,
+}: ProgramRevisionWizardProps) {
   const router = useRouter();
   const [isRevising, setIsRevising] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+
   const [isReviewing, setIsReviewing] = useState(false);
 
   // Get the proposal from API using cache
@@ -140,20 +133,203 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   };
 
   // Submit the revisions
+  // const handleSubmitRevisions = async () => {
+  //   setIsSubmitting(true);
+
+  //   try {
+  //     // Get only the modified sections data from the store
+  //     const state = useRevisionStore.getState();
+  //     // const dataToSubmit: Record<RevisionSection, unknown> = {};
+
+  //     // modifiedSections.forEach((section) => {
+  //     //   dataToSubmit[section] = state[section];
+  //     // });
+  //     const dataToSubmit: Record<string, unknown> = {};
+  //     modifiedSections.forEach((section) => {
+  //       dataToSubmit[section] = state[section];
+  //     });
+
+  //     // Only proceed if there are modifications
+  //     if (Object.keys(dataToSubmit).length === 0) {
+  //       toast({
+  //         title: "No Changes",
+  //         description: "No modifications were made to submit.",
+  //         variant: "default",
+  //       });
+  //       setIsSubmitting(false);
+  //       return;
+  //     }
+
+  //     // Submit the revisions to the API
+  //     await submitDepartmentRevisions.mutateAsync({
+  //       proposalId: proposalIdNumber,
+  //       revisionData: dataToSubmit,
+  //     });
+
+  //     // Show success toast instead of setting state
+  //     toast({
+  //       title: "Success!",
+  //       description: "Your revisions have been submitted successfully.",
+  //       variant: "success",
+  //     });
+
+  //     // Log submission details for debugging
+  //     console.group("Revision Submission Details");
+  //     console.log(
+  //       "Requested Revision Sections:",
+  //       revisions.map((r) => r.section)
+  //     );
+  //     console.log("Modified Sections:", Array.from(modifiedSections));
+  //     console.log("Submission Payload:", dataToSubmit);
+  //     console.groupEnd();
+
+  //     // Redirect after a delay
+  //     setTimeout(() => {
+  //       // router.push("/department/programs/all-programs");
+  //       router.back();
+  //     }, 3000);
+  //   } catch (error: unknown) {
+  //     console.error("Error submitting revisions:", error);
+  //     toast({
+  //       title: "Error",
+  //       description:
+  //         error instanceof Error
+  //           ? error.message
+  //           : "Failed to submit revisions. Please try again later.",
+  //       variant: "destructive",
+  //     });
+  //     setIsSubmitting(false);
+  //   }
+  // };
   const handleSubmitRevisions = async () => {
     setIsSubmitting(true);
 
     try {
       // Get only the modified sections data from the store
       const state = useRevisionStore.getState();
-      // const dataToSubmit: Record<RevisionSection, unknown> = {};
-
-      // modifiedSections.forEach((section) => {
-      //   dataToSubmit[section] = state[section];
-      // });
       const dataToSubmit: Record<string, unknown> = {};
+
       modifiedSections.forEach((section) => {
-        dataToSubmit[section] = state[section];
+        // Copy the section data first
+        let sectionData = JSON.parse(JSON.stringify(state[section]));
+
+        // Process arrays of items with IDs
+        if (Array.isArray(sectionData)) {
+          // Handle sections with arrays of items
+          switch (section) {
+            case "peos":
+            case "pos":
+            case "course_categories":
+            case "curriculum_courses":
+              // First, identify which category IDs are actually new (have string IDs)
+              const newCategoryIds = new Set();
+              const existingCategoryIds = new Set();
+
+              // Collect all existing category IDs
+              state.course_categories.forEach((category) => {
+                if (typeof category.id === "number") {
+                  existingCategoryIds.add(category.id);
+                } else if (
+                  typeof category.id === "string" &&
+                  /^\d+$/.test(category.id)
+                ) {
+                  newCategoryIds.add(category.id);
+                }
+              });
+
+              sectionData = sectionData.map((item) => {
+                const updatedItem = { ...item };
+
+                // Check if the main ID is a newly generated numeric string
+                if (
+                  item.id &&
+                  typeof item.id === "string" &&
+                  /^\d+$/.test(item.id)
+                ) {
+                  updatedItem.id = `new_${item.id}`;
+                }
+
+                // Only add "new_" prefix to course_category_id if it's actually a reference
+                // to a newly created category (in the newCategoryIds set)
+                if (item.course_category_id) {
+                  if (
+                    typeof item.course_category_id === "string" &&
+                    /^\d+$/.test(item.course_category_id)
+                  ) {
+                    // Check if this string matches an existing numeric category ID
+                    const numericId = parseInt(item.course_category_id, 10);
+                    if (existingCategoryIds.has(numericId)) {
+                      // Convert back to number if it matches an existing category
+                      updatedItem.course_category_id = numericId;
+                    } else if (newCategoryIds.has(item.course_category_id)) {
+                      // It's a reference to a newly created category
+                      updatedItem.course_category_id = `new_${item.course_category_id}`;
+                    }
+                  }
+                }
+
+                return updatedItem;
+              });
+              break;
+            // Handle mappings that reference items with potentially new IDs
+            case "peo_mission_mappings":
+            case "ga_peo_mappings":
+            case "po_peo_mappings":
+            case "po_ga_mappings":
+              sectionData = sectionData.map((mapping) => {
+                const updatedMapping = { ...mapping };
+
+                // Check if peo_id is a numeric string
+                if (
+                  mapping.peo_id &&
+                  typeof mapping.peo_id === "string" &&
+                  /^\d+$/.test(mapping.peo_id)
+                ) {
+                  updatedMapping.peo_id = `new_${mapping.peo_id}`;
+                }
+
+                // Check if po_id is a numeric string
+                if (
+                  mapping.po_id &&
+                  typeof mapping.po_id === "string" &&
+                  /^\d+$/.test(mapping.po_id)
+                ) {
+                  updatedMapping.po_id = `new_${mapping.po_id}`;
+                }
+
+                return updatedMapping;
+              });
+              break;
+
+            case "course_po_mappings":
+              sectionData = sectionData.map((mapping) => {
+                const updatedMapping = { ...mapping };
+
+                // Check curriculum_course_id
+                if (
+                  mapping.curriculum_course_id &&
+                  typeof mapping.curriculum_course_id === "string" &&
+                  /^\d+$/.test(mapping.curriculum_course_id)
+                ) {
+                  updatedMapping.curriculum_course_id = `new_${mapping.curriculum_course_id}`;
+                }
+
+                // Check po_id
+                if (
+                  mapping.po_id &&
+                  typeof mapping.po_id === "string" &&
+                  /^\d+$/.test(mapping.po_id)
+                ) {
+                  updatedMapping.po_id = `new_${mapping.po_id}`;
+                }
+
+                return updatedMapping;
+              });
+              break;
+          }
+        }
+
+        dataToSubmit[section] = sectionData;
       });
 
       // Only proceed if there are modifications
@@ -173,8 +349,12 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         revisionData: dataToSubmit,
       });
 
-      // Show success state
-      setSubmitSuccess(true);
+      // Show success toast instead of setting state
+      toast({
+        title: "Success!",
+        description: "Your revisions have been submitted successfully.",
+        variant: "success",
+      });
 
       // Log submission details for debugging
       console.group("Revision Submission Details");
@@ -188,7 +368,6 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
 
       // Redirect after a delay
       setTimeout(() => {
-        // router.push("/department/programs/all-programs");
         router.back();
       }, 3000);
     } catch (error: unknown) {
@@ -257,9 +436,11 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
 
   if (isLoadingProposal || isLoadingRevisions) {
     return (
-      <div className="container mx-auto  text-center">
-        <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary mb-4" />
-        <h2 className="text-xl font-medium">Loading proposal data...</h2>
+      <div className="container mx-auto h-[500px] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary mb-4" />
+          <h2 className="text-xl font-medium">Loading proposal data...</h2>
+        </div>
       </div>
     );
   }
@@ -308,26 +489,10 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   return (
     <TooltipProvider>
       <div className="container ">
-        {submitSuccess ? (
-          <Card className="">
-            <CardContent className="pt-6 text-center">
-              <CheckCircle2 className="mx-auto h-16 w-16 text-green-500 mb-4" />
-              <h2 className="text-2xl font-bold mb-2">
-                Revisions Submitted Successfully!
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Your revisions have been submitted and will be reviewed by the
-                appropriate personnel.
-              </p>
-              <Button onClick={handleBackToDashboard}>
-                Return to Dashboard
-              </Button>
-            </CardContent>
-          </Card>
-        ) : isRevising ? (
+        {isRevising ? (
           <div className=" mx-auto">
             {isReviewing ? (
-              <RevisionReview
+              <ProgramRevisionReview
                 onGoBack={handleGoBackFromReview}
                 onSubmit={handleSubmitRevisions}
                 isSubmitting={isSubmitting}
@@ -405,12 +570,12 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
           </div>
         ) : (
           <div className="mx-auto">
-            <div className="flex items-center justify-between mb-6">
+            {/* <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Program Revision Requests</h1>
               <Button variant="outline" onClick={handleBackToDashboard}>
                 <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
               </Button>
-            </div>
+            </div> */}
 
             <Card className="mb-8">
               <CardHeader>

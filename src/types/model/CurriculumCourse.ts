@@ -27,6 +27,8 @@ export interface CourseOutcome {
   cpa: "C" | "P" | "A";
   po_mappings: Array<{
     po_id: number;
+    po_name?: string; // Add this missing property
+    po_statement?: string;
     ied: string;
   }>;
   tla_tasks: Array<{
@@ -48,7 +50,7 @@ export interface CurriculumCourseResponse {
   curriculum: Curriculum;
   course_category: CourseCategory;
   semester: Semester;
-  units: number;
+  units: number | string;
   is_in_revision: boolean;
   is_completed: boolean;
   course_outcomes?: CourseOutcome[]; // Optional field that only appears with include_outcomes=true

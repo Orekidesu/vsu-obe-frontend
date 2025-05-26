@@ -37,10 +37,10 @@ export function TLAInstructions({
               </Badge>
             </div>
             {isTotalWeightValid ? (
-              <span className="text-xs text-green-600 flex items-center">
+              <Badge className="bg-green-500 text-white">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 Weight is valid
-              </span>
+              </Badge>
             ) : (
               <span className="text-xs text-amber-600 flex items-center">
                 <AlertCircle className="h-3 w-3 mr-1" />

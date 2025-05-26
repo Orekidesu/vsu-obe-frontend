@@ -278,7 +278,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
       // Generate a temporary ID for the new PEO
       // In a real app, the server would assign a permanent ID
-      const newId = `new-peo-${Math.floor(Math.random() * 500)}`;
+      const newId = `${Date.now()}${Math.floor(Math.random() * 500)}`;
 
       return {
         peos: [...state.peos, { id: newId, statement }],
@@ -447,7 +447,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       modifiedSections.add("pos");
 
       // Generate a temporary ID for the new PO
-      const newId = `new-po-${Math.floor(Math.random() * 5000)}`;
+      const newId = `${Date.now()}${Math.floor(Math.random() * 5000)}`;
 
       return {
         pos: [...state.pos, { id: newId, ...po }],
@@ -601,7 +601,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       modifiedSections.add("course_categories");
 
       // Generate a temporary ID for the new category
-      const newId = `new-category-${Math.floor(Math.random() * 2500)}`;
+      const newId = `${Date.now()}${Math.floor(Math.random() * 2500)}`;
 
       return {
         course_categories: [
@@ -722,7 +722,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       modifiedSections.add("curriculum_courses");
 
       // Generate a temporary ID for the new course
-      const newId = `new-course-${Math.floor(Math.random() * 1000)}`;
+      const newId = `${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
       return {
         curriculum_courses: [
