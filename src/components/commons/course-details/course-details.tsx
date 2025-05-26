@@ -311,7 +311,7 @@ export function CurriculumCourseDetails({
               </p>
             </div>
           ) : (
-            course.course_outcomes?.map((outcome) => (
+            course.course_outcomes?.map((outcome, index) => (
               <Collapsible
                 key={outcome.id}
                 open={expandedOutcomes[outcome.id]}
@@ -334,6 +334,7 @@ export function CurriculumCourseDetails({
                             )}
                           </Button>
                           <CardTitle className="text-xl">
+                            <span>{`CO ${index + 1}. `}</span>
                             {outcome.name}
                           </CardTitle>
                         </div>
