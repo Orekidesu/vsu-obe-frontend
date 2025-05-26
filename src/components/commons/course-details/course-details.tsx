@@ -198,6 +198,7 @@ export function CurriculumCourseDetails({
           {course.course.code}: {course.course.descriptive_title}
         </h1>
         <p className="text-base">
+          {course.course_category.name} • {formatSemester(course.semester)} •{" "}
           {typeof course.units === "string"
             ? Number.parseFloat(course.units).toFixed(2)
             : course.units.toFixed(2)}
