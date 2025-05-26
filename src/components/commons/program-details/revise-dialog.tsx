@@ -389,12 +389,11 @@ export function ReviseDialog({
           </Tabs>
 
           {revisionRequests.length > 0 && (
-            <div className="mt-6">
+            <div className="">
               <h3 className="font-medium text-lg">Current Revision Requests</h3>
 
               {/* Make BOTH program and course revisions part of the same scrollable area */}
-              {/* Make BOTH program and course revisions part of the same scrollable area */}
-              <div className="overflow-y-auto max-h-[250px] pr-2 mt-4">
+              <div className="overflow-y-auto max-h-[180px] pr-2 mt-4">
                 {programRevisions.length > 0 && (
                   <div className="mb-4">
                     <h4 className="font-medium text-sm text-gray-700 border-b pb-1 sticky top-0 bg-white z-10">
