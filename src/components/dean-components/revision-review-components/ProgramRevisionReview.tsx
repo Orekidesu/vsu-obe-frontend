@@ -41,6 +41,9 @@ import { ProgramSummary } from "@/components/commons/program-details/program-sum
 import { ProgramStructure } from "@/components/commons/program-details/program-structure";
 import { CurriculumCourses as CurriculumCoursesOverview } from "@/components/commons/program-details/curriculum-courses";
 
+import { CourseDetailsFormat } from "../program-review-components/types/CourseDetails";
+import { CourseDetailsTabs } from "../program-review-components/CourseDetailsTabs";
+
 interface ProgramRevisionReviewProps {
   proposalId: number;
 }
@@ -65,6 +68,10 @@ export default function ProgramRevisionReview({
     useProgramProposals({ role: "dean" });
   const { toast } = useToast();
 
+  const [dynamicCourseDetailsMap, setDynamicCourseDetailsMap] = useState<
+    Record<number, CourseDetailsFormat>
+  >({});
+
   const [showFullProposal, setShowFullProposal] = useState(false); // Add this state
 
   // Fetch program proposal data
@@ -83,10 +90,11 @@ export default function ProgramRevisionReview({
     error: revisionsError,
   } = useCourseDepartmentRevision(proposalId, { role: "dean" });
 
-  const { getCurriculumCourseFromCache } = useCurriculumCourses({
-    role: "dean",
-    includeOutcomes: true,
-  });
+  const { getCurriculumCourseFromCache, curriculumCourses } =
+    useCurriculumCourses({
+      role: "dean",
+      includeOutcomes: true,
+    });
 
   // Transform the fetched API data
   useEffect(() => {
@@ -102,6 +110,27 @@ export default function ProgramRevisionReview({
       [sectionId]: !prev[sectionId],
     }));
   };
+
+  useEffect(() => {
+    if (curriculumCourses) {
+      const newMap: Record<number, CourseDetailsFormat> = {};
+
+      curriculumCourses.forEach((course) => {
+        // Transform API response to match the expected structure in CourseDetailsTabs
+        newMap[course.id] = {
+          id: course.id,
+          curriculum: course.curriculum,
+          course: course.course,
+          course_category: course.course_category,
+          semester: course.semester,
+          units: course.units,
+          course_outcomes: course.course_outcomes || [],
+        };
+      });
+
+      setDynamicCourseDetailsMap(newMap);
+    }
+  }, [curriculumCourses]);
 
   // Get courses that have revisions
   const courseQueries = useQueries({
@@ -437,6 +466,13 @@ export default function ProgramRevisionReview({
                 mappings={transformedData.course_po_mappings}
               />
             </TabsContent>
+
+            <CourseDetailsTabs
+              courses={programData?.curriculum?.courses || []}
+              courseDetailsMap={
+                dynamicCourseDetailsMap // Fallback to sample data if API data not available
+              }
+            />
           </Tabs>
         </div>
       ) : (
