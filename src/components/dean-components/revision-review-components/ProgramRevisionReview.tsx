@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
+import { Button } from "@/components/ui";
 import { BookOpen, GraduationCap, Loader2, AlertTriangle } from "lucide-react";
 import { getSectionDisplayName } from "@/store/revision/sample-data/proposalData";
 
@@ -24,6 +24,10 @@ import { POPEOMapping } from "@/components/dean-components/revision-review-compo
 import { POGAMapping } from "@/components/dean-components/revision-review-components/POGAMapping";
 import { CoursePOMapping } from "@/components/dean-components/revision-review-components/CoursePOMapping";
 import { CurriculumCourses } from "@/components/dean-components/revision-review-components/CurriculumCourse";
+
+import { PEOSection } from "@/components/commons/program-details/peo-section";
+import { POSection } from "@/components/commons/program-details/po-section";
+import { CourseCategories as CourseCategoriesOverview } from "@/components/commons/program-details/course-category";
 
 import { ProgramRevisionTabs } from "./revision-tabs/ProgramRevisionTabs";
 import { CourseRevisionTabs } from "./revision-tabs/CourseRevisionTabs";
@@ -50,6 +54,8 @@ export default function ProgramRevisionReview({
   const { getProgramProposalFromCache, submitProposalReview } =
     useProgramProposals({ role: "dean" });
   const { toast } = useToast();
+
+  const [showFullProposal, setShowFullProposal] = useState(false); // Add this state
 
   // Fetch program proposal data
   const {
@@ -129,6 +135,10 @@ export default function ProgramRevisionReview({
         },
       }
     );
+  };
+
+  const handleViewFullProposal = () => {
+    setShowFullProposal(true);
   };
 
   const handleRequestRevisions = () => {
@@ -299,54 +309,127 @@ export default function ProgramRevisionReview({
         curriculumName={transformedData.curriculum.name}
         totalCourses={transformedData.curriculum_courses.length}
         status="revision"
+        onViewFullProposal={handleViewFullProposal} // Add this line
       />
 
       {/* Revision Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="space-y-6"
-      >
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="program" className="flex items-center gap-2">
-            <GraduationCap className="w-4 h-4" />
-            Program Revisions
-            {revisionData.department_revisions.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {revisionData.department_revisions.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="courses" className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4" />
-            Course Revisions
-            {coursesWithRevisions.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {coursesWithRevisions.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
+      {showFullProposal ? (
+        // Full Proposal View
+        <div className="">
+          {/* Back to Revision View button */}
+          <Button
+            variant="outline"
+            className="mb-4"
+            onClick={() => setShowFullProposal(false)}
+          >
+            ← Back to Revision View
+          </Button>
 
-        {/* Program Revisions Tab */}
-        <TabsContent value="program" className="space-y-4">
-          <ProgramRevisionTabs
-            revisionData={revisionData}
-            openSections={openSections}
-            toggleSection={toggleSection}
-            renderSectionContent={renderSectionContent}
-          />
-        </TabsContent>
+          <Tabs defaultValue="overview" className="mb-8">
+            <TabsList className="mb-4">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="mappings">Mappings</TabsTrigger>
+            </TabsList>
 
-        {/* Course Revisions Tab */}
-        <TabsContent value="courses" className="space-y-4">
-          <CourseRevisionTabs
-            coursesWithRevisions={coursesWithRevisions || []}
-            openSections={openSections}
-            toggleSection={toggleSection}
-          />
-        </TabsContent>
-      </Tabs>
+            {/* Overview */}
+            <TabsContent value="overview" className="space-y-6">
+              <PEOSection peos={transformedData.peos} />
+              <POSection pos={transformedData.pos} />
+              <CourseCategoriesOverview
+                categories={transformedData.course_categories}
+              />
+            </TabsContent>
+
+            {/* Mappings - Use existing mapping components */}
+            <TabsContent value="mappings" className="space-y-6">
+              <PEOMissionMapping
+                peos={transformedData.peos}
+                missions={transformedData.missions}
+                mappings={transformedData.peo_mission_mappings}
+              />
+
+              <GAPEOMapping
+                peos={transformedData.peos}
+                graduateAttributes={
+                  programData?.peos?.flatMap(
+                    (peo) => peo.graduate_attributes || []
+                  ) || []
+                }
+                mappings={transformedData.ga_peo_mappings}
+              />
+
+              <POPEOMapping
+                pos={transformedData.pos}
+                peos={transformedData.peos}
+                mappings={transformedData.po_peo_mappings}
+              />
+
+              <POGAMapping
+                pos={transformedData.pos}
+                graduateAttributes={
+                  programData?.pos?.flatMap(
+                    (po) => po.graduate_attributes || []
+                  ) || []
+                }
+                mappings={transformedData.po_ga_mappings}
+              />
+
+              <CoursePOMapping
+                courses={transformedData.courses}
+                pos={transformedData.pos}
+                mappings={transformedData.course_po_mappings}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
+      ) : (
+        // Revision View (original content)
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="program" className="flex items-center gap-2">
+              <GraduationCap className="w-4 h-4" />
+              Program Revisions
+              {revisionData.department_revisions.length > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {revisionData.department_revisions.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="courses" className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              Course Revisions
+              {coursesWithRevisions.length > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {coursesWithRevisions.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Program Revisions Tab */}
+          <TabsContent value="program" className="space-y-4">
+            <ProgramRevisionTabs
+              revisionData={revisionData}
+              openSections={openSections}
+              toggleSection={toggleSection}
+              renderSectionContent={renderSectionContent}
+            />
+          </TabsContent>
+
+          {/* Course Revisions Tab */}
+          <TabsContent value="courses" className="space-y-4">
+            <CourseRevisionTabs
+              coursesWithRevisions={coursesWithRevisions || []}
+              openSections={openSections}
+              toggleSection={toggleSection}
+            />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }

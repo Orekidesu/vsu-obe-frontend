@@ -7,6 +7,7 @@ interface ProgramSummaryProps {
   curriculumName: string;
   totalCourses: number;
   status?: string;
+  onViewFullProposal?: () => void;
 }
 
 export function ProgramSummary({
@@ -15,6 +16,7 @@ export function ProgramSummary({
   curriculumName,
   totalCourses,
   status,
+  onViewFullProposal,
 }: ProgramSummaryProps) {
   const getBadgeColor = (status?: string) => {
     if (!status) return "bg-gray-100 text-gray-800";
@@ -72,6 +74,7 @@ export function ProgramSummary({
                 variant="outline"
                 size="sm"
                 className="px-2 py-1 h-auto text-xs border-primary hover:bg-hover"
+                onClick={onViewFullProposal} // Add the click handler
               >
                 <span className="flex items-center">See Full Proposal</span>
               </Button>
