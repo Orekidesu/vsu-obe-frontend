@@ -164,7 +164,14 @@ export default function ProgramTabs() {
   const showHeaderAddButton =
     (activeTab === "active" && activePrograms.length > 0) ||
     (activeTab === "pending" && pendingProposals.length > 0) ||
-    (activeTab === "revision" && revisionProposals.length > 0);
+    (activeTab === "revision" && revisionProposals.length > 0) ||
+    (activeTab === "revision" && forReviewProposals.length > 0);
+
+  const activeTabHasContent =
+    (activeTab === "active" && activePrograms.length > 0) ||
+    (activeTab === "pending" && pendingProposals.length > 0) ||
+    (activeTab === "revision" && revisionProposals.length > 0) ||
+    (activeTab === "revision" && forReviewProposals.length > 0);
 
   // Handle submission for review
   const handleSubmitForReview = async (proposalId: number) => {
@@ -227,7 +234,7 @@ export default function ProgramTabs() {
       <div className="flex justify-between">
         <h3 className="text-lg font-bold mb-6">Programs Dashboard</h3>
         <div className="flex gap-2">
-          {hasMeaningfulSavedForm() && (
+          {activeTabHasContent && hasMeaningfulSavedForm() && (
             <Button
               onClick={continuePreviousForm}
               variant="outline"
