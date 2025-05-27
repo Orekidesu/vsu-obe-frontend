@@ -290,6 +290,7 @@ export default function ProgramRevisionReview({
         programAbbreviation={transformedData.program.abbreviation}
         curriculumName={transformedData.curriculum.name}
         totalCourses={transformedData.curriculum_courses.length}
+        status="revision"
       />
 
       {/* Revision Tabs */}
