@@ -6,7 +6,6 @@ import { CourseDetailsFormat } from "./program-review-components/types/CourseDet
 
 import { Loader2 } from "lucide-react";
 
-// Import components
 import { ProgramHeader } from "@/components/commons/program-details/program-header";
 import { ProgramSummary } from "@/components/commons/program-details/program-summary";
 import { PEOSection } from "@/components/commons/program-details/peo-section";
@@ -16,7 +15,6 @@ import { ProgramStructure } from "@/components/commons/program-details/program-s
 import { CurriculumCourses } from "@/components/commons/program-details/curriculum-courses";
 import { MappingTable } from "@/components/commons/program-details/mapping-table";
 import { ApproveDialog } from "@/components/commons/program-details/approve-dialog";
-// import { RejectDialog } from "@/components/commons/program-details/reject-dialog";
 import { ReviseDialog } from "@/components/commons/program-details/revise-dialog";
 import { CoursePOMapping } from "@/components/commons/program-details/course-po-mapping";
 import { CourseDetailsTabs } from "./program-review-components/CourseDetailsTabs";
@@ -551,19 +549,6 @@ export default function ProgramReviewPage({
     }
   };
 
-  // Handle reject action
-  // const handleReject = () => {
-  //   setRejectDialogOpen(true);
-  // };
-
-  // Confirm rejection
-  // const confirmReject = () => {
-  //   // Here you would typically send an API request to reject the program with feedback
-  //   console.log("Program rejected with feedback:", feedback);
-  //   setRejectDialogOpen(false);
-  //   setActionTaken("rejected");
-  // };
-
   // Handle revise action
   const handleRevise = () => {
     setReviseDialogOpen(true);
@@ -738,6 +723,7 @@ export default function ProgramReviewPage({
         programAbbreviation={transformedData.program.abbreviation}
         curriculumName={transformedData.curriculum.name}
         totalCourses={transformedData.curriculum_courses.length}
+        status="pending"
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
@@ -830,14 +816,6 @@ export default function ProgramReviewPage({
         onOpenChange={setConfirmDialogOpen}
         onConfirm={confirmApprove}
       />
-
-      {/* <RejectDialog
-        open={rejectDialogOpen}
-        onOpenChange={setRejectDialogOpen}
-        feedback={feedback}
-        setFeedback={setFeedback}
-        onConfirm={confirmReject}
-      /> */}
 
       <ReviseDialog
         open={reviseDialogOpen}

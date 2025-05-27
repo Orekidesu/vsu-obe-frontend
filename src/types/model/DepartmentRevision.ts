@@ -29,14 +29,6 @@ export interface DepartmentRevisionData {
   message: string;
 }
 
-// Overall revision data structure
-export interface DepartmentRevisionData {
-  program_proposal_id: number;
-  version: number;
-  revisions: RevisionItem[];
-  message: string;
-}
-
 // Submit Revisions Payload with all optional sections
 export interface SubmitDepartmentRevisionsPayload {
   // Program section

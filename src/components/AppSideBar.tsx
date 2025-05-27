@@ -31,6 +31,18 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+
 import handleLogout from "@/app/utils/handleLogout";
 import Image from "next/image";
 import vsuLogo from "../../public/assets/images/vsu_logo.png";
@@ -127,6 +139,19 @@ interface AppSidebarProps {
 const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
   const pathname = usePathname();
   const roleBasedMenu = roleMenuItems[role] || [];
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  // Add this function to handle logout confirmation
+  const handleLogoutClick = () => {
+    setShowLogoutDialog(true);
+  };
+
+  // Add this function to proceed with logout when confirmed
+  const confirmLogout = () => {
+    if (session.accessToken) {
+      handleLogout(session.accessToken);
+    }
+  };
 
   // Generate personalized display info based on role
   const getPersonalizedDisplay = () => {
@@ -219,45 +244,62 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role, session }) => {
   );
 
   return (
-    <Sidebar>
-      <SidebarHeader className="pt-10">
-        <div className="flex flex-col items-center justify-center gap-2 px-2">
-          <Image
-            src={vsuLogo || "/placeholder.svg"}
-            alt="VSU logo"
-            width={80}
-            height={80}
-            priority
-          />
-          {getPersonalizedDisplay()}
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>{roleBasedMenu.map(renderMenuItem)}</SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter className="">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              onClick={() =>
-                session.accessToken && handleLogout(session.accessToken)
-              }
+    <div>
+      <Sidebar>
+        <SidebarHeader className="pt-10">
+          <div className="flex flex-col items-center justify-center gap-2 px-2">
+            <Image
+              src={vsuLogo || "/placeholder.svg"}
+              alt="VSU logo"
+              width={80}
+              height={80}
+              priority
+            />
+            {getPersonalizedDisplay()}
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{roleBasedMenu.map(renderMenuItem)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter className="">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild onClick={handleLogoutClick}>
+                <button className="flex w-full items-center gap-2">
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to log out? If clicked, you will be
+              redirected to the home page.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmLogout}
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
-              <button className="flex w-full items-center gap-2">
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+              Logout
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 };
 

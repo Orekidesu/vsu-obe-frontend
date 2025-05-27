@@ -18,11 +18,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  useCourseRevisionStore,
   type CourseOutcome,
   type ProgramOutcome,
 } from "@/store/revision/course-revision-store";
+
 import useCoursePO from "@/hooks/shared/useCoursePO";
+import { useCourseRevisionStore } from "./store-provider/CourseRevisionStoreProvider";
 
 // Define contribution levels with colors and descriptions
 const contributionLevels = [
@@ -59,6 +60,7 @@ interface COPOMappingRevisionProps {
 export function COPOMappingRevision({
   onValidityChange,
 }: COPOMappingRevisionProps) {
+  const store = useCourseRevisionStore();
   const {
     currentCourse,
     courseOutcomes,
@@ -68,7 +70,7 @@ export function COPOMappingRevision({
     modifiedSections,
     resetCOPOMappings,
     markSectionAsModified,
-  } = useCourseRevisionStore();
+  } = store();
 
   const [activeTab, setActiveTab] = useState(0);
   const courseId = currentCourse?.id;

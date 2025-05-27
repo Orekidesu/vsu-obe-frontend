@@ -174,15 +174,15 @@ export function ReviseDialog({
   const availableSections = [
     { value: "program", label: "Program Details" },
     { value: "peos", label: "Program Educational Objectives" },
-    { value: "peo-mission-mappings", label: "PEO to Mission Mapping" },
-    { value: "ga-peo-mappings", label: "GA to PEO Mapping" },
-    { value: "program-outcomes", label: "Program Outcomes" },
-    { value: "po-peo-mappings", label: "PO to PEO Mapping" },
-    { value: "po-ga-mappings", label: "PO to GA Mapping" },
+    { value: "peo_mission_mappings", label: "PEO to Mission Mapping" },
+    { value: "ga_peo_mappings", label: "GA to PEO Mapping" },
+    { value: "pos", label: "Program Outcomes" },
+    { value: "po_peo_mappings", label: "PO to PEO Mapping" },
+    { value: "po_ga_mappings", label: "PO to GA Mapping" },
     { value: "curriculum", label: "Curriculum Name" },
-    { value: "course-categories", label: "Course Categories" },
-    { value: "curriculum-courses", label: "Curriculum Courses" },
-    { value: "course-po-mappings", label: "Course to PO Mapping" },
+    { value: "course_categories", label: "Course Categories" },
+    { value: "curriculum_courses", label: "Curriculum Courses" },
+    { value: "course_po_mappings", label: "Course to PO Mapping" },
   ].filter((section) => !existingSections.includes(section.value));
 
   // Filter available courses (excluding ones already in requests)

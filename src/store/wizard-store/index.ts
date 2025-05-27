@@ -38,6 +38,8 @@ import {
 //   predefinedYearSemesters: predefinedYearSemesters,
 //   premadeCourseCategories: initialPremadeCourseCategories,
 // }));
+
+// ==================== OPTION 2=====================
 export const useWizardStore = create<WizardState>()(
   persist(
     (set, get, api) => ({
@@ -62,6 +64,42 @@ export const useWizardStore = create<WizardState>()(
       programTemplates: createProgramTemplates(),
       predefinedYearSemesters: predefinedYearSemesters,
       premadeCourseCategories: initialPremadeCourseCategories,
+
+      resetStore: () =>
+        set({
+          // Reset program-related fields
+          formType: "",
+          programName: "",
+          programAbbreviation: "",
+          selectedProgram: "",
+
+          // Reset curriculum-related fields
+          curriculumName: "",
+          academicYear: "",
+          yearSemesters: [],
+
+          // Reset course-related fields
+          courseCategories: [{ id: 15, name: "General Education", code: "GE" }],
+          curriculumCourses: [],
+          courseToPOMappings: [],
+
+          // Reset educational objectives
+          peos: [{ id: 1, statement: "" }],
+          programOutcomes: [{ id: 1, name: "", statement: "" }],
+
+          // Reset mappings
+          peoToMissionMappings: [],
+          gaToPEOMappings: [],
+          poToPEOMappings: [],
+          poToGAMappings: [],
+
+          // Reset committee assignments
+          selectedCommittees: [],
+          committeeCourseAssignments: [],
+
+          // Reset UI state
+          currentStep: 1,
+        }),
     }),
     {
       name: "program-wizard-storage", // unique name for localStorage key
@@ -94,30 +132,64 @@ export const useWizardStore = create<WizardState>()(
   )
 );
 
+// ===================OPTION 3=======================
+// export const createProgramWizardStore = (programId: string) => {
+//   return create<WizardState>()(
+//     persist(
+//       (set, get, api) => ({
+//         ...createProgramSlice(set, get, api),
+//         ...createCurriculumSlice(set, get, api),
+//         ...createCourseSlice(set, get, api),
+//         ...createPEOSlice(set, get, api),
+//         ...createProgramOutcomeSlice(set, get, api),
+//         ...createMappingSlice(set, get, api),
+//         ...createCommitteeSlice(set, get, api),
+//         ...createUISlice(set, get, api),
+
+//         // Graduate attributes are not in a slice
+//         graduateAttributes: [],
+//         setGraduateAttributes: (graduateAttributes) =>
+//           set({ graduateAttributes }),
+//         setPremadeCourseCategories: (categories) =>
+//           set({ premadeCourseCategories: categories }),
+//         setPremadeCourses: (courses) => set({ premadeCourses: courses }),
+
+//         // Initialize template-related state directly
+//         programTemplates: createProgramTemplates(),
+//         predefinedYearSemesters: predefinedYearSemesters,
+//         premadeCourseCategories: initialPremadeCourseCategories,
+//       }),
+//       {
+//         name: `program-wizard-${programId}`, // Make localStorage key unique per program
+//         storage: createJSONStorage(() => localStorage),
+//         partialize: (state) => ({
+//           // Include only the form data that needs to persist
+//           formType: state.formType,
+//           programName: state.programName,
+//           programAbbreviation: state.programAbbreviation,
+//           selectedProgram: state.selectedProgram,
+//           curriculumName: state.curriculumName,
+//           academicYear: state.academicYear,
+//           yearSemesters: state.yearSemesters,
+//           courseCategories: state.courseCategories,
+//           curriculumCourses: state.curriculumCourses,
+//           courseToPOMappings: state.courseToPOMappings,
+//           peos: state.peos,
+//           programOutcomes: state.programOutcomes,
+//           peoToMissionMappings: state.peoToMissionMappings,
+//           gaToPEOMappings: state.gaToPEOMappings,
+//           poToPEOMappings: state.poToPEOMappings,
+//           poToGAMappings: state.poToGAMappings,
+//           selectedCommittees: state.selectedCommittees,
+//           committeeCourseAssignments: state.committeeCourseAssignments,
+//           currentStep: state.currentStep,
+//         }),
+//       }
+//     )
+//   );
+// };
+
 // Re-export types
 export * from "./types";
 
 // Alternative
-/*export const useWizardStore = create<WizardState>((set, get, api) => {
-  // Create a dummy api object if you don't need its functionality
-  const dummyApi = api || {};
-
-  return {
-    ...createProgramSlice(set, get, dummyApi),
-    ...createCurriculumSlice(set, get, dummyApi),
-    ...createCourseSlice(set, get, dummyApi),
-    ...createPEOSlice(set, get, dummyApi),
-    ...createProgramOutcomeSlice(set, get, dummyApi),
-    ...createMappingSlice(set, get, dummyApi),
-
-    // Rest of your state
-    graduateAttributes: [],
-    setGraduateAttributes: (graduateAttributes) => set({ graduateAttributes }),
-    programTemplates: [],
-    predefinedYearSemesters: [
-      { year: 1, semester: "first", label: "Year 1 - First Semester" },
-      { year: 1, semester: "second", label: "Year 1 - Second Semester" },
-      { year: 1, semester: "midyear", label: "Year 1 - Midyear" },
-    ],
-  };
-});*/

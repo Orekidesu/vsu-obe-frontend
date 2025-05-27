@@ -33,10 +33,8 @@ import {
   Save,
   X,
 } from "lucide-react";
-import {
-  useCourseRevisionStore,
-  type CourseOutcome,
-} from "@/store/revision/course-revision-store";
+import { type CourseOutcome } from "@/store/revision/course-revision-store";
+import { useCourseRevisionStore } from "./store-provider/CourseRevisionStoreProvider";
 
 interface ABCDModelRevisionProps {
   onValidityChange?: (isValid: boolean) => void;
@@ -45,12 +43,13 @@ interface ABCDModelRevisionProps {
 export function ABCDModelRevision({
   onValidityChange,
 }: ABCDModelRevisionProps) {
+  const store = useCourseRevisionStore();
   const {
     courseOutcomes,
     modifiedSections,
     updateCourseOutcome,
     resetABCDModels,
-  } = useCourseRevisionStore();
+  } = store();
 
   const [activeTab, setActiveTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);

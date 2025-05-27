@@ -16,10 +16,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CheckCircle, RotateCcw, Info, Brain, Hand, Heart } from "lucide-react";
-import {
-  useCourseRevisionStore,
-  type CourseOutcome,
-} from "@/store/revision/course-revision-store";
+import { useCourseRevisionStore } from "./store-provider/CourseRevisionStoreProvider";
+
+import { type CourseOutcome } from "@/store/revision/course-revision-store";
 interface CPAClassificationRevisionProps {
   onValidityChange?: (isValid: boolean) => void;
 }
@@ -27,13 +26,14 @@ interface CPAClassificationRevisionProps {
 export function CPAClassificationRevision({
   onValidityChange,
 }: CPAClassificationRevisionProps) {
+  const store = useCourseRevisionStore();
   const {
     courseOutcomes,
     modifiedSections,
     updateCourseOutcome,
     resetCPAClassifications,
     markSectionAsModified,
-  } = useCourseRevisionStore();
+  } = store();
   const [activeTab, setActiveTab] = useState(0);
 
   const isModified = modifiedSections.has("cpa");

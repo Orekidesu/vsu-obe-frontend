@@ -43,10 +43,8 @@ import {
   RotateCcw,
   CheckCircle,
 } from "lucide-react";
-import {
-  useCourseRevisionStore,
-  type CourseOutcome,
-} from "@/store/revision/course-revision-store";
+import { type CourseOutcome } from "@/store/revision/course-revision-store";
+import { useCourseRevisionStore } from "./store-provider/CourseRevisionStoreProvider";
 
 interface CourseOutcomesRevisionProps {
   onValidityChange?: (isValid: boolean) => void;
@@ -55,6 +53,7 @@ interface CourseOutcomesRevisionProps {
 export function CourseOutcomesRevision({
   onValidityChange,
 }: CourseOutcomesRevisionProps) {
+  const store = useCourseRevisionStore();
   const {
     courseOutcomes,
     // currentCourse,
@@ -63,7 +62,7 @@ export function CourseOutcomesRevision({
     updateCourseOutcome,
     removeCourseOutcome,
     resetCourseOutcomes,
-  } = useCourseRevisionStore();
+  } = store();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingOutcome, setEditingOutcome] = useState<CourseOutcome | null>(
     null
