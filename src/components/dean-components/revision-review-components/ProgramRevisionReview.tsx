@@ -1,19 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import {
-  Check,
-  FileEdit,
-  BookOpen,
-  GraduationCap,
-  Loader2,
-  AlertTriangle,
-} from "lucide-react";
+import { BookOpen, GraduationCap, Loader2, AlertTriangle } from "lucide-react";
 import {
   sampleCurriculumCourses,
   getSectionDisplayName,
@@ -42,6 +34,8 @@ import useProgramProposals from "@/hooks/department/useProgramProposal";
 import useCourseDepartmentRevision from "@/hooks/shared/useCourseDepartmentRevision";
 
 import { useToast } from "@/hooks/use-toast";
+import { ProgramHeader } from "@/components/commons/program-details/program-header";
+import { ProgramSummary } from "@/components/commons/program-details/program-summary";
 
 interface ProgramRevisionReviewProps {
   proposalId: number;
@@ -278,87 +272,26 @@ export default function ProgramRevisionReview({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className=" bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Program Information Header */}
-        <div className="bg-white rounded-lg border shadow-sm">
-          <div className="p-6 border-b">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {programData.program.name} ({programData.program.abbreviation}
-                  )
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  Review and take action on the proposed program
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleApprove}
-                  className="bg-green-600 hover:bg-green-700"
-                  disabled={submitProposalReview.isPending}
-                >
-                  {submitProposalReview.isPending ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Check className="w-4 h-4 mr-2" />
-                  )}
-                  Approve
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleRequestRevisions}
-                  className="border-orange-200 text-orange-700 hover:bg-orange-50"
-                  disabled={submitProposalReview.isPending}
-                >
-                  <FileEdit className="w-4 h-4 mr-2" />
-                  Request Revisions
-                </Button>
-              </div>
-            </div>
-          </div>
+        <ProgramHeader
+          programName={transformedData.program.name}
+          programAbbreviation={transformedData.program.abbreviation}
+          actionTaken={""}
+          onApprove={handleApprove}
+          onRevise={handleRequestRevisions}
+          // onReject={handleReject}
+          role="Dean"
+        />
 
-          {/* Program Basic Information */}
-          <div className="p-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">
-                  {programData.program.name} ({programData.program.abbreviation}
-                  )
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div>
-                    <p className="text-sm text-gray-600">Program Name</p>
-                    <p className="font-medium">
-                      {transformedData.program.name}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Abbreviation</p>
-                    <p className="font-medium">
-                      {transformedData.program.abbreviation}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Curriculum Name</p>
-                    <p className="font-medium">
-                      {transformedData.curriculum.name}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Total Courses</p>
-                    <p className="font-medium">
-                      {transformedData.courses.length}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        {/* Program Summary */}
+        <ProgramSummary
+          programName={transformedData.program.name}
+          programAbbreviation={transformedData.program.abbreviation}
+          curriculumName={transformedData.curriculum.name}
+          totalCourses={transformedData.curriculum_courses.length}
+        />
 
         {/* Revision Tabs */}
         <Tabs
