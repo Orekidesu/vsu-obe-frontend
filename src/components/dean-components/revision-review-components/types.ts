@@ -77,7 +77,7 @@ interface RawCourseData {
   };
   course_category: RawCourseCategory;
   semester: RawSemester;
-  units: string;
+  units: number | string;
   is_in_revision: boolean;
   is_completed: boolean;
   course_outcomes?: RawCourseOutcome[];

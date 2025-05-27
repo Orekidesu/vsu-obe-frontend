@@ -40,7 +40,7 @@ export interface CourseData {
     year: number;
     sem: string;
   };
-  units: string;
+  units: string | number;
   is_in_revision: boolean;
   is_completed: boolean;
   course_outcomes?: RawCourseOutcome[]; // This could be defined in more detail if needed

@@ -6,10 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { BookOpen, GraduationCap, Loader2, AlertTriangle } from "lucide-react";
-import {
-  sampleCurriculumCourses,
-  getSectionDisplayName,
-} from "@/store/revision/sample-data/proposalData";
+import { getSectionDisplayName } from "@/store/revision/sample-data/proposalData";
 
 import {
   TransformedProgramData,
@@ -32,6 +29,8 @@ import { ProgramRevisionTabs } from "./revision-tabs/ProgramRevisionTabs";
 import { CourseRevisionTabs } from "./revision-tabs/CourseRevisionTabs";
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import useCourseDepartmentRevision from "@/hooks/shared/useCourseDepartmentRevision";
+import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
+import { useQueries } from "@tanstack/react-query";
 
 import { useToast } from "@/hooks/use-toast";
 import { ProgramHeader } from "@/components/commons/program-details/program-header";
@@ -68,6 +67,11 @@ export default function ProgramRevisionReview({
     error: revisionsError,
   } = useCourseDepartmentRevision(proposalId, { role: "dean" });
 
+  const { getCurriculumCourseFromCache } = useCurriculumCourses({
+    role: "dean",
+    includeOutcomes: true,
+  });
+
   // Transform the fetched API data
   useEffect(() => {
     if (programData) {
@@ -84,16 +88,20 @@ export default function ProgramRevisionReview({
   };
 
   // Get courses that have revisions
-  const coursesWithRevisions =
-    revisionData?.committee_revisions.map((courseRev) => {
-      const courseData = sampleCurriculumCourses.data.find(
-        (course) => course.id === courseRev.curriculum_course_id
-      );
-      return {
-        ...courseRev,
-        courseData,
-      };
-    }) || [];
+  const courseQueries = useQueries({
+    queries: (revisionData?.committee_revisions || []).map((courseRev) => ({
+      ...getCurriculumCourseFromCache(courseRev.curriculum_course_id),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    })),
+  });
+
+  const isLoadingCourses = courseQueries.some((query) => query.isLoading);
+  const coursesWithRevisions = (revisionData?.committee_revisions || []).map(
+    (courseRev, index) => ({
+      ...courseRev,
+      courseData: courseQueries[index].data,
+    })
+  );
 
   const handleApprove = () => {
     // Call API to approve the proposal
@@ -222,7 +230,7 @@ export default function ProgramRevisionReview({
   };
 
   // Loading state for either program data or revisions
-  const isLoading = isLoadingProgram || isLoadingRevisions;
+  const isLoading = isLoadingProgram || isLoadingRevisions || isLoadingCourses;
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
@@ -333,7 +341,7 @@ export default function ProgramRevisionReview({
         {/* Course Revisions Tab */}
         <TabsContent value="courses" className="space-y-4">
           <CourseRevisionTabs
-            coursesWithRevisions={coursesWithRevisions}
+            coursesWithRevisions={coursesWithRevisions || []}
             openSections={openSections}
             toggleSection={toggleSection}
           />
