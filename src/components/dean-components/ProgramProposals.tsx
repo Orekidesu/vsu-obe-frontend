@@ -9,6 +9,7 @@ import { ProposalCard } from "./program-proposal-components/ProposalCard";
 import { EmptyProposalState } from "./program-proposal-components/EmptyProposalState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 
 import {
   AlertDialog,
@@ -20,19 +21,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-type Program = {
-  id: string;
-  name: string;
-  date: string;
-};
-
-type ProgramProposal = Program & {
-  proposedBy: string;
-  proposedDate: string;
-  department?: string;
-  status: string;
-};
 
 type TabType = "pending" | "revision";
 
@@ -48,36 +36,28 @@ export default function ProgramProposals() {
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [pendingApprovalProposal, setPendingApprovalProposal] =
-    useState<ProgramProposal | null>(null);
-
-  // Map API data structure to component's expected format
-  const formattedProposals: ProgramProposal[] =
-    programProposals?.map((proposal) => ({
-      id: proposal.id.toString(),
-      name: proposal.program.name,
-      date: new Date(proposal.updated_at).toLocaleDateString(),
-      proposedBy: proposal.proposed_by
-        ? `${proposal.proposed_by.first_name} ${proposal.proposed_by.last_name}`
-        : "Unknown",
-      proposedDate: new Date(proposal.created_at).toLocaleDateString(),
-      department: proposal.program.department_abbreviation,
-      status: proposal.status.toLowerCase(),
-    })) || [];
+    useState<ProgramProposalResponse | null>(null);
 
   // Filter proposals by status
-  const pendingProposals = formattedProposals.filter(
-    (proposal) => proposal.status === "review"
-  );
+  const pendingProposals =
+    programProposals?.filter(
+      (proposal) =>
+        proposal.status.toLowerCase() === "review" &&
+        proposal.has_revision_record === false
+    ) || [];
 
-  const revisionProposals = formattedProposals.filter(
-    (proposal) => proposal.status === "revision"
-  );
+  const revisionProposals =
+    programProposals?.filter(
+      (proposal) =>
+        proposal.status.toLowerCase() === "review" &&
+        proposal.has_revision_record === true
+    ) || [];
 
   // Get active proposals list based on selected tab
   const activeProposals =
     activeTab === "pending" ? pendingProposals : revisionProposals;
 
-  const handleApproveClick = (proposal: ProgramProposal) => {
+  const handleApproveClick = (proposal: ProgramProposalResponse) => {
     setPendingApprovalProposal(proposal);
     setConfirmDialogOpen(true);
   };
@@ -86,12 +66,7 @@ export default function ProgramProposals() {
     if (!pendingApprovalProposal) return;
 
     try {
-      const proposalId = parseInt(pendingApprovalProposal.id);
-
-      // Handle case where ID doesn't parse to a valid number
-      if (isNaN(proposalId)) {
-        throw new Error("Invalid proposal ID");
-      }
+      const proposalId = pendingApprovalProposal.id;
 
       const reviewData = {
         status: "approved",
@@ -107,7 +82,7 @@ export default function ProgramProposals() {
             // Show success toast
             toast({
               title: "Proposal Approved",
-              description: `"${pendingApprovalProposal.name}" has been approved successfully.`,
+              description: `"${pendingApprovalProposal.program.name}" has been approved successfully.`,
               variant: "success",
             });
 
@@ -145,16 +120,19 @@ export default function ProgramProposals() {
     }
   };
 
-  const handleViewDetails = (proposal: ProgramProposal) => {
+  const handleViewDetails = (proposal: ProgramProposalResponse) => {
     router.push(`/dean/proposals/all-programs/${proposal.id}`);
+  };
+  const handleViewRevisionDetails = (proposal: ProgramProposalResponse) => {
+    router.push(`/dean/proposals/all-programs/${proposal.id}/revision`);
   };
 
   // Get unique departments for filtering
   const departments = Array.from(
     new Set(
       activeProposals
-        .map((proposal) => proposal.department)
-        .filter(Boolean) as string[]
+        .map((proposal) => proposal.program.department_abbreviation)
+        .filter(Boolean)
     )
   ).sort();
 
@@ -162,13 +140,16 @@ export default function ProgramProposals() {
   const filteredProposals = activeProposals.filter((proposal) => {
     // First filter by search term
     const matchesSearch =
-      proposal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proposal.proposedBy.toLowerCase().includes(searchTerm.toLowerCase());
+      proposal.program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (proposal.proposed_by &&
+        `${proposal.proposed_by.first_name} ${proposal.proposed_by.last_name}`
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()));
 
     // Then filter by department if not "all"
     const matchesDepartment =
       selectedDepartment === "all" ||
-      proposal.department === selectedDepartment;
+      proposal.program.department_abbreviation === selectedDepartment;
 
     return matchesSearch && matchesDepartment;
   });
@@ -239,9 +220,21 @@ export default function ProgramProposals() {
                 {filteredProposals.map((proposal) => (
                   <ProposalCard
                     key={proposal.id}
-                    proposal={proposal}
-                    onApprove={handleApproveClick}
-                    onViewDetails={handleViewDetails}
+                    proposal={{
+                      id: proposal.id.toString(),
+                      name: proposal.program.name,
+                      date: new Date(proposal.updated_at).toLocaleDateString(),
+                      proposedBy: proposal.proposed_by
+                        ? `${proposal.proposed_by.first_name} ${proposal.proposed_by.last_name}`
+                        : "Unknown",
+                      proposedDate: new Date(
+                        proposal.created_at
+                      ).toLocaleDateString(),
+                      department: proposal.program.department_abbreviation,
+                      status: proposal.status.toLowerCase(),
+                    }}
+                    onApprove={() => handleApproveClick(proposal)}
+                    onViewDetails={() => handleViewDetails(proposal)}
                     status="pending"
                   />
                 ))}
@@ -274,9 +267,21 @@ export default function ProgramProposals() {
                 {filteredProposals.map((proposal) => (
                   <ProposalCard
                     key={proposal.id}
-                    proposal={proposal}
-                    onApprove={handleApproveClick}
-                    onViewDetails={handleViewDetails}
+                    proposal={{
+                      id: proposal.id.toString(),
+                      name: proposal.program.name,
+                      date: new Date(proposal.updated_at).toLocaleDateString(),
+                      proposedBy: proposal.proposed_by
+                        ? `${proposal.proposed_by.first_name} ${proposal.proposed_by.last_name}`
+                        : "Unknown",
+                      proposedDate: new Date(
+                        proposal.created_at
+                      ).toLocaleDateString(),
+                      department: proposal.program.department_abbreviation,
+                      status: proposal.status.toLowerCase(),
+                    }}
+                    onApprove={() => handleApproveClick(proposal)}
+                    onViewDetails={() => handleViewRevisionDetails(proposal)}
                     status="review"
                   />
                 ))}
@@ -300,8 +305,8 @@ export default function ProgramProposals() {
             <AlertDialogTitle>Confirm Approval</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to approve &quot;
-              {pendingApprovalProposal?.name}&quot;? This action cannot be
-              undone.
+              {pendingApprovalProposal?.program.name}&quot;? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
