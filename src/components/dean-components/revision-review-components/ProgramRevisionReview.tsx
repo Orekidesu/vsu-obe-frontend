@@ -40,6 +40,7 @@ import { ProgramHeader } from "@/components/commons/program-details/program-head
 import { ProgramSummary } from "@/components/commons/program-details/program-summary";
 import { ProgramStructure } from "@/components/commons/program-details/program-structure";
 import { CurriculumCourses as CurriculumCoursesOverview } from "@/components/commons/program-details/curriculum-courses";
+import { ReviseDialog } from "@/components/commons/program-details/revise-dialog";
 
 import { CourseDetailsFormat } from "../program-review-components/types/CourseDetails";
 import { CourseDetailsTabs } from "../program-review-components/CourseDetailsTabs";
@@ -57,6 +58,15 @@ interface CurriculumCourse {
   descriptive_title: string;
 }
 
+interface RevisionRequest {
+  section: string;
+  details: string;
+  type: "section" | "course";
+  courseId?: string;
+  courseName?: string;
+  courseSection?: string;
+}
+
 export default function ProgramRevisionReview({
   proposalId,
 }: ProgramRevisionReviewProps) {
@@ -67,6 +77,15 @@ export default function ProgramRevisionReview({
   const { getProgramProposalFromCache, submitProposalReview } =
     useProgramProposals({ role: "dean" });
   const { toast } = useToast();
+
+  const [reviseDialogOpen, setReviseDialogOpen] = useState(false);
+  const [currentSection, setCurrentSection] = useState("");
+  const [currentDetails, setCurrentDetails] = useState("");
+  const [revisionRequests, setRevisionRequests] = useState<RevisionRequest[]>(
+    []
+  );
+  const [currentCourse, setCurrentCourse] = useState("");
+  const [currentCourseSection, setCurrentCourseSection] = useState("");
 
   const [dynamicCourseDetailsMap, setDynamicCourseDetailsMap] = useState<
     Record<number, CourseDetailsFormat>
@@ -189,6 +208,92 @@ export default function ProgramRevisionReview({
     return grouped;
   }, [transformedData]);
 
+  // Add this function to handle removing revision requests
+  const removeRevisionRequest = (index: number) => {
+    const updatedRequests = [...revisionRequests];
+    updatedRequests.splice(index, 1);
+    setRevisionRequests(updatedRequests);
+  };
+
+  // Add function to transform revision requests for API submission
+  const transformRevisionData = (requests: RevisionRequest[]) => {
+    const result: {
+      status: string;
+      department_level: Array<{ section: string; details: string }>;
+      committee_level: Array<{
+        curriculum_course_id: number;
+        section: string;
+        details: string;
+      }>;
+    } = {
+      status: "revision",
+      department_level: [],
+      committee_level: [],
+    };
+
+    requests.forEach((request) => {
+      if (request.type === "section") {
+        // Handle program-level revisions
+        result.department_level.push({
+          section: request.section,
+          details: request.details,
+        });
+      } else if (request.type === "course" && request.courseId) {
+        // Handle course-level revisions
+        result.committee_level.push({
+          curriculum_course_id: parseInt(request.courseId),
+          section: request.courseSection || "",
+          details: request.details,
+        });
+      }
+    });
+
+    return result;
+  };
+
+  // Add function to confirm revision request
+  const confirmRevise = () => {
+    try {
+      // Transform the data before sending to the API
+      const apiData = transformRevisionData(revisionRequests);
+
+      submitProposalReview.mutate(
+        {
+          proposalId,
+          reviewData: apiData,
+        },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Revision Requested",
+              description: `Revision requests for "${transformedData?.program.name}" have been submitted successfully.`,
+              variant: "success",
+            });
+            setReviseDialogOpen(false);
+            setRevisionRequests([]);
+          },
+          onError: () => {
+            toast({
+              title: "Revision Request Failed",
+              description:
+                "Failed to submit revision requests. Please try again.",
+              variant: "destructive",
+            });
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error processing revision request:", error);
+      toast({
+        title: "Unexpected Error",
+        description:
+          "An unexpected error occurred while processing your revision request.",
+        variant: "destructive",
+      });
+      setReviseDialogOpen(false);
+    }
+  };
+
   const handleApprove = () => {
     // Call API to approve the proposal
     submitProposalReview.mutate(
@@ -217,9 +322,20 @@ export default function ProgramRevisionReview({
     );
   };
 
+  // Add this code to prepare courses for the ReviseDialog
+  const coursesForRevision = useMemo(() => {
+    if (!programData?.curriculum?.courses) return [];
+
+    return programData.curriculum.courses.map((course) => ({
+      id: course.id.toString(),
+      code: course.course.code,
+      descriptive_title: course.course.descriptive_title,
+    }));
+  }, [programData]);
+
+  // Modify the handleRequestRevisions function to open the dialog
   const handleRequestRevisions = () => {
-    // In a real implementation, this would open a form to request revisions
-    console.log("Requesting additional revisions...");
+    setReviseDialogOpen(true);
   };
 
   // Function to render section content based on section type
@@ -523,6 +639,22 @@ export default function ProgramRevisionReview({
           </TabsContent>
         </Tabs>
       )}
+      <ReviseDialog
+        open={reviseDialogOpen}
+        onOpenChange={setReviseDialogOpen}
+        currentSection={currentSection}
+        setCurrentSection={setCurrentSection}
+        currentDetails={currentDetails}
+        setCurrentDetails={setCurrentDetails}
+        revisionRequests={revisionRequests}
+        removeRevisionRequest={removeRevisionRequest}
+        onConfirm={confirmRevise}
+        courses={coursesForRevision}
+        currentCourse={currentCourse}
+        setCurrentCourse={setCurrentCourse}
+        currentCourseSection={currentCourseSection}
+        setCurrentCourseSection={setCurrentCourseSection}
+      />
     </div>
   );
 }
