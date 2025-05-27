@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, Clock, FileEdit, Search } from "lucide-react";
+import { CheckCircle, Clock, FileEdit, Search, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
@@ -20,6 +20,18 @@ import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import useApi from "@/hooks/useApi";
 import { useQueryClient } from "@tanstack/react-query";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useEffect } from "react";
+
 export default function ProgramTabs() {
   const { programs = [], isLoading: programsLoading } = usePrograms();
   const { programProposals = [], isLoading: proposalsLoading } =
@@ -33,6 +45,9 @@ export default function ProgramTabs() {
 
   const api = useApi();
   const queryClient = useQueryClient();
+
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [hasSavedForm, setHasSavedForm] = useState(false);
 
   // Make sure we have session and Department.id before filtering
   const departmentId = session?.Department?.id;
@@ -98,6 +113,37 @@ export default function ProgramTabs() {
       total,
     };
   };
+  // Check if there's a saved form in localStorage
+  useEffect(() => {
+    const savedForm = localStorage.getItem("program-wizard-storage");
+    setHasSavedForm(!!savedForm);
+  }, []);
+
+  // Function to navigate to the new proposal page
+  const navigateToNewProposal = () => {
+    if (hasSavedForm) {
+      setShowConfirmDialog(true);
+    } else {
+      router.push("/department/proposals/new-program");
+    }
+  };
+
+  // Function to continue previous form
+  const continuePreviousForm = () => {
+    router.push("/department/proposals/new-program");
+  };
+
+  // Function to start fresh after confirmation
+  const startFreshProposal = () => {
+    localStorage.removeItem("program-wizard-storage");
+    router.push("/department/proposals/new-program");
+  };
+
+  // Show the add button in the header only for the active tab IF that tab has content
+  const showHeaderAddButton =
+    (activeTab === "active" && activePrograms.length > 0) ||
+    (activeTab === "pending" && pendingProposals.length > 0) ||
+    (activeTab === "revision" && revisionProposals.length > 0);
 
   // Handle submission for review
   const handleSubmitForReview = async (proposalId: number) => {
@@ -155,29 +201,30 @@ export default function ProgramTabs() {
 
   const isLoading = programsLoading || proposalsLoading;
 
-  // Function to navigate to the new proposal page
-  const navigateToNewProposal = () => {
-    router.push("/department/proposals/new-program");
-  };
-
-  // Show the add button in the header only for the active tab IF that tab has content
-  const showHeaderAddButton =
-    (activeTab === "active" && activePrograms.length > 0) ||
-    (activeTab === "pending" && pendingProposals.length > 0) ||
-    (activeTab === "revision" && revisionProposals.length > 0);
-
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between">
         <h3 className="text-lg font-bold mb-6">Programs Dashboard</h3>
-        {showHeaderAddButton && (
-          <Button onClick={navigateToNewProposal}>
-            <span>
-              <Plus />
-            </span>
-            Add New Proposal
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {hasSavedForm && (
+            <Button
+              onClick={continuePreviousForm}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <History className="h-4 w-4" />
+              Continue Draft
+            </Button>
+          )}
+          {showHeaderAddButton && (
+            <Button onClick={navigateToNewProposal}>
+              <span>
+                <Plus />
+              </span>
+              Add New Proposal
+            </Button>
+          )}
+        </div>
       </div>
 
       <Tabs
@@ -339,6 +386,27 @@ export default function ProgramTabs() {
           )}
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard Draft?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have an unsaved program proposal draft. Starting a new
+              proposal will discard your previous work.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={startFreshProposal}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Discard Draft & Start New
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -350,10 +418,31 @@ function EmptyState({
   message: string;
   onClick?: () => void;
 }) {
+  const [hasSavedForm, setHasSavedForm] = useState(false);
+
+  const router = useRouter();
+  // Check if there's a saved form
+  useEffect(() => {
+    const savedForm = localStorage.getItem("program-wizard-storage");
+    setHasSavedForm(!!savedForm);
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 border rounded-lg bg-gray-50">
       <p className="text-gray-500 mb-4">{message}</p>
-      <Button onClick={onClick}>Add New Program</Button>
+      <div className="flex gap-3">
+        {hasSavedForm && (
+          <Button
+            onClick={() => router.push("/department/proposals/new-program")}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <History className="h-4 w-4" />
+            Continue Draft
+          </Button>
+        )}
+        <Button onClick={onClick}>Add New Program</Button>
+      </div>
     </div>
   );
 }
