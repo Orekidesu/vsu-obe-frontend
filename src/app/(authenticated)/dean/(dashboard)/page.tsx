@@ -18,7 +18,7 @@ const DashboardPage = () => {
     (program) => program.status === "active"
   );
   const pendingPrograms = programs?.filter(
-    (program) => program.status === "review"
+    (program) => program.status === "pending"
   );
 
   if (programError) {
@@ -34,22 +34,22 @@ const DashboardPage = () => {
           <>
             <Skeleton className="w-full h-40" />
             <Skeleton className="w-full h-40" />
-            <Skeleton className="w-full h-40" />
-            <Skeleton className="w-full h-40" />
+            {/* <Skeleton className="w-full h-40" />
+            <Skeleton className="w-full h-40" /> */}
           </>
         ) : (
           <>
             <CustomCard2
               title="All Programs"
               value={activePrograms?.length || 0}
-              description="Total number of approved programs in your department"
+              description="Total number of approved programs in your faculty"
             />
             <CustomCard2
               title="Pending Programs"
               value={pendingPrograms?.length || 0}
               description="Total number of programs that is yet to be approved"
             />
-            <CustomCard2
+            {/* <CustomCard2
               title="All Syllabi"
               value={5}
               description="Total number of approved Syllabi"
@@ -58,7 +58,7 @@ const DashboardPage = () => {
               title="Pending Syllabi"
               value={10}
               description="Total number of Syllabi that is yet to be approved"
-            />
+            /> */}
           </>
         )}
       </div>
