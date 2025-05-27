@@ -11,6 +11,7 @@ interface ProgramSummaryProps {
   status?: string;
   showFullProposal?: boolean;
   onToggleView?: (showFull: boolean) => void;
+  role?: string;
 }
 
 export function ProgramSummary({
@@ -21,6 +22,7 @@ export function ProgramSummary({
   status,
   showFullProposal = false,
   onToggleView,
+  role,
 }: ProgramSummaryProps) {
   const getBadgeColor = (status?: string) => {
     if (!status) return "bg-gray-100 text-gray-800";
@@ -70,7 +72,7 @@ export function ProgramSummary({
             )}
           </div>
 
-          {isRevision && (
+          {isRevision && role === "dean" && (
             <Button
               variant={showFullProposal ? "secondary" : "outline"}
               size="sm"

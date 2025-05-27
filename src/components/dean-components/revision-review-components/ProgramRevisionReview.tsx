@@ -6,6 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, GraduationCap, Loader2, AlertTriangle } from "lucide-react";
 import { getSectionDisplayName } from "@/store/revision/sample-data/proposalData";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import {
   TransformedProgramData,
@@ -86,6 +96,8 @@ export default function ProgramRevisionReview({
   );
   const [currentCourse, setCurrentCourse] = useState("");
   const [currentCourseSection, setCurrentCourseSection] = useState("");
+
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const [dynamicCourseDetailsMap, setDynamicCourseDetailsMap] = useState<
     Record<number, CourseDetailsFormat>
@@ -294,7 +306,11 @@ export default function ProgramRevisionReview({
     }
   };
 
-  const handleApprove = () => {
+  const handleApproveClick = () => {
+    setConfirmDialogOpen(true);
+  };
+
+  const handleApproveConfirm = () => {
     // Call API to approve the proposal
     submitProposalReview.mutate(
       {
@@ -307,9 +323,10 @@ export default function ProgramRevisionReview({
         onSuccess: () => {
           toast({
             title: "Success",
-            description: "Program proposal has been approved",
+            description: `"${transformedData?.program.name}" has been approved successfully.`,
             variant: "success",
           });
+          setConfirmDialogOpen(false);
         },
         onError: (error) => {
           toast({
@@ -317,6 +334,7 @@ export default function ProgramRevisionReview({
             description: error.message || "Failed to approve proposal",
             variant: "destructive",
           });
+          setConfirmDialogOpen(false);
         },
       }
     );
@@ -488,12 +506,11 @@ export default function ProgramRevisionReview({
         programName={transformedData.program.name}
         programAbbreviation={transformedData.program.abbreviation}
         actionTaken={""}
-        onApprove={handleApprove}
+        onApprove={handleApproveClick}
         onRevise={handleRequestRevisions}
         // onReject={handleReject}
         role="Dean"
       />
-
       {/* Program Summary */}
       <ProgramSummary
         programName={transformedData.program.name}
@@ -502,9 +519,9 @@ export default function ProgramRevisionReview({
         totalCourses={transformedData.curriculum_courses.length}
         status="revision"
         showFullProposal={showFullProposal}
+        role="dean"
         onToggleView={setShowFullProposal}
       />
-
       {/* Revision Tabs */}
       {showFullProposal ? (
         // Full Proposal View
@@ -655,6 +672,27 @@ export default function ProgramRevisionReview({
         currentCourseSection={currentCourseSection}
         setCurrentCourseSection={setCurrentCourseSection}
       />
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Approval</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to approve &quot;
+              {transformedData.program.name}&quot;? This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleApproveConfirm}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              Approve
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
