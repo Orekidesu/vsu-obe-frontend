@@ -15,7 +15,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import {
-  sampleRevisionRequests,
   sampleCurriculumCourses,
   getSectionDisplayName,
 } from "@/store/revision/sample-data/proposalData";
@@ -40,6 +39,8 @@ import { CurriculumCourses } from "@/components/dean-components/revision-review-
 import { ProgramRevisionTabs } from "./revision-tabs/ProgramRevisionTabs";
 import { CourseRevisionTabs } from "./revision-tabs/CourseRevisionTabs";
 import useProgramProposals from "@/hooks/department/useProgramProposal";
+import useCourseDepartmentRevision from "@/hooks/shared/useCourseDepartmentRevision";
+
 import { useToast } from "@/hooks/use-toast";
 
 interface ProgramRevisionReviewProps {
@@ -60,12 +61,18 @@ export default function ProgramRevisionReview({
   // Fetch program proposal data
   const {
     data: programData,
-    isLoading,
-    error,
+    isLoading: isLoadingProgram,
+    error: programError,
   } = useQuery({
     ...getProgramProposalFromCache(proposalId),
     enabled: !!proposalId,
   });
+
+  const {
+    revisionData,
+    isLoading: isLoadingRevisions,
+    error: revisionsError,
+  } = useCourseDepartmentRevision(proposalId, { role: "dean" });
 
   // Transform the fetched API data
   useEffect(() => {
@@ -82,23 +89,17 @@ export default function ProgramRevisionReview({
     }));
   };
 
-  // For now, we're still using sample data for revisions and courses
-  // In a real implementation, you would fetch this data from the API as well
-  const revisionData = sampleRevisionRequests;
-  const coursesData = sampleCurriculumCourses.data;
-
   // Get courses that have revisions
-  const coursesWithRevisions = revisionData.committee_revisions.map(
-    (courseRev) => {
-      const courseData = coursesData.find(
+  const coursesWithRevisions =
+    revisionData?.committee_revisions.map((courseRev) => {
+      const courseData = sampleCurriculumCourses.data.find(
         (course) => course.id === courseRev.curriculum_course_id
       );
       return {
         ...courseRev,
         courseData,
       };
-    }
-  );
+    }) || [];
 
   const handleApprove = () => {
     // Call API to approve the proposal
@@ -226,7 +227,8 @@ export default function ProgramRevisionReview({
     }
   };
 
-  // Loading state
+  // Loading state for either program data or revisions
+  const isLoading = isLoadingProgram || isLoadingRevisions;
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
@@ -238,19 +240,20 @@ export default function ProgramRevisionReview({
     );
   }
 
-  // Error state
-  if (error || !programData) {
+  // Error state for either program data or revisions
+  const error = programError || revisionsError;
+  if (error || !programData || !revisionData) {
     return (
       <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
         <div className="flex flex-col items-center gap-2 max-w-md text-center">
           <AlertTriangle className="h-8 w-8 text-red-500" />
           <h3 className="text-lg font-semibold text-red-600">
-            Failed to load program proposal
+            Failed to load data
           </h3>
           <p className="text-gray-600">
             {error instanceof Error
               ? error.message
-              : "Could not load the requested proposal data."}
+              : "Could not load the requested data."}
           </p>
         </div>
       </div>
