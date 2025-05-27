@@ -1,11 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 interface ProgramSummaryProps {
   programName: string;
   programAbbreviation: string;
   curriculumName: string;
   totalCourses: number;
-  status?: string; //
+  status?: string;
 }
 
 export function ProgramSummary({
@@ -47,19 +48,34 @@ export function ProgramSummary({
     return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
   };
 
+  const isRevision = status?.toLowerCase() === "revision";
+
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle className="text-2xl">
-          {/* {programName} ({programAbbreviation})
-           */}
-          <span>
-            {programName} ({programAbbreviation})
-          </span>
-          {status && (
-            <Badge className={`ml-2 ${getBadgeColor(status)}`}>
-              {getFormattedStatus(status)}
-            </Badge>
+        <CardTitle className="text-2xl flex items-center flex-wrap gap-2">
+          <div>
+            <span>{programName}</span>
+
+            <span>({programAbbreviation})</span>
+
+            {status && (
+              <Badge className={`${getBadgeColor(status)}`}>
+                {getFormattedStatus(status)}
+              </Badge>
+            )}
+          </div>
+
+          {isRevision && (
+            <div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="px-2 py-1 h-auto text-xs border-primary hover:bg-hover"
+              >
+                <span className="flex items-center">See Full Proposal</span>
+              </Button>
+            </div>
           )}
         </CardTitle>
       </CardHeader>
