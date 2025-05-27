@@ -29,7 +29,8 @@ import {
   Lightbulb,
 } from "lucide-react";
 
-import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
+import { useCourseRevisionStore } from "./store-provider/CourseRevisionStoreProvider";
+
 import {
   sampleCourseRevisionData,
   getCourseRevisionSectionDisplayName,
@@ -48,8 +49,8 @@ export function CourseRevisionReview({
   onEditSection,
   isSubmitting = false,
 }: CourseRevisionReviewProps) {
-  const { currentCourse, modifiedSections, courseOutcomes } =
-    useCourseRevisionStore();
+  const store = useCourseRevisionStore();
+  const { currentCourse, modifiedSections, courseOutcomes } = store();
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set()

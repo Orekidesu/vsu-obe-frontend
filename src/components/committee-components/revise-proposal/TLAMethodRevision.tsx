@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, AlertTriangle, RotateCcw } from "lucide-react";
-import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
+import { useCourseRevisionStore } from "./store-provider/CourseRevisionStoreProvider";
 import { Badge } from "@/components/ui/badge";
 
 // Import modular components
@@ -64,13 +64,14 @@ interface TLAMethodsRevisionProps {
 export function TLAMethodsRevision({
   onValidityChange,
 }: TLAMethodsRevisionProps) {
+  const store = useCourseRevisionStore();
   const {
     courseOutcomes,
     updateCourseOutcome,
     resetTLAMethods,
     modifiedSections,
     markSectionAsModified,
-  } = useCourseRevisionStore();
+  } = store();
   const [selectedCOIndex, setSelectedCOIndex] = useState(0);
   const [customTeachingMethods, setCustomTeachingMethods] = useState<string[]>(
     []

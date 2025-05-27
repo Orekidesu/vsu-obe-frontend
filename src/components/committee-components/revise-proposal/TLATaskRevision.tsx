@@ -20,7 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useCourseRevisionStore } from "@/store/revision/course-revision-store";
+import { useCourseRevisionStore } from "./store-provider/CourseRevisionStoreProvider";
+
 import {
   Plus,
   Trash2,
@@ -61,13 +62,14 @@ interface TLATasksRevisionProps {
 }
 
 export function TLATasksRevision({ onValidityChange }: TLATasksRevisionProps) {
+  const store = useCourseRevisionStore();
   const {
     courseOutcomes,
     updateCourseOutcome,
     resetTLATasks,
     modifiedSections,
     markSectionAsModified,
-  } = useCourseRevisionStore();
+  } = store();
   const [selectedCOIndex, setSelectedCOIndex] = useState(0);
   const [customTools, setCustomTools] = useState<string[]>([]);
   const [isAddingCustomTool, setIsAddingCustomTool] = useState<{
