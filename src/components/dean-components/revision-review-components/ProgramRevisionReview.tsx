@@ -272,74 +272,72 @@ export default function ProgramRevisionReview({
   }
 
   return (
-    <div className=" bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Program Information Header */}
-        <ProgramHeader
-          programName={transformedData.program.name}
-          programAbbreviation={transformedData.program.abbreviation}
-          actionTaken={""}
-          onApprove={handleApprove}
-          onRevise={handleRequestRevisions}
-          // onReject={handleReject}
-          role="Dean"
-        />
+    <div className="">
+      {/* Program Information Header */}
+      <ProgramHeader
+        programName={transformedData.program.name}
+        programAbbreviation={transformedData.program.abbreviation}
+        actionTaken={""}
+        onApprove={handleApprove}
+        onRevise={handleRequestRevisions}
+        // onReject={handleReject}
+        role="Dean"
+      />
 
-        {/* Program Summary */}
-        <ProgramSummary
-          programName={transformedData.program.name}
-          programAbbreviation={transformedData.program.abbreviation}
-          curriculumName={transformedData.curriculum.name}
-          totalCourses={transformedData.curriculum_courses.length}
-        />
+      {/* Program Summary */}
+      <ProgramSummary
+        programName={transformedData.program.name}
+        programAbbreviation={transformedData.program.abbreviation}
+        curriculumName={transformedData.curriculum.name}
+        totalCourses={transformedData.curriculum_courses.length}
+      />
 
-        {/* Revision Tabs */}
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="space-y-6"
-        >
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="program" className="flex items-center gap-2">
-              <GraduationCap className="w-4 h-4" />
-              Program Revisions
-              {revisionData.department_revisions.length > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {revisionData.department_revisions.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="courses" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Course Revisions
-              {coursesWithRevisions.length > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {coursesWithRevisions.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-          </TabsList>
+      {/* Revision Tabs */}
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="program" className="flex items-center gap-2">
+            <GraduationCap className="w-4 h-4" />
+            Program Revisions
+            {revisionData.department_revisions.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {revisionData.department_revisions.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="courses" className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4" />
+            Course Revisions
+            {coursesWithRevisions.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {coursesWithRevisions.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+        </TabsList>
 
-          {/* Program Revisions Tab */}
-          <TabsContent value="program" className="space-y-4">
-            <ProgramRevisionTabs
-              revisionData={revisionData}
-              openSections={openSections}
-              toggleSection={toggleSection}
-              renderSectionContent={renderSectionContent}
-            />
-          </TabsContent>
+        {/* Program Revisions Tab */}
+        <TabsContent value="program" className="space-y-4">
+          <ProgramRevisionTabs
+            revisionData={revisionData}
+            openSections={openSections}
+            toggleSection={toggleSection}
+            renderSectionContent={renderSectionContent}
+          />
+        </TabsContent>
 
-          {/* Course Revisions Tab */}
-          <TabsContent value="courses" className="space-y-4">
-            <CourseRevisionTabs
-              coursesWithRevisions={coursesWithRevisions}
-              openSections={openSections}
-              toggleSection={toggleSection}
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
+        {/* Course Revisions Tab */}
+        <TabsContent value="courses" className="space-y-4">
+          <CourseRevisionTabs
+            coursesWithRevisions={coursesWithRevisions}
+            openSections={openSections}
+            toggleSection={toggleSection}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
