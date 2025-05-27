@@ -99,27 +99,43 @@ export const sampleRevisionRequests = {
         {
           id: 79,
           section: "course_outcomes",
-          details: "Course outcomes need to be more specific and measurable.",
+          details:
+            "Course outcomes need to be more specific and measurable. Current outcomes are too broad and don't clearly define what students should achieve.",
           created_at: "2025-05-26T12:58:16.000000Z",
         },
         {
           id: 80,
-          section: "po_mappings",
+          section: "abcd",
           details:
-            "PO mappings for this course need clarification and justification.",
+            "ABCD components need to be more clearly defined. The Audience, Behavior, Condition, and Degree elements should be more specific and measurable.",
           created_at: "2025-05-26T12:58:16.000000Z",
         },
         {
           id: 81,
-          section: "abcd",
-          details: "ABCD components need to be more clearly defined.",
+          section: "cpa",
+          details:
+            "CPA classification needs review. Some outcomes may be incorrectly classified as Cognitive when they should be Psychomotor or Affective.",
           created_at: "2025-05-26T12:58:16.000000Z",
         },
         {
           id: 82,
+          section: "po_mappings",
+          details:
+            "PO mappings for this course need clarification and justification. The contribution levels (I/E/D) should be better aligned with course content.",
+          created_at: "2025-05-26T12:58:16.000000Z",
+        },
+        {
+          id: 83,
           section: "tla_tasks",
           details:
-            "Assessment tasks need to better align with course outcomes.",
+            "Assessment tasks need to better align with course outcomes. Current tasks don't adequately measure all learning objectives and weights need adjustment.",
+          created_at: "2025-05-26T12:58:16.000000Z",
+        },
+        {
+          id: 84,
+          section: "tla_assessment_method",
+          details:
+            "Teaching and learning methods should include more hands-on activities and diverse assessment approaches to better support student learning.",
           created_at: "2025-05-26T12:58:16.000000Z",
         },
       ],
@@ -1099,7 +1115,7 @@ export const getSectionDisplayName = (sectionKey: string) => {
     cpa: "CPA Classification",
     po_mappings: "PO Mappings",
     tla_tasks: "TLA Assessment Tasks",
-    tla_methods: "TLA Methods",
+    tla_assessment_method: "TLA Methods",
   };
   return sectionNames[sectionKey] || sectionKey;
 };
