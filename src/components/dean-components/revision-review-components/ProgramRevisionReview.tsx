@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -38,9 +38,20 @@ import { useQueries } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { ProgramHeader } from "@/components/commons/program-details/program-header";
 import { ProgramSummary } from "@/components/commons/program-details/program-summary";
+import { ProgramStructure } from "@/components/commons/program-details/program-structure";
+import { CurriculumCourses as CurriculumCoursesOverview } from "@/components/commons/program-details/curriculum-courses";
 
 interface ProgramRevisionReviewProps {
   proposalId: number;
+}
+interface CurriculumCourse {
+  course_code: string;
+  category_code: string;
+  semester_year: number;
+  semester_name: string;
+  units: number;
+  code: string;
+  descriptive_title: string;
 }
 
 export default function ProgramRevisionReview({
@@ -107,6 +118,47 @@ export default function ProgramRevisionReview({
       courseData: courseQueries[index].data,
     })
   );
+
+  const getSemesterName = (semesterCode: string) => {
+    switch (semesterCode) {
+      case "first":
+        return "First Semester";
+      case "second":
+        return "Second Semester";
+      case "midyear":
+        return "Midyear";
+      default:
+        return semesterCode;
+    }
+  };
+
+  const groupedCourses = useMemo(() => {
+    if (!transformedData) return {};
+
+    const grouped: Record<string, CurriculumCourse[]> = {};
+
+    transformedData.semesters.forEach((sem) => {
+      const key = `${sem.year}-${sem.sem}`;
+
+      grouped[key] = transformedData.curriculum_courses
+        .filter(
+          (cc) => cc.semester_year === sem.year && cc.semester_name === sem.sem
+        )
+        .map((course) => {
+          const courseDetails = transformedData.courses.find(
+            (c) => c.code === course.course_code
+          );
+
+          return {
+            ...course,
+            code: course.course_code,
+            descriptive_title: courseDetails?.descriptive_title || "Unknown",
+          };
+        });
+    });
+
+    return grouped;
+  }, [transformedData]);
 
   const handleApprove = () => {
     // Call API to approve the proposal
@@ -315,7 +367,9 @@ export default function ProgramRevisionReview({
           <Tabs defaultValue="overview" className="mb-8">
             <TabsList className="mb-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
               <TabsTrigger value="mappings">Mappings</TabsTrigger>
+              <TabsTrigger value="courses">Courses</TabsTrigger>
             </TabsList>
 
             {/* Overview */}
@@ -324,6 +378,22 @@ export default function ProgramRevisionReview({
               <POSection pos={transformedData.pos} />
               <CourseCategoriesOverview
                 categories={transformedData.course_categories}
+              />
+            </TabsContent>
+
+            {/* Curriculum */}
+            <TabsContent value="curriculum" className="space-y-6">
+              <ProgramStructure
+                semesters={transformedData.semesters}
+                getSemesterName={getSemesterName}
+              />
+
+              {/* Create grouped courses for CurriculumCourses component */}
+              <CurriculumCoursesOverview
+                groupedCourses={groupedCourses}
+                courses={transformedData.courses}
+                categories={transformedData.course_categories}
+                getSemesterName={getSemesterName}
               />
             </TabsContent>
 
