@@ -374,7 +374,7 @@ export default function RevisionReviewPage(
                                 variant="outline"
                                 className="text-orange-700 border-orange-200"
                               >
-                                Revised
+                                Revised Section
                               </Badge>
                             </div>
                           </CardContent>
@@ -541,7 +541,7 @@ export default function RevisionReviewPage(
                                         variant="outline"
                                         className="text-orange-700 border-orange-200"
                                       >
-                                        Revision Required
+                                        Revised Section
                                       </Badge>
                                     </div>
                                   </CardContent>
