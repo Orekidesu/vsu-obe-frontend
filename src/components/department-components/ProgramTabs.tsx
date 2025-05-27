@@ -1,3 +1,4 @@
+import { useWizardStore } from "@/store/wizard-store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, Clock, FileEdit, Search, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import useProgramProposals from "@/hooks/department/useProgramProposal";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   filterActivePrograms,
   getDepartmentProgramIds,
@@ -30,7 +31,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useEffect } from "react";
 
 export default function ProgramTabs() {
   const { programs = [], isLoading: programsLoading } = usePrograms();
@@ -43,11 +43,13 @@ export default function ProgramTabs() {
     number | null
   >(null);
 
+  // Then inside the component function:
+  const resetStore = useWizardStore((state) => state.resetStore);
+
   const api = useApi();
   const queryClient = useQueryClient();
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [hasSavedForm, setHasSavedForm] = useState(false);
 
   // Make sure we have session and Department.id before filtering
   const departmentId = session?.Department?.id;
@@ -113,15 +115,30 @@ export default function ProgramTabs() {
       total,
     };
   };
-  // Check if there's a saved form in localStorage
-  useEffect(() => {
-    const savedForm = localStorage.getItem("program-wizard-storage");
-    setHasSavedForm(!!savedForm);
+  // Replace the existing hasSavedForm check with this function
+  const hasMeaningfulSavedForm = useCallback(() => {
+    const savedFormData = localStorage.getItem("program-wizard-storage");
+
+    if (!savedFormData) return false;
+
+    try {
+      // Parse the JSON data
+      const parsedData = JSON.parse(savedFormData);
+
+      // Check if state property exists and has content
+      if (!parsedData.state) return false;
+
+      // Check if formType has a value
+      return !!parsedData.state.formType;
+    } catch (error) {
+      console.error("Error parsing saved form data:", error);
+      return false;
+    }
   }, []);
 
   // Function to navigate to the new proposal page
   const navigateToNewProposal = () => {
-    if (hasSavedForm) {
+    if (hasMeaningfulSavedForm()) {
       setShowConfirmDialog(true);
     } else {
       router.push("/department/proposals/new-program");
@@ -135,7 +152,11 @@ export default function ProgramTabs() {
 
   // Function to start fresh after confirmation
   const startFreshProposal = () => {
+    // Reset the Zustand store
+    resetStore();
+
     localStorage.removeItem("program-wizard-storage");
+
     router.push("/department/proposals/new-program");
   };
 
@@ -206,7 +227,7 @@ export default function ProgramTabs() {
       <div className="flex justify-between">
         <h3 className="text-lg font-bold mb-6">Programs Dashboard</h3>
         <div className="flex gap-2">
-          {hasSavedForm && (
+          {hasMeaningfulSavedForm() && (
             <Button
               onClick={continuePreviousForm}
               variant="outline"
@@ -418,20 +439,28 @@ function EmptyState({
   message: string;
   onClick?: () => void;
 }) {
-  const [hasSavedForm, setHasSavedForm] = useState(false);
-
   const router = useRouter();
-  // Check if there's a saved form
-  useEffect(() => {
-    const savedForm = localStorage.getItem("program-wizard-storage");
-    setHasSavedForm(!!savedForm);
+
+  // Use the same meaningful check
+  const hasMeaningfulSavedForm = useCallback(() => {
+    const savedFormData = localStorage.getItem("program-wizard-storage");
+
+    if (!savedFormData) return false;
+
+    try {
+      const parsedData = JSON.parse(savedFormData);
+      if (!parsedData.state) return false;
+      return !!parsedData.state.formType;
+    } catch {
+      return false;
+    }
   }, []);
 
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 border rounded-lg bg-gray-50">
       <p className="text-gray-500 mb-4">{message}</p>
       <div className="flex gap-3">
-        {hasSavedForm && (
+        {hasMeaningfulSavedForm() && (
           <Button
             onClick={() => router.push("/department/proposals/new-program")}
             variant="outline"

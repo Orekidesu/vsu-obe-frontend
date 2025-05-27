@@ -64,6 +64,42 @@ export const useWizardStore = create<WizardState>()(
       programTemplates: createProgramTemplates(),
       predefinedYearSemesters: predefinedYearSemesters,
       premadeCourseCategories: initialPremadeCourseCategories,
+
+      resetStore: () =>
+        set({
+          // Reset program-related fields
+          formType: "",
+          programName: "",
+          programAbbreviation: "",
+          selectedProgram: "",
+
+          // Reset curriculum-related fields
+          curriculumName: "",
+          academicYear: "",
+          yearSemesters: [],
+
+          // Reset course-related fields
+          courseCategories: [{ id: 15, name: "General Education", code: "GE" }],
+          curriculumCourses: [],
+          courseToPOMappings: [],
+
+          // Reset educational objectives
+          peos: [{ id: 1, statement: "" }],
+          programOutcomes: [{ id: 1, name: "", statement: "" }],
+
+          // Reset mappings
+          peoToMissionMappings: [],
+          gaToPEOMappings: [],
+          poToPEOMappings: [],
+          poToGAMappings: [],
+
+          // Reset committee assignments
+          selectedCommittees: [],
+          committeeCourseAssignments: [],
+
+          // Reset UI state
+          currentStep: 1,
+        }),
     }),
     {
       name: "program-wizard-storage", // unique name for localStorage key

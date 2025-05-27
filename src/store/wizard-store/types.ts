@@ -190,4 +190,6 @@ export interface WizardState {
 
   currentStep: number;
   setCurrentStep: (step: number) => void;
+
+  resetStore: () => void;
 }
