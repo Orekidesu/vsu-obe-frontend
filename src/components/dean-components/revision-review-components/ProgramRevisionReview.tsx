@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui";
 import { BookOpen, GraduationCap, Loader2, AlertTriangle } from "lucide-react";
 import { getSectionDisplayName } from "@/store/revision/sample-data/proposalData";
 
@@ -135,10 +134,6 @@ export default function ProgramRevisionReview({
         },
       }
     );
-  };
-
-  const handleViewFullProposal = () => {
-    setShowFullProposal(true);
   };
 
   const handleRequestRevisions = () => {
@@ -309,22 +304,14 @@ export default function ProgramRevisionReview({
         curriculumName={transformedData.curriculum.name}
         totalCourses={transformedData.curriculum_courses.length}
         status="revision"
-        onViewFullProposal={handleViewFullProposal} // Add this line
+        showFullProposal={showFullProposal}
+        onToggleView={setShowFullProposal}
       />
 
       {/* Revision Tabs */}
       {showFullProposal ? (
         // Full Proposal View
         <div className="">
-          {/* Back to Revision View button */}
-          <Button
-            variant="outline"
-            className="mb-4"
-            onClick={() => setShowFullProposal(false)}
-          >
-            ← Back to Revision View
-          </Button>
-
           <Tabs defaultValue="overview" className="mb-8">
             <TabsList className="mb-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
