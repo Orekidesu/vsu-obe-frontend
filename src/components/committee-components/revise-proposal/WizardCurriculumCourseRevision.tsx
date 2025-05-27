@@ -103,6 +103,12 @@ export function CurriculumCourseRevisionWizard({
     resetStore, // Also add this for the resetStore error
   } = courseStore();
 
+  // Add this useEffect to recreate the store when curriculumCourseId changes
+  useEffect(() => {
+    // Create a new store when the curriculumCourseId changes
+    storeRef.current = createCourseRevisionStore(curriculumCourseId);
+  }, [curriculumCourseId]);
+
   const revisions = revisionData?.revisions || [];
   // Add this function to your component
   const handleStartRevision = () => {
