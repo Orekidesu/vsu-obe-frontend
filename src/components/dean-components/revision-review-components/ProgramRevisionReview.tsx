@@ -21,6 +21,7 @@ import {
   TransformedProgramData,
   transformProposalData,
 } from "@/components/dean-components/revision-review-components/types";
+import { CourseData } from "./revision-tabs/revisionType";
 
 import { ProgramDetails } from "@/components/dean-components/revision-review-components/ProgramDetails";
 import { ProgramEducationalObjectives } from "@/components/dean-components/revision-review-components/PEO";
@@ -649,7 +650,13 @@ export default function ProgramRevisionReview({
           {/* Course Revisions Tab */}
           <TabsContent value="courses" className="space-y-4">
             <CourseRevisionTabs
-              coursesWithRevisions={coursesWithRevisions || []}
+              coursesWithRevisions={coursesWithRevisions.map((course) => ({
+                curriculum_course_id: course.curriculum_course_id,
+                course_code: course.course_code,
+                course_title: course.course_title,
+                revisions: course.revisions,
+                courseData: course.courseData as CourseData, // Add type assertion here
+              }))}
               openSections={openSections}
               toggleSection={toggleSection}
             />
