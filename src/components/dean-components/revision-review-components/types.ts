@@ -12,21 +12,21 @@ import {
 } from "@/store/course/course-store";
 
 // Define the types for the raw course data from API
-interface RawABCD {
+export interface RawABCD {
   audience: string;
   behavior: string;
   condition: string;
   degree: string;
 }
 
-interface RawPOMapping {
+export interface RawPOMapping {
   po_id: number;
   po_name: string;
   po_statement: string;
   ied: string; // Changed to string to accept any string value
 }
 
-interface RawAssessmentTask {
+export interface RawAssessmentTask {
   id: string | number;
   at_code: string;
   at_name: string;
@@ -34,13 +34,13 @@ interface RawAssessmentTask {
   weight: string | number;
 }
 
-interface RawTLAMethod {
+export interface RawTLAMethod {
   id?: number;
   teaching_methods: string[];
   learning_resources: string[];
 }
 
-interface RawCourseOutcome {
+export interface RawCourseOutcome {
   id: number;
   name: string;
   statement: string;
@@ -51,13 +51,13 @@ interface RawCourseOutcome {
   tla_assessment_method?: RawTLAMethod;
 }
 
-interface RawCourseCategory {
+export interface RawCourseCategory {
   id: number;
   name: string;
   code: string;
 }
 
-interface RawSemester {
+export interface RawSemester {
   id: number;
   year: number;
   sem: string;
