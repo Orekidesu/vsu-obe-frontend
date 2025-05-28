@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import usePrograms from "@/hooks/shared/useProgram";
+import useProgramProposals from "@/hooks/department/useProgramProposal";
 import ProgramCard from "@/components/commons/card/ProgramCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
@@ -12,7 +13,31 @@ const ProgramsPage = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { programs, isLoading, error } = usePrograms({ role: "dean" });
+  const {
+    programs,
+    isLoading: isProgramsLoading,
+    error: programsError,
+  } = usePrograms({ role: "dean" });
+  const {
+    programProposals,
+    isLoading: isProposalsLoading,
+    error: proposalsError,
+  } = useProgramProposals({ role: "dean" });
+
+  // Create a mapping of program IDs to their approved proposals
+  const programToApprovedProposal = useMemo(() => {
+    const mapping = new Map();
+
+    if (programProposals) {
+      programProposals.forEach((proposal) => {
+        if (proposal.status === "approved") {
+          mapping.set(proposal.program.id, proposal.id);
+        }
+      });
+    }
+
+    return mapping;
+  }, [programProposals]);
 
   // Filter for active programs
   const activePrograms =
@@ -27,14 +52,20 @@ const ProgramsPage = () => {
   );
 
   const handleViewDetails = (id: number) => {
-    router.push(`/dean/programs/${id}`);
+    // Find the approved proposal ID that matches this program
+    const proposalId = programToApprovedProposal.get(id);
+
+    router.push(`/dean/programs/${proposalId}`);
   };
+
+  const isLoading = isProgramsLoading || isProposalsLoading;
+  const error = programsError || proposalsError;
 
   if (error) {
     return (
       <div className="p-8 text-center">
         <h2 className="text-xl font-semibold text-red-600">
-          Error loading programs
+          Error loading data
         </h2>
         <p className="mt-2 text-gray-600">Please try again later</p>
       </div>
@@ -95,7 +126,7 @@ const ProgramsPage = () => {
                   key={program.id}
                   program={program}
                   status="active"
-                  onViewDetails={(id) => handleViewDetails(id)}
+                  onViewDetails={() => handleViewDetails(program.id)}
                 />
               ))}
             </div>
