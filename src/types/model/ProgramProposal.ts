@@ -49,6 +49,7 @@ export interface ProgramProposalResponse {
       id: number;
       ga_no: number;
       name: string;
+      description?: string;
     }>;
   }>;
   pos: Array<{
@@ -63,6 +64,7 @@ export interface ProgramProposalResponse {
       id: number;
       ga_no: number;
       name: string;
+      description?: string;
     }>;
   }>;
   curriculum: {

@@ -130,6 +130,11 @@ export default function ProgramReviewPage({
       ied: string[];
     }[],
     missions: [] as { id: number; statement: string }[],
+    graduateAttributes: [] as {
+      id: number;
+      name: string;
+      description: string;
+    }[],
     committees: [] as Array<{
       id: string;
       name: string;
@@ -201,6 +206,30 @@ export default function ProgramReviewPage({
           uniqueMissions.set(mission.mission_no, {
             id: mission.mission_no,
             statement: mission.description,
+          });
+        }
+      });
+    });
+
+    const uniqueGAs = new Map();
+    data.peos.forEach((peo) => {
+      peo.graduate_attributes.forEach((ga) => {
+        if (!uniqueGAs.has(ga.ga_no)) {
+          uniqueGAs.set(ga.ga_no, {
+            id: ga.ga_no,
+            name: ga.name,
+            description: ga.description || ga.name, // Fallback to name if description is missing
+          });
+        }
+      });
+    });
+    data.pos.forEach((po) => {
+      po.graduate_attributes.forEach((ga) => {
+        if (!uniqueGAs.has(ga.ga_no)) {
+          uniqueGAs.set(ga.ga_no, {
+            id: ga.ga_no,
+            name: ga.name,
+            description: ga.description || ga.name, // Fallback to name if description is missing
           });
         }
       });
@@ -330,6 +359,8 @@ export default function ProgramReviewPage({
       po_ga_mappings: poGaMappings,
       course_po_mappings: coursePOMappings,
       missions: Array.from(uniqueMissions.values()),
+      graduateAttributes: Array.from(uniqueGAs.values()), // Add this new property
+
       committees,
       committeeAssignments,
     });
@@ -415,11 +446,18 @@ export default function ProgramReviewPage({
       ...new Set(transformedData.ga_peo_mappings.map((m) => m.ga_id)),
     ];
 
-    const rowHeaders = gaIds.map((gaId) => ({
-      id: gaId,
-      label: `GA${gaId}`,
-      tooltip: `Graduate Attribute ${gaId}`, // You might want to fetch actual GA descriptions
-    }));
+    const rowHeaders = gaIds.map((gaId) => {
+      // Find the GA description from our collection
+      const ga = transformedData.graduateAttributes?.find(
+        (ga) => ga.id === gaId
+      );
+
+      return {
+        id: gaId,
+        label: `GA${gaId}`,
+        tooltip: ga?.description || `Graduate Attribute ${gaId}`, // Use description or fallback
+      };
+    });
 
     const columnHeaders = transformedData.peos.map((peo, index) => ({
       id: index,
@@ -448,11 +486,18 @@ export default function ProgramReviewPage({
       tooltip: po.statement,
     }));
 
-    const columnHeaders = gaIds.map((gaId) => ({
-      id: gaId,
-      label: `GA${gaId}`,
-      tooltip: `Graduate Attribute ${gaId}`,
-    }));
+    const columnHeaders = gaIds.map((gaId) => {
+      // Find the GA description from our collection
+      const ga = transformedData.graduateAttributes?.find(
+        (ga) => ga.id === gaId
+      );
+
+      return {
+        id: gaId,
+        label: `GA${gaId}`,
+        tooltip: ga?.description || `Graduate Attribute ${gaId}`, // Use description or fallback
+      };
+    });
 
     const mappings = transformedData.po_ga_mappings.map((mapping) => ({
       rowId: mapping.po_index,

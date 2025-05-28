@@ -2,16 +2,17 @@ import { MappingTable } from "@/components/commons/program-details/mapping-table
 
 interface POGAMappingProps {
   pos: Array<{
-    name: string; // Changed from "code"
+    name: string;
     statement: string;
   }>;
   graduateAttributes: Array<{
     id: number;
     ga_no: number;
     name: string;
+    description?: string; // Add description field
   }>;
   mappings: Array<{
-    po_index: number; // Changed from "po_id"
+    po_index: number;
     ga_id: number;
   }>;
 }
@@ -30,19 +31,19 @@ export function POGAMapping({
 
   // Format data for the MappingTable component
   const rowHeaders = pos.map((po, index) => ({
-    id: index, // Use index as id since actual id is missing
-    label: po.name, // Use name instead of code
+    id: index,
+    label: po.name,
     tooltip: po.statement,
   }));
 
   const columnHeaders = uniqueGAs.map((ga) => ({
     id: ga.ga_no,
     label: `GA${ga.ga_no}`,
-    tooltip: ga.name,
+    tooltip: ga.description || ga.name, // Use description if available, fallback to name
   }));
 
   const formattedMappings = mappings.map((mapping) => ({
-    rowId: mapping.po_index, // Use po_index instead of po_id
+    rowId: mapping.po_index,
     colId: mapping.ga_id,
   }));
 
