@@ -600,13 +600,14 @@ export default function ProgramRevisionReview({
                 mappings={transformedData.course_po_mappings}
               />
             </TabsContent>
-
-            <CourseDetailsTabs
-              courses={programData?.curriculum?.courses || []}
-              courseDetailsMap={
-                dynamicCourseDetailsMap // Fallback to sample data if API data not available
-              }
-            />
+            <TabsContent value="courses" className="space-y-6">
+              <CourseDetailsTabs
+                courses={programData?.curriculum?.courses || []}
+                courseDetailsMap={
+                  dynamicCourseDetailsMap // Fallback to sample data if API data not available
+                }
+              />
+            </TabsContent>
           </Tabs>
         </div>
       ) : (
