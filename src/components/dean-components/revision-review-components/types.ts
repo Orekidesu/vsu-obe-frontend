@@ -308,6 +308,30 @@ export const transformProposalData = (data: ProgramProposalResponse) => {
     });
   });
 
+  const uniqueGAs = new Map();
+  data.peos.forEach((peo) => {
+    peo.graduate_attributes.forEach((ga) => {
+      if (!uniqueGAs.has(ga.ga_no)) {
+        uniqueGAs.set(ga.ga_no, {
+          id: ga.ga_no,
+          name: ga.name,
+          description: ga.description || ga.name, // Fallback to name if description is missing
+        });
+      }
+    });
+  });
+  data.pos.forEach((po) => {
+    po.graduate_attributes.forEach((ga) => {
+      if (!uniqueGAs.has(ga.ga_no)) {
+        uniqueGAs.set(ga.ga_no, {
+          id: ga.ga_no,
+          name: ga.name,
+          description: ga.description || ga.name, // Fallback to name if description is missing
+        });
+      }
+    });
+  });
+
   // Create PEO to Mission mappings
   const peoMissionMappings: { peo_index: number; mission_id: number }[] = [];
   data.peos.forEach((peo, peoIndex) => {
@@ -431,6 +455,8 @@ export const transformProposalData = (data: ProgramProposalResponse) => {
     po_ga_mappings: poGaMappings,
     course_po_mappings: coursePOMappings,
     missions: Array.from(uniqueMissions.values()),
+    graduateAttributes: Array.from(uniqueGAs.values()), // Add this new property
+
     committees,
     committeeAssignments,
   };
@@ -460,6 +486,7 @@ export interface TransformedProgramData {
   po_ga_mappings: { po_index: number; ga_id: number }[];
   course_po_mappings: { course_code: string; po_code: string; ied: string[] }[];
   missions: { id: number; statement: string }[];
+  graduateAttributes: { id: number; name: string; description: string }[];
   committees: {
     id: string;
     name: string;

@@ -6,6 +6,7 @@ interface GAPEOMappingProps {
     id: number;
     ga_no: number;
     name: string;
+    description?: string; // Add description field
   }>;
   mappings: Array<{
     peo_index: number;
@@ -29,7 +30,7 @@ export function GAPEOMapping({
   const rowHeaders = uniqueGAs.map((ga) => ({
     id: ga.ga_no,
     label: `GA${ga.ga_no}`,
-    tooltip: ga.name,
+    tooltip: ga.description || ga.name, // Use description if available, fallback to name
   }));
 
   const columnHeaders = peos.map((peo, index) => ({
