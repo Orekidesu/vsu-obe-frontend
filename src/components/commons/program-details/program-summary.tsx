@@ -1,11 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { FileText, ChevronLeft } from "lucide-react";
+
 interface ProgramSummaryProps {
   programName: string;
   programAbbreviation: string;
   curriculumName: string;
   totalCourses: number;
-  status?: string; //
+  status?: string;
+  showFullProposal?: boolean;
+  onToggleView?: (showFull: boolean) => void;
+  role?: string;
 }
 
 export function ProgramSummary({
@@ -14,6 +20,9 @@ export function ProgramSummary({
   curriculumName,
   totalCourses,
   status,
+  showFullProposal = false,
+  onToggleView,
+  role,
 }: ProgramSummaryProps) {
   const getBadgeColor = (status?: string) => {
     if (!status) return "bg-gray-100 text-gray-800";
@@ -47,19 +56,47 @@ export function ProgramSummary({
     return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
   };
 
+  const isRevision = status?.toLowerCase() === "revision";
+
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle className="text-2xl">
-          {/* {programName} ({programAbbreviation})
-           */}
-          <span>
-            {programName} ({programAbbreviation})
-          </span>
-          {status && (
-            <Badge className={`ml-2 ${getBadgeColor(status)}`}>
-              {getFormattedStatus(status)}
-            </Badge>
+        <CardTitle className="text-2xl flex items-center flex-wrap gap-2 justify-between">
+          <div className="flex items-center gap-2">
+            <span>{programName}</span>
+            <span>({programAbbreviation})</span>
+            {status && (
+              <Badge className={`${getBadgeColor(status)}`}>
+                {getFormattedStatus(status)}
+              </Badge>
+            )}
+          </div>
+
+          {isRevision && role === "dean" && (
+            <Button
+              variant={showFullProposal ? "secondary" : "outline"}
+              size="sm"
+              className={`px-3 py-1.5 h-auto text-sm font-medium transition-all ${
+                showFullProposal
+                  ? "bg-slate-100 text-slate-800 hover:bg-slate-200"
+                  : "border-primary text-primary hover:bg-primary/10"
+              }`}
+              onClick={() => onToggleView?.(!showFullProposal)}
+            >
+              <span className="flex items-center gap-1.5">
+                {showFullProposal ? (
+                  <>
+                    <ChevronLeft className="h-4 w-4" />
+                    <span>See Revisions</span>
+                  </>
+                ) : (
+                  <>
+                    <FileText className="h-4 w-4" />
+                    <span>See Full Proposal</span>
+                  </>
+                )}
+              </span>
+            </Button>
           )}
         </CardTitle>
       </CardHeader>

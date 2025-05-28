@@ -146,49 +146,56 @@ export function ReviseDialog({
   );
 
   // Get array of sections already in revision requests
+  // Add this near the top of your component
+  const existingCourseSections = revisionRequests
+    .filter((req) => req.type === "course")
+    .map((req) => `${req.courseId}-${req.courseSection}`);
+
+  // Add this function to get available sections for the current course
+  const getAvailableSectionsForCourse = (courseId: string) => {
+    const allSections = [
+      { value: "course_outcomes", label: "Course Outcomes" },
+      { value: "abcd", label: "ABCD Model" },
+      { value: "cpa", label: "CPA Classification" },
+      { value: "po_mappings", label: "CO to PO Mapping" },
+      { value: "tla_tasks", label: "TLA Task" },
+      { value: "tla_assessment_method", label: "Assessment Methods" },
+    ];
+
+    // Filter out sections already added for this course
+    return allSections.filter(
+      (section) =>
+        !existingCourseSections.includes(`${courseId}-${section.value}`)
+    );
+  };
+  // Keep all courses available, but disable sections that are already selected
   const existingSections = programRevisions.map((req) => req.section);
-
-  // Get array of course IDs already in revision requests
-  const existingCourseIds = courseRevisions.map((req) => req.courseId);
-
   // Create array of available sections (excluding ones already in requests)
   const availableSections = [
     { value: "program", label: "Program Details" },
     { value: "peos", label: "Program Educational Objectives" },
-    { value: "peo-mission-mappings", label: "PEO to Mission Mapping" },
-    { value: "ga-peo-mappings", label: "GA to PEO Mapping" },
-    { value: "program-outcomes", label: "Program Outcomes" },
-    { value: "po-peo-mappings", label: "PO to PEO Mapping" },
-    { value: "po-ga-mappings", label: "PO to GA Mapping" },
+    { value: "peo_mission_mappings", label: "PEO to Mission Mapping" },
+    { value: "ga_peo_mappings", label: "GA to PEO Mapping" },
+    { value: "pos", label: "Program Outcomes" },
+    { value: "po_peo_mappings", label: "PO to PEO Mapping" },
+    { value: "po_ga_mappings", label: "PO to GA Mapping" },
     { value: "curriculum", label: "Curriculum Name" },
-    { value: "course-categories", label: "Course Categories" },
-    { value: "curriculum-courses", label: "Curriculum Courses" },
-    { value: "course-po-mappings", label: "Course to PO Mapping" },
+    { value: "course_categories", label: "Course Categories" },
+    { value: "curriculum_courses", label: "Curriculum Courses" },
+    { value: "course_po_mappings", label: "Course to PO Mapping" },
   ].filter((section) => !existingSections.includes(section.value));
 
   // Filter available courses (excluding ones already in requests)
-  const availableCourses = courses.filter(
-    (course) => !existingCourseIds.includes(course.id)
-  );
+  const availableCourses = courses;
 
   // Reset selection if the current selection is no longer valid
   // (For example, when a revision with the selected section is added)
   useEffect(() => {
+    // Still reset sections that are fully used
     if (currentSection && existingSections.includes(currentSection)) {
       setCurrentSection("");
     }
-
-    if (currentCourse && existingCourseIds.includes(currentCourse)) {
-      setCurrentCourse("");
-    }
-  }, [
-    currentSection,
-    currentCourse,
-    existingSections,
-    existingCourseIds,
-    setCurrentSection,
-    setCurrentCourse,
-  ]);
+  }, [currentSection, existingSections, setCurrentSection]);
 
   const handleSubmitClick = () => {
     setConfirmationOpen(true);
@@ -327,18 +334,29 @@ export function ReviseDialog({
                       <SelectValue placeholder="Select section to revise" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="course_outcomes">
-                        Course Outcomes
-                      </SelectItem>
-                      <SelectItem value="abcd_model">ABCD Model</SelectItem>
-                      <SelectItem value="cpa">CPA Classification</SelectItem>
-                      <SelectItem value="po_mappings">
-                        CO to PO Mapping
-                      </SelectItem>
-                      <SelectItem value="tla_tasks">TLA Task</SelectItem>
-                      <SelectItem value="tla_assessment_methods">
-                        Assessment Methods
-                      </SelectItem>
+                      {currentCourse ? (
+                        getAvailableSectionsForCourse(currentCourse).map(
+                          (section) => (
+                            <SelectItem
+                              key={section.value}
+                              value={section.value}
+                            >
+                              {section.label}
+                            </SelectItem>
+                          )
+                        )
+                      ) : (
+                        <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+                          Select a course first
+                        </div>
+                      )}
+                      {currentCourse &&
+                        getAvailableSectionsForCourse(currentCourse).length ===
+                          0 && (
+                          <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+                            All sections for this course have been added
+                          </div>
+                        )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -362,8 +380,7 @@ export function ReviseDialog({
                 disabled={
                   !currentCourse ||
                   !currentCourseSection ||
-                  !currentDetails.trim() ||
-                  availableCourses.length === 0
+                  !currentDetails.trim()
                 }
               >
                 Add Course Revision Request
@@ -372,12 +389,11 @@ export function ReviseDialog({
           </Tabs>
 
           {revisionRequests.length > 0 && (
-            <div className="mt-6">
+            <div className="">
               <h3 className="font-medium text-lg">Current Revision Requests</h3>
 
               {/* Make BOTH program and course revisions part of the same scrollable area */}
-              {/* Make BOTH program and course revisions part of the same scrollable area */}
-              <div className="overflow-y-auto max-h-[250px] pr-2 mt-4">
+              <div className="overflow-y-auto max-h-[180px] pr-2 mt-4">
                 {programRevisions.length > 0 && (
                   <div className="mb-4">
                     <h4 className="font-medium text-sm text-gray-700 border-b pb-1 sticky top-0 bg-white z-10">

@@ -1,21 +1,14 @@
-import { AlertCircle, FileEdit, BookOpen, Loader2 } from "lucide-react";
+import { AlertCircle, Check, FileEdit, BookOpen, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CourseCard } from "@/components/commons/card/CourseCard";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 import { useRouter } from "next/navigation";
-// Define types for revision courses
-export interface RevisionCourse {
-  id: string;
-  code: string;
-  title: string;
-  category: string;
-  yearSemester: string;
-  units: number;
-  revisionReason: string;
-}
+import { Badge } from "@/components/ui/badge";
+// import { useState } from "react";
 
 export function CourseTabs() {
   const router = useRouter();
+  // const [activeTab, setActiveTab] = useState("completed");
 
   // Fetch curriculum courses from API
   const { curriculumCourses, isLoading, error } = useCurriculumCourses();
@@ -34,28 +27,29 @@ export function CourseTabs() {
     return `Year ${year} - ${semesterName}`;
   };
 
-  const revisionCourses: RevisionCourse[] = [
-    {
-      id: "r1",
-      code: "CSCI 301",
-      title: "Data Structures and Algorithms",
-      category: "Core Courses",
-      yearSemester: "Year 2 - First Semester",
-      units: 3,
-      revisionReason:
-        "Update learning outcomes to match new curriculum standards",
-    },
-  ];
+  // Filter courses by status
+  const completedCourses =
+    curriculumCourses?.filter((course) => course.is_completed) || [];
+
+  const pendingCourses =
+    curriculumCourses?.filter(
+      (course) => !course.is_completed && !course.is_in_revision
+    ) || [];
+
+  const revisionCourses =
+    curriculumCourses?.filter((course) => course.is_in_revision) || [];
 
   // Handlers for course actions
-  // In your CourseTabs.tsx where the "Add Details" button is clicked
   const handleAddDetails = (courseId: string) => {
-    router.push(`/faculty/courses/course-details/${courseId}`);
+    router.push(`/faculty/course-details/${courseId}`);
+  };
+
+  const handleViewDetails = (courseID: string) => {
+    router.push(`/faculty/all-courses/${courseID}`);
   };
 
   const handleRevise = (courseId: string) => {
-    console.log(`Revise course ${courseId}`);
-    // In a real app, you would navigate to a form or open a modal
+    router.push(`/faculty/course-details/${courseId}/edit-details`);
   };
 
   return (
@@ -64,12 +58,80 @@ export function CourseTabs() {
         <h2 className="text-xl font-semibold">Assigned Courses Dashboard</h2>
       </div>
 
-      <Tabs defaultValue="pending" className="mb-8">
-        <TabsList className="grid w-full grid-cols-2 mb-8 sticky">
-          <TabsTrigger value="pending">Pending Details</TabsTrigger>
-          <TabsTrigger value="revision">Needs Revision</TabsTrigger>
+      <Tabs
+        defaultValue="completed"
+        className="mb-8"
+        // onValueChange={(value) => setActiveTab(value)}
+      >
+        <TabsList className="grid w-full grid-cols-3 mb-8 sticky">
+          <TabsTrigger className="flex items-center gap-2" value="completed">
+            Completed
+            <Badge variant="outline">{completedCourses.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger className="flex items-center gap-2" value="pending">
+            Pending Details
+            <Badge variant="outline">{pendingCourses.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger className="flex items-center gap-2" value="revision">
+            Needs Revision
+            <Badge variant="outline">{revisionCourses.length}</Badge>
+          </TabsTrigger>
         </TabsList>
 
+        {/* Completed Courses */}
+        <TabsContent value="completed">
+          <div className="flex items-center gap-2 mb-6">
+            <Check className="h-6 w-6 text-green-500" />
+            <h3 className="text-xl font-semibold">Completed Courses</h3>
+          </div>
+
+          {isLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2">Loading courses...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center p-10 border rounded-lg bg-red-50">
+              <AlertCircle className="h-10 w-10 mx-auto mb-4 text-red-500" />
+              <h3 className="text-lg font-medium mb-2">
+                Error Loading Courses
+              </h3>
+              <p className="text-muted-foreground">
+                There was a problem loading your courses. Please try again.
+              </p>
+            </div>
+          ) : completedCourses.length === 0 ? (
+            <div className="text-center p-10 border rounded-lg bg-muted/50">
+              <BookOpen className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-medium mb-2">No Completed Courses</h3>
+              <p className="text-muted-foreground">
+                You don&apos;t have any courses that have been completed yet.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {completedCourses.map((course) => (
+                <CourseCard
+                  key={course.id.toString()}
+                  id={course.id.toString()}
+                  code={course.course.code}
+                  title={course.course.descriptive_title}
+                  category={course.course_category.name}
+                  yearSemester={formatSemester(
+                    course.semester.year,
+                    course.semester.sem
+                  )}
+                  units={Number(course.units)}
+                  status="completed"
+                  actionText="View Details"
+                  onAction={() => handleViewDetails(course.id.toString())}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Pending Courses */}
         <TabsContent value="pending">
           <div className="flex items-center gap-2 mb-6">
             <AlertCircle className="h-6 w-6 text-amber-500" />
@@ -91,9 +153,7 @@ export function CourseTabs() {
                 There was a problem loading your courses. Please try again.
               </p>
             </div>
-          ) : !curriculumCourses ||
-            curriculumCourses.filter((course) => !course.is_completed)
-              .length === 0 ? (
+          ) : pendingCourses.length === 0 ? (
             <div className="text-center p-10 border rounded-lg bg-muted/50">
               <BookOpen className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-lg font-medium mb-2">No Pending Courses</h3>
@@ -103,36 +163,50 @@ export function CourseTabs() {
             </div>
           ) : (
             <div className="space-y-4">
-              {curriculumCourses
-                .filter((course) => !course.is_completed)
-                .map((course) => (
-                  <CourseCard
-                    key={course.id.toString()}
-                    id={course.id.toString()}
-                    code={course.course.code}
-                    title={course.course.descriptive_title}
-                    category={course.course_category.name}
-                    yearSemester={formatSemester(
-                      course.semester.year,
-                      course.semester.sem
-                    )}
-                    units={Number(course.units)}
-                    status="pending"
-                    actionText="Add Details"
-                    onAction={() => handleAddDetails(course.id.toString())}
-                  />
-                ))}
+              {pendingCourses.map((course) => (
+                <CourseCard
+                  key={course.id.toString()}
+                  id={course.id.toString()}
+                  code={course.course.code}
+                  title={course.course.descriptive_title}
+                  category={course.course_category.name}
+                  yearSemester={formatSemester(
+                    course.semester.year,
+                    course.semester.sem
+                  )}
+                  units={Number(course.units)}
+                  status="pending"
+                  actionText="Add Details"
+                  onAction={() => handleAddDetails(course.id.toString())}
+                />
+              ))}
             </div>
           )}
         </TabsContent>
 
+        {/* Courses That Needs Revision */}
         <TabsContent value="revision">
           <div className="flex items-center gap-2 mb-6">
             <FileEdit className="h-6 w-6 text-red-500" />
             <h3 className="text-xl font-semibold">Courses Needing Revision</h3>
           </div>
 
-          {revisionCourses.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2">Loading courses...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center p-10 border rounded-lg bg-red-50">
+              <AlertCircle className="h-10 w-10 mx-auto mb-4 text-red-500" />
+              <h3 className="text-lg font-medium mb-2">
+                Error Loading Courses
+              </h3>
+              <p className="text-muted-foreground">
+                There was a problem loading your courses. Please try again.
+              </p>
+            </div>
+          ) : revisionCourses.length === 0 ? (
             <div className="text-center p-10 border rounded-lg bg-muted/50">
               <BookOpen className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-lg font-medium mb-2">
@@ -146,18 +220,20 @@ export function CourseTabs() {
             <div className="space-y-4">
               {revisionCourses.map((course) => (
                 <CourseCard
-                  key={course.id}
-                  id={course.id}
-                  code={course.code}
-                  title={course.title}
-                  category={course.category}
-                  yearSemester={course.yearSemester}
-                  units={course.units}
+                  key={course.id.toString()}
+                  id={course.id.toString()}
+                  code={course.course.code}
+                  title={course.course.descriptive_title}
+                  category={course.course_category.name}
+                  yearSemester={formatSemester(
+                    course.semester.year,
+                    course.semester.sem
+                  )}
+                  units={Number(course.units)}
                   status="revision"
-                  revisionReason={course.revisionReason}
                   actionText="Revise Course"
-                  actionVariant="destructive"
-                  onAction={() => handleRevise(course.id)}
+                  actionVariant="default"
+                  onAction={() => handleRevise(course.id.toString())}
                 />
               ))}
             </div>

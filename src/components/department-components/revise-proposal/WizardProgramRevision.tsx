@@ -38,21 +38,31 @@ import { CurriculumRevision } from "./CurriculumRevision";
 import { CourseCategoriesRevision } from "./CourseCategoryRevision";
 import { CurriculumCoursesRevision } from "./CurriculumCourseRevision";
 import { CoursePOMappingRevision } from "./CoursePOMappingRevision";
-import { RevisionReview } from "./ReviewRevision";
+import { ProgramRevisionReview } from "./ReviewRevision";
 
 import useDepartmentRevision from "@/hooks/shared/useDepartmentRevision";
 
-interface RevisionWizardProps {
+interface ProgramRevisionWizardProps {
   proposalId: string;
 }
 
-export function RevisionWizard({ proposalId }: RevisionWizardProps) {
+export function ProgramRevisionWizard({
+  proposalId,
+}: ProgramRevisionWizardProps) {
   const router = useRouter();
-  const [isRevising, setIsRevising] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Initialize the store with sample data
+  const {
+    currentStep,
+    isRevising,
+    isReviewing,
+    setCurrentStep,
+    setIsRevising,
+    setIsReviewing,
+    initializeData,
+    modifiedSections,
+  } = useRevisionStore();
 
-  const [isReviewing, setIsReviewing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get the proposal from API using cache
   const { getProgramProposalFromCache, submitDepartmentRevisions } =
@@ -69,9 +79,6 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
   const { data: proposalData, isLoading: isLoadingProposal } = useQuery(
     getProgramProposalFromCache(proposalIdNumber)
   );
-
-  // Initialize the store with sample data
-  const { initializeData, modifiedSections } = useRevisionStore();
 
   useEffect(() => {
     if (proposalData) {
@@ -354,6 +361,8 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         variant: "success",
       });
 
+      localStorage.removeItem("program-revision-storage");
+
       // Log submission details for debugging
       console.group("Revision Submission Details");
       console.log(
@@ -490,7 +499,7 @@ export function RevisionWizard({ proposalId }: RevisionWizardProps) {
         {isRevising ? (
           <div className=" mx-auto">
             {isReviewing ? (
-              <RevisionReview
+              <ProgramRevisionReview
                 onGoBack={handleGoBackFromReview}
                 onSubmit={handleSubmitRevisions}
                 isSubmitting={isSubmitting}

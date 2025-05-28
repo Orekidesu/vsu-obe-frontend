@@ -13,7 +13,24 @@ const getCustomPathname = (path: string) => {
         return "Unknown Path";
     }
   }
+
   if (path.startsWith("/dean")) {
+    // Check for dynamic paths with IDs
+    if (path.match(/^\/dean\/proposals\/all-programs\/\d+\/revision$/)) {
+      return `Program Proposal Revision`;
+    }
+    if (path.match(/^\/dean\/proposals\/all-syllabi\/\d+\/revision$/)) {
+      return `Syllabus Proposal Revision`;
+    }
+
+    // Check for regular detail paths
+    if (path.match(/^\/dean\/proposals\/all-programs\/\d+$/)) {
+      return `Program Proposal Review`;
+    }
+    if (path.match(/^\/dean\/proposals\/all-syllabi\/\d+$/)) {
+      return `Syllabus Proposal Review`;
+    }
+
     switch (path) {
       case "/dean":
         return "Dashboard";
@@ -27,7 +44,6 @@ const getCustomPathname = (path: string) => {
         return "Unknown Path";
     }
   }
-
   if (path.startsWith("/department")) {
     switch (path) {
       case "/department":
@@ -59,7 +75,7 @@ const getCustomPathname = (path: string) => {
     switch (path) {
       case "/faculty":
         return "Dashboard";
-      case "/faculty/courses":
+      case "/faculty/all-courses":
         return "Course Management";
       case "/faculty/syllabi/all-syllabi":
         return "All Syllabi";

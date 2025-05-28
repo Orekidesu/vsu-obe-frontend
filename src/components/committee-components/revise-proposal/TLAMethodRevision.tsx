@@ -1,0 +1,343 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckCircle, AlertTriangle, RotateCcw } from "lucide-react";
+import { useCourseRevisionStore } from "./store-provider/CourseRevisionStoreProvider";
+import { Badge } from "@/components/ui/badge";
+
+// Import modular components
+import { TLAMethodInstructions } from "./tla-method-components/TLAMethodInstructions";
+import { TLAMethodTabContent } from "./tla-method-components/TLAMethodTabContent";
+import { TLAMethodSummaryTable } from "./tla-method-components/TLAMethodSummaryTable";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+// Default teaching methods and learning resources
+const defaultTeachingMethods = [
+  "Lecture",
+  "Demonstration",
+  "Problem-Based Learning",
+  "Role Play",
+  "Project",
+  "Field Trip",
+  "Peer Teaching",
+  "Discussion",
+  "Group Work",
+  "Case Study",
+  "Simulation",
+  "Laboratory",
+  "Flipped Classroom",
+  "Experiments",
+  "Gallery Visits",
+];
+
+const defaultLearningResources = [
+  "Textbooks",
+  "Lecture Notes",
+  "Videos",
+  "Journal Articles",
+  "Websites",
+  "Reference Books",
+  "PPT Slides",
+  "Online Tutorials",
+  "Software",
+  "Lab Manuals",
+  "Visual References",
+  "Online Collections",
+];
+
+interface TLAMethodsRevisionProps {
+  onValidityChange?: (isValid: boolean) => void;
+}
+
+export function TLAMethodsRevision({
+  onValidityChange,
+}: TLAMethodsRevisionProps) {
+  const store = useCourseRevisionStore();
+  const {
+    courseOutcomes,
+    updateCourseOutcome,
+    resetTLAMethods,
+    modifiedSections,
+    markSectionAsModified,
+  } = store();
+  const [selectedCOIndex, setSelectedCOIndex] = useState(0);
+  const [customTeachingMethods, setCustomTeachingMethods] = useState<string[]>(
+    []
+  );
+  const [customLearningResources, setCustomLearningResources] = useState<
+    string[]
+  >([]);
+  const [newTeachingMethod, setNewTeachingMethod] = useState("");
+  const [newLearningResource, setNewLearningResource] = useState("");
+
+  // Check if TLA methods have been modified
+  const isModified = modifiedSections.has("tla_assessment_method");
+
+  // Validation function
+  const validateTLAMethods = useCallback(() => {
+    // Each CO must have at least one teaching method and one learning resource
+    return courseOutcomes.every((outcome) => {
+      const hasMethods =
+        (outcome.tla_assessment_method?.teaching_methods?.length || 0) > 0;
+      const hasResources =
+        (outcome.tla_assessment_method?.learning_resources?.length || 0) > 0;
+      return hasMethods && hasResources;
+    });
+  }, [courseOutcomes]);
+
+  // Update validity whenever course outcomes change
+  useEffect(() => {
+    if (onValidityChange) {
+      const isValid = validateTLAMethods();
+      onValidityChange(isValid);
+    }
+  }, [courseOutcomes, onValidityChange, validateTLAMethods]);
+
+  // Helper functions
+  const getAllTeachingMethods = () => {
+    return [...defaultTeachingMethods, ...customTeachingMethods];
+  };
+
+  const getAllLearningResources = () => {
+    return [...defaultLearningResources, ...customLearningResources];
+  };
+
+  // Calculate total counts across all course outcomes
+  const calculateTotalCounts = () => {
+    const allTeachingMethods = new Set<string>();
+    const allLearningResources = new Set<string>();
+
+    courseOutcomes.forEach((outcome) => {
+      if (outcome.tla_assessment_method) {
+        outcome.tla_assessment_method.teaching_methods?.forEach((method) =>
+          allTeachingMethods.add(method)
+        );
+        outcome.tla_assessment_method.learning_resources?.forEach((resource) =>
+          allLearningResources.add(resource)
+        );
+      }
+    });
+
+    return {
+      teachingMethods: allTeachingMethods.size,
+      learningResources: allLearningResources.size,
+    };
+  };
+
+  // Update teaching methods for the selected course outcome
+  const handleTeachingMethodChange = (method: string, checked: boolean) => {
+    const selectedOutcome = courseOutcomes[selectedCOIndex];
+    if (!selectedOutcome) return;
+
+    const currentMethods =
+      selectedOutcome.tla_assessment_method?.teaching_methods || [];
+    const updatedMethods = checked
+      ? [...currentMethods, method]
+      : currentMethods.filter((m) => m !== method);
+
+    updateCourseOutcome(selectedOutcome.id, {
+      tla_assessment_method: {
+        ...selectedOutcome.tla_assessment_method,
+        teaching_methods: updatedMethods,
+        learning_resources:
+          selectedOutcome.tla_assessment_method?.learning_resources || [],
+      },
+    });
+
+    markSectionAsModified("tla_assessment_method");
+  };
+
+  // Update learning resources for the selected course outcome
+  const handleLearningResourceChange = (resource: string, checked: boolean) => {
+    const selectedOutcome = courseOutcomes[selectedCOIndex];
+    if (!selectedOutcome) return;
+
+    const currentResources =
+      selectedOutcome.tla_assessment_method?.learning_resources || [];
+    const updatedResources = checked
+      ? [...currentResources, resource]
+      : currentResources.filter((r) => r !== resource);
+
+    updateCourseOutcome(selectedOutcome.id, {
+      tla_assessment_method: {
+        ...selectedOutcome.tla_assessment_method,
+        teaching_methods:
+          selectedOutcome.tla_assessment_method?.teaching_methods || [],
+        learning_resources: updatedResources,
+      },
+    });
+
+    markSectionAsModified("tla_assessment_method");
+  };
+
+  // Add custom teaching method
+  const handleAddTeachingMethod = () => {
+    const method = newTeachingMethod.trim();
+    if (method && !getAllTeachingMethods().includes(method)) {
+      setCustomTeachingMethods((prev) => [...prev, method]);
+      handleTeachingMethodChange(method, true);
+    }
+    setNewTeachingMethod("");
+  };
+
+  // Add custom learning resource
+  const handleAddLearningResource = () => {
+    const resource = newLearningResource.trim();
+    if (resource && !getAllLearningResources().includes(resource)) {
+      setCustomLearningResources((prev) => [...prev, resource]);
+      handleLearningResourceChange(resource, true);
+    }
+    setNewLearningResource("");
+  };
+
+  // Reset to original state
+  const handleReset = () => {
+    resetTLAMethods();
+    setCustomTeachingMethods([]);
+    setCustomLearningResources([]);
+  };
+
+  const totalCounts = calculateTotalCounts();
+
+  // Calculate validity status for UI indicators
+  const validOutcomesCount = courseOutcomes.filter((outcome) => {
+    const hasMethods =
+      (outcome.tla_assessment_method?.teaching_methods?.length || 0) > 0;
+    const hasResources =
+      (outcome.tla_assessment_method?.learning_resources?.length || 0) > 0;
+    return hasMethods && hasResources;
+  }).length;
+
+  const isAllValid = validOutcomesCount === courseOutcomes.length;
+
+  return (
+    <div className="space-y-6">
+      {/* Header with modification status */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold">
+            Teaching Methods & Learning Resources
+          </h2>
+          {isModified && (
+            <Badge variant="secondary" className="bg-green-100 text-green-800">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Modified
+            </Badge>
+          )}
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" disabled={!isModified}>
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset Changes
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Reset Teaching & Learning Methods
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                This will reset all teaching methods and learning resources to
+                their original state. Any changes you&apos;ve made will be lost.
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleReset}>Reset</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+
+      {/* Instructions */}
+      <TLAMethodInstructions
+        teachingMethodsCount={totalCounts.teachingMethods}
+        learningResourcesCount={totalCounts.learningResources}
+      />
+
+      {/* Completion status */}
+      <div className="flex items-center justify-between text-sm">
+        <span>
+          Progress: {validOutcomesCount} of {courseOutcomes.length} completed
+        </span>
+        {!isAllValid && (
+          <div className="flex items-center gap-2 text-amber-600">
+            <AlertTriangle className="w-4 h-4" />
+            <span>
+              All course outcomes must have at least one teaching method and one
+              learning resource
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Tabs for Course Outcomes */}
+      <Tabs
+        value={selectedCOIndex.toString()}
+        onValueChange={(value) => setSelectedCOIndex(Number.parseInt(value))}
+      >
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 mb-4">
+          {courseOutcomes.map((outcome, index) => {
+            const hasMethods =
+              (outcome.tla_assessment_method?.teaching_methods?.length || 0) >
+              0;
+            const hasResources =
+              (outcome.tla_assessment_method?.learning_resources?.length || 0) >
+              0;
+            const isValid = hasMethods && hasResources;
+
+            return (
+              <TabsTrigger
+                key={index}
+                value={index.toString()}
+                className="relative"
+              >
+                CO{index + 1}
+                {isValid ? (
+                  <CheckCircle className="h-3 w-3 text-green-500 absolute -top-1 -right-1" />
+                ) : (
+                  <AlertTriangle className="h-3 w-3 text-amber-500 absolute -top-1 -right-1" />
+                )}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+
+        {courseOutcomes.map((outcome, coIndex) => (
+          <TLAMethodTabContent
+            key={coIndex}
+            outcome={outcome}
+            coIndex={coIndex}
+            allTeachingMethods={getAllTeachingMethods()}
+            allLearningResources={getAllLearningResources()}
+            handleTeachingMethodChange={handleTeachingMethodChange}
+            handleLearningResourceChange={handleLearningResourceChange}
+            newTeachingMethod={newTeachingMethod}
+            setNewTeachingMethod={setNewTeachingMethod}
+            handleAddTeachingMethod={handleAddTeachingMethod}
+            newLearningResource={newLearningResource}
+            setNewLearningResource={setNewLearningResource}
+            handleAddLearningResource={handleAddLearningResource}
+          />
+        ))}
+      </Tabs>
+
+      {/* Summary Table */}
+      <TLAMethodSummaryTable courseOutcomes={courseOutcomes} />
+    </div>
+  );
+}

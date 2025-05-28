@@ -36,7 +36,7 @@ const useUserInfo = () => {
       const response = await api.post("change-user-info", {
         first_name: userData.First_Name,
         last_name: userData.Last_Name,
-        email: userData.Role,
+        email: userData.Email,
       });
       return response.data;
     },

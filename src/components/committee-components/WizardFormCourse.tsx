@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
   CourseOutcome,
-  useCourseDetailsStore,
+  // useCourseDetailsStore,
+  createCourseDetailsStore,
 } from "@/store/course/course-store";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -33,6 +34,12 @@ interface WizardFormCourseProps {
 
 export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   const router = useRouter();
+
+  // Create a ref to hold our store
+  const storeRef = useRef<ReturnType<typeof createCourseDetailsStore> | null>(
+    null
+  );
+
   const [formError, setFormError] = useState<
     Record<string, string[]> | string | null
   >(null);
@@ -44,6 +51,13 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
   const { coursePOs, isLoading: poLoading } = useCoursePO(
     parseInt(courseId, 10)
   );
+
+  // Create the store once if it doesn't exist
+  if (!storeRef.current) {
+    storeRef.current = createCourseDetailsStore(courseId);
+  }
+  // Create a course-specific store
+  const courseStore = storeRef.current;
 
   const {
     courseCode,
@@ -92,7 +106,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
 
     setProgramOutcomes,
     resetStore,
-  } = useCourseDetailsStore();
+  } = courseStore();
 
   // Initialize course information when component mounts
   useEffect(() => {
@@ -181,7 +195,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
       setCurrentStep(currentStep - 1);
     } else {
       // Go back to the courses page
-      router.push("/faculty/courses");
+      router.push("/faculty/all-courses");
     }
   };
 
@@ -266,7 +280,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
 
       // Reset store and navigate on success
       resetStore();
-      router.push("/faculty/courses");
+      router.push("/faculty/all-courses");
     } catch (error) {
       console.error("Error submitting course details:", error);
       // Error is already handled by the submitCurriculumCourseDetailsHandler
@@ -366,7 +380,7 @@ export function WizardFormCourse({ courseId }: WizardFormCourseProps) {
         </p>
         <Button
           className="mt-4"
-          onClick={() => router.push("/faculty/courses")}
+          onClick={() => router.push("/faculty/all-courses")}
         >
           Return to Courses
         </Button>

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export type CourseStatus = "pending" | "revision";
+export type CourseStatus = "completed" | "pending" | "revision";
 
 export interface CourseCardProps {
   id: string;
@@ -13,7 +13,6 @@ export interface CourseCardProps {
   yearSemester: string;
   units: number;
   status: CourseStatus;
-  revisionReason?: string;
   actionText: string;
   actionVariant?:
     | "default"
@@ -33,7 +32,6 @@ export function CourseCard({
   yearSemester,
   units,
   status,
-  revisionReason,
   actionText,
   actionVariant = "default",
   onAction,
@@ -46,11 +44,17 @@ export function CourseCard({
   const statusBadgeClass =
     status === "pending"
       ? "bg-amber-100 text-amber-800"
-      : "bg-red-100 text-red-800";
+      : status === "revision"
+        ? "bg-red-100 text-red-800"
+        : "bg-green-100 text-green-800"; // for completed status
 
   // Determine status text
   const statusText =
-    status === "pending" ? "Pending Details" : "Needs Revision";
+    status === "pending"
+      ? "Pending Details"
+      : status === "revision"
+        ? "Needs Revision"
+        : "Completed";
 
   return (
     <Card className={`overflow-hidden ${borderClass}`}>
@@ -75,11 +79,6 @@ export function CourseCard({
                   {statusText}
                 </span>
               </div>
-              {revisionReason && (
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium">Reason:</span> {revisionReason}
-                </p>
-              )}
             </div>
           </div>
           <Button variant={actionVariant} onClick={onAction}>
