@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,12 +9,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, AlertCircle } from "lucide-react";
 import { getSemesterName } from "@/app/utils/department/getSemesterName";
-import type { CourseCategory, YearSemester } from "@/store/wizard-store";
+import type {
+  CourseCategory,
+  YearSemester,
+  Course,
+  CurriculumCourse,
+} from "@/store/wizard-store";
 
 interface NewCourseFormProps {
   courseCategories: CourseCategory[];
+  premadeCourses: Course[]; // Add this to check duplicates
+  curriculumCourses: CurriculumCourse[]; // Add this to check duplicates
   yearSemesters: YearSemester[];
   handleAddNewCourse: () => void;
   newCourseCode: string;
@@ -26,11 +34,14 @@ interface NewCourseFormProps {
   setSelectedYearSemester: (value: string) => void;
   units: string;
   setUnits: (value: string) => void;
+  setError: (value: string) => void;
 }
 
 export function NewCourseForm({
   courseCategories,
   yearSemesters,
+  premadeCourses,
+  curriculumCourses,
   handleAddNewCourse,
   newCourseCode,
   setNewCourseCode,
@@ -42,7 +53,35 @@ export function NewCourseForm({
   setSelectedYearSemester,
   units,
   setUnits,
+  setError,
 }: NewCourseFormProps) {
+  const [isDuplicate, setIsDuplicate] = useState(false);
+
+  // Check for duplicates when course code changes
+  useEffect(() => {
+    if (newCourseCode.trim()) {
+      // Check against existing courses in both collections
+      const premadeCourseExists = premadeCourses.some(
+        (c) => c.code.toLowerCase() === newCourseCode.trim().toLowerCase()
+      );
+
+      const curriculumCourseExists = curriculumCourses.some(
+        (cc) => cc.code.toLowerCase() === newCourseCode.trim().toLowerCase()
+      );
+
+      const duplicate = premadeCourseExists || curriculumCourseExists;
+      setIsDuplicate(duplicate);
+
+      if (duplicate) {
+        setError(`Course with code "${newCourseCode}" already exists.`);
+      } else {
+        setError("");
+      }
+    } else {
+      setIsDuplicate(false);
+      setError("");
+    }
+  }, [newCourseCode, premadeCourses, curriculumCourses, setError]);
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -53,7 +92,16 @@ export function NewCourseForm({
             placeholder="e.g., CSIT 101"
             value={newCourseCode}
             onChange={(e) => setNewCourseCode(e.target.value)}
+            className={
+              isDuplicate ? "border-red-500 focus-visible:ring-red-500" : ""
+            }
           />
+          {isDuplicate && (
+            <div className="text-red-500 text-sm flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              This course code already exists
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -123,7 +171,8 @@ export function NewCourseForm({
           !newCourseCode.trim() ||
           !newCourseTitle.trim() ||
           !selectedCategory ||
-          !selectedYearSemester
+          !selectedYearSemester ||
+          isDuplicate // Disable if duplicate
         }
         className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white mt-4"
       >
