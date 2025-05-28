@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,16 +9,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, AlertCircle } from "lucide-react";
 import { getSemesterName } from "@/app/utils/department/getSemesterName";
 import type {
   Course,
   CourseCategory,
   YearSemester,
+  CurriculumCourse,
 } from "@/store/wizard-store";
 
 interface CourseSearchFormProps {
   premadeCourses: Course[];
+  curriculumCourses: CurriculumCourse[]; // Add this to check duplicates
+
   courseCategories: CourseCategory[];
   yearSemesters: YearSemester[];
   handleAddFromSearch: () => void;
@@ -31,10 +34,13 @@ interface CourseSearchFormProps {
   units: string;
   setUnits: (value: string) => void;
   isLoading?: boolean;
+  // error: string;
+  setError: (value: string) => void;
 }
 
 export function CourseSearchForm({
   premadeCourses,
+  curriculumCourses,
   courseCategories,
   yearSemesters,
   handleAddFromSearch,
@@ -47,8 +53,35 @@ export function CourseSearchForm({
   units,
   setUnits,
   isLoading = false,
+  // error,
+  setError,
 }: CourseSearchFormProps) {
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [isDuplicate, setIsDuplicate] = useState(false);
+
+  // Check for duplicates when selected course changes
+  useEffect(() => {
+    if (selectedCourse) {
+      const course = premadeCourses.find(
+        (c) => c.id.toString() === selectedCourse
+      );
+      if (course) {
+        const duplicate = curriculumCourses.some(
+          (cc) => cc.code.toLowerCase() === course.code.toLowerCase()
+        );
+        setIsDuplicate(duplicate);
+
+        if (duplicate) {
+          setError(
+            `Course with code "${course.code}" already exists in the curriculum.`
+          );
+        } else {
+          setError("");
+        }
+      }
+    }
+  }, [selectedCourse, premadeCourses, curriculumCourses, setError]);
 
   return (
     <div className="space-y-6">
@@ -65,8 +98,18 @@ export function CourseSearchForm({
             <span className="ml-2">Loading courses...</span>
           </div>
         ) : (
-          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-            <SelectTrigger id="selectedCourse">
+          <Select
+            value={selectedCourse}
+            onValueChange={(value) => {
+              setSelectedCourse(value);
+              // Clear error when selection changes
+              setError("");
+            }}
+          >
+            <SelectTrigger
+              id="selectedCourse"
+              className={isDuplicate ? "border-red-500" : ""}
+            >
               <SelectValue placeholder="Select a course" />
             </SelectTrigger>
             <SelectContent>
@@ -80,7 +123,6 @@ export function CourseSearchForm({
               </div>
               {premadeCourses.length === 0 ? (
                 <SelectItem value="no-courses" disabled>
-                  {/* <SelectItem value="" disabled> */}
                   No courses available
                 </SelectItem>
               ) : (
@@ -97,19 +139,38 @@ export function CourseSearchForm({
                     )
                 )
                   .filter((course) => course.id !== undefined)
-                  .map((course) => (
-                    <SelectItem key={course.id} value={course.id.toString()}>
-                      {course.code} - {course.descriptive_title}
-                    </SelectItem>
-                  ))
+                  .map((course) => {
+                    // Check if this course already exists in curriculum
+                    const isDuplicate = curriculumCourses.some(
+                      (cc) =>
+                        cc.code.toLowerCase() === course.code.toLowerCase()
+                    );
+
+                    return (
+                      <SelectItem
+                        key={course.id}
+                        value={course.id.toString()}
+                        className={isDuplicate ? "text-red-500" : ""}
+                      >
+                        {course.code} - {course.descriptive_title}
+                        {isDuplicate && " (Already added)"}
+                      </SelectItem>
+                    );
+                  })
               )}
             </SelectContent>
           </Select>
         )}
+        {isDuplicate && (
+          <div className="text-red-500 text-sm flex items-center mt-1">
+            <AlertCircle className="h-4 w-4 mr-1" />
+            This course is already in your curriculum
+          </div>
+        )}
       </div>
 
       {/* Course Details */}
-      {selectedCourse && (
+      {selectedCourse && !isDuplicate && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
             <Label htmlFor="courseCategory">Course Category</Label>
@@ -170,7 +231,8 @@ export function CourseSearchForm({
           !selectedCourse ||
           !selectedCategory ||
           !selectedYearSemester ||
-          isLoading
+          isLoading ||
+          isDuplicate
         }
         className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white mt-4"
       >

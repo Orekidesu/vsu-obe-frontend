@@ -15,7 +15,8 @@ const DeanLayout = ({ children }: { children: React.ReactNode }) => {
   // Show back button only on paths with IDs (detail pages or revision pages)
   const shouldDisplayBackButton =
     pathname.match(/^\/dean\/proposals\/all-programs\/\d+/) ||
-    pathname.match(/^\/dean\/proposals\/all-syllabi\/\d+/);
+    pathname.match(/^\/dean\/proposals\/all-syllabi\/\d+/) ||
+    pathname.match(/^\/dean\/programs\/\d+/);
 
   if (status === "loading") {
     return <div>Loading...</div>;

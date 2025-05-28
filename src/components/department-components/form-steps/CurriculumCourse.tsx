@@ -62,6 +62,73 @@ export function CurriculumCoursesStep({
   const [editUnits, setEditUnits] = useState("");
 
   // Handle adding a course from search
+  // const handleAddFromSearch = () => {
+  //   if (!selectedCourse || !selectedCategory || !selectedYearSemester) {
+  //     setError("Please select a course, category, and year/semester.");
+  //     return;
+  //   }
+
+  //   const unitsValue = Number.parseFloat(units);
+  //   if (isNaN(unitsValue) || unitsValue <= 0) {
+  //     setError("Units must be a positive number.");
+  //     return;
+  //   }
+
+  //   // Add the course to the curriculum
+  //   addCurriculumCourse(
+  //     parseInt(selectedCourse, 10),
+  //     selectedCategory,
+  //     selectedYearSemester,
+  //     unitsValue
+  //   );
+
+  //   // Reset form
+  //   setSelectedCourse("");
+  //   setSelectedCategory("");
+  //   setSelectedYearSemester("");
+  //   setUnits("3");
+  //   setError("");
+  // };
+
+  // Handle adding a new course
+  // const handleAddNewCourse = () => {
+  //   // Validate inputs
+  //   if (
+  //     !newCourseCode.trim() ||
+  //     !newCourseTitle.trim() ||
+  //     !selectedCategory ||
+  //     !selectedYearSemester
+  //   ) {
+  //     setError("All fields are required.");
+  //     return;
+  //   }
+
+  //   const unitsValue = Number.parseFloat(units);
+  //   if (isNaN(unitsValue) || unitsValue <= 0) {
+  //     setError("Units must be a positive number.");
+  //     return;
+  //   }
+
+  //   // Add the new course to premade courses
+  //   const courseId = addCourse(newCourseCode, newCourseTitle);
+
+  //   // Add the course to the curriculum
+  //   addCurriculumCourse(
+  //     courseId,
+  //     selectedCategory,
+  //     selectedYearSemester,
+  //     unitsValue
+  //   );
+
+  //   // Reset form
+  //   setNewCourseCode("");
+  //   setNewCourseTitle("");
+  //   setSelectedCategory("");
+  //   setSelectedYearSemester("");
+  //   setUnits("3");
+  //   setError("");
+  // };
+
   const handleAddFromSearch = () => {
     if (!selectedCourse || !selectedCategory || !selectedYearSemester) {
       setError("Please select a course, category, and year/semester.");
@@ -71,6 +138,26 @@ export function CurriculumCoursesStep({
     const unitsValue = Number.parseFloat(units);
     if (isNaN(unitsValue) || unitsValue <= 0) {
       setError("Units must be a positive number.");
+      return;
+    }
+
+    // Get the selected course
+    const course = premadeCourses.find(
+      (c) => c.id.toString() === selectedCourse
+    );
+    if (!course) {
+      setError("Selected course not found.");
+      return;
+    }
+
+    // Check if this course code already exists in ANY semester (not just the current one)
+    const courseExists = curriculumCourses.some(
+      (cc) => cc.code === course.code
+    );
+    if (courseExists) {
+      setError(
+        `Course with code "${course.code}" already exists in the curriculum.`
+      );
       return;
     }
 
@@ -90,7 +177,6 @@ export function CurriculumCoursesStep({
     setError("");
   };
 
-  // Handle adding a new course
   const handleAddNewCourse = () => {
     // Validate inputs
     if (
@@ -106,6 +192,21 @@ export function CurriculumCoursesStep({
     const unitsValue = Number.parseFloat(units);
     if (isNaN(unitsValue) || unitsValue <= 0) {
       setError("Units must be a positive number.");
+      return;
+    }
+
+    // Check if a course with this code already exists in premade courses
+    const premadeCourseExists = premadeCourses.some(
+      (c) => c.code.toLowerCase() === newCourseCode.trim().toLowerCase()
+    );
+
+    // Check if this course code already exists in the curriculum
+    const curriculumCourseExists = curriculumCourses.some(
+      (cc) => cc.code.toLowerCase() === newCourseCode.trim().toLowerCase()
+    );
+
+    if (premadeCourseExists || curriculumCourseExists) {
+      setError(`Course with code "${newCourseCode}" already exists.`);
       return;
     }
 
@@ -208,6 +309,7 @@ export function CurriculumCoursesStep({
               <TabsContent value="search">
                 <CourseSearchForm
                   premadeCourses={premadeCourses}
+                  curriculumCourses={curriculumCourses} // Add this line
                   courseCategories={courseCategories}
                   yearSemesters={yearSemesters}
                   handleAddFromSearch={handleAddFromSearch}
@@ -220,6 +322,8 @@ export function CurriculumCoursesStep({
                   units={units}
                   setUnits={setUnits}
                   isLoading={isLoading}
+                  // error={error}
+                  setError={setError}
                 />
               </TabsContent>
 
@@ -227,6 +331,8 @@ export function CurriculumCoursesStep({
                 <NewCourseForm
                   courseCategories={courseCategories}
                   yearSemesters={yearSemesters}
+                  premadeCourses={premadeCourses} // Add this
+                  curriculumCourses={curriculumCourses} // Add this
                   handleAddNewCourse={handleAddNewCourse}
                   newCourseCode={newCourseCode}
                   setNewCourseCode={setNewCourseCode}
@@ -238,6 +344,7 @@ export function CurriculumCoursesStep({
                   setSelectedYearSemester={setSelectedYearSemester}
                   units={units}
                   setUnits={setUnits}
+                  setError={setError}
                 />
               </TabsContent>
             </Tabs>
