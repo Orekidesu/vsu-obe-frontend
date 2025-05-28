@@ -95,6 +95,8 @@ export function ProgramHeader({
           </h1>
           {role === "Department" ? (
             <p className="text-gray-600 mt-1">Review Program Details</p>
+          ) : status === "approved" ? (
+            <p className="text-gray-600 mt-1">View Active Program</p>
           ) : (
             <p className="text-gray-600 mt-1">
               Review and take action on the proposed program
