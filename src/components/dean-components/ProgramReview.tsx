@@ -22,6 +22,7 @@ import useProgramProposals from "@/hooks/department/useProgramProposal";
 import type { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import useCurriculumCourses from "@/hooks/faculty-member/useCourseCurriculum";
 import { useToast } from "@/hooks/use-toast";
+
 interface RevisionRequest {
   section: string;
   details: string;
@@ -758,6 +759,7 @@ export default function ProgramReviewPage({
         actionTaken={actionTaken}
         onApprove={handleApprove}
         onRevise={handleRevise}
+        status={programData?.status}
         // onReject={handleReject}
         role="Dean"
       />
@@ -768,7 +770,7 @@ export default function ProgramReviewPage({
         programAbbreviation={transformedData.program.abbreviation}
         curriculumName={transformedData.curriculum.name}
         totalCourses={transformedData.curriculum_courses.length}
-        status="pending"
+        status={programData?.status}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">

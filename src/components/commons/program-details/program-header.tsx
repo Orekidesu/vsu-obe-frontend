@@ -16,6 +16,7 @@ interface ProgramHeaderProps {
   onApprove?: () => void;
   onRevise?: () => void;
   onReject?: () => void;
+  status?: string;
   role?: string;
 }
 
@@ -25,11 +26,12 @@ export function ProgramHeader({
   actionTaken,
   onApprove,
   onRevise,
+  status,
   // onReject,
   role,
 }: ProgramHeaderProps) {
   // Show actions for Dean role
-  const showActions = role === "Dean";
+  const showActions = role === "Dean" && status !== "approved";
 
   // Changed this to show alert when role is Dean and there's an action taken
   const showAlert = role === "Dean" && actionTaken;
@@ -93,6 +95,8 @@ export function ProgramHeader({
           </h1>
           {role === "Department" ? (
             <p className="text-gray-600 mt-1">Review Program Details</p>
+          ) : status === "approved" ? (
+            <p className="text-gray-600 mt-1">View Active Program</p>
           ) : (
             <p className="text-gray-600 mt-1">
               Review and take action on the proposed program

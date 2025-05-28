@@ -72,6 +72,7 @@ const roleMenuItems: Record<string, MenuItem[]> = {
   ],
   Dean: [
     { title: "Dashboard", url: "/dean", icon: LayoutDashboard },
+    { title: "Programs", url: "/dean/programs", icon: GraduationCap },
     {
       title: "Proposals",
       icon: BookOpenText,

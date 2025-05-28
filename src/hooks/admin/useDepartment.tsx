@@ -2,14 +2,28 @@ import useApi from "@/hooks/useApi";
 import { Department } from "@/types/model/Department";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { APIError } from "@/app/utils/errorHandler";
+import { useAuth } from "@/hooks/useAuth";
+import { Session } from "@/app/api/auth/[...nextauth]/authOptions";
 
 interface DeleteDepartmentContext {
   previousDepartments?: Department[];
 }
 
-const useDepartments = () => {
+interface useDepartmentsOptions {
+  role?: "admin" | "dean";
+}
+
+const useDepartments = (options: useDepartmentsOptions = {}) => {
   const api = useApi();
   const queryClient = useQueryClient();
+
+  const { session } = useAuth();
+
+  const role =
+    options.role || ((session as Session)?.Role === "Admin" ? "admin" : "dean");
+
+  // fetch programs
+  const endpoint = `${role}/departments`;
 
   const {
     data: departments,
@@ -18,9 +32,7 @@ const useDepartments = () => {
   } = useQuery({
     queryKey: ["departments"],
     queryFn: async () => {
-      const response = await api.get<{ data: Department[] }>(
-        "admin/departments"
-      );
+      const response = await api.get<{ data: Department[] }>(endpoint);
       const responseData = response.data.data;
       return responseData;
     },

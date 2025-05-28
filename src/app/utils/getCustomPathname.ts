@@ -19,6 +19,9 @@ const getCustomPathname = (path: string) => {
     if (path.match(/^\/dean\/proposals\/all-programs\/\d+\/revision$/)) {
       return `Program Proposal Revision`;
     }
+    if (path.match(/^\/dean\/programs\/\d+$/)) {
+      return `Active Programs`;
+    }
     if (path.match(/^\/dean\/proposals\/all-syllabi\/\d+\/revision$/)) {
       return `Syllabus Proposal Revision`;
     }
@@ -34,6 +37,8 @@ const getCustomPathname = (path: string) => {
     switch (path) {
       case "/dean":
         return "Dashboard";
+      case "/dean/programs":
+        return "Active Programs";
       case "/dean/proposals/all-programs":
         return "Program Proposals";
       case "/dean/proposals/all-syllabi":
