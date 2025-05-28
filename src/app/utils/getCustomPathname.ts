@@ -16,11 +16,11 @@ const getCustomPathname = (path: string) => {
 
   if (path.startsWith("/dean")) {
     // Check for dynamic paths with IDs
-    if (path.match(/^\/dean\/proposals\/all-programs\/\d+\/revision$/)) {
-      return `Program Proposal Revision`;
-    }
     if (path.match(/^\/dean\/programs\/\d+$/)) {
       return `Active Programs`;
+    }
+    if (path.match(/^\/dean\/proposals\/all-programs\/\d+\/revision$/)) {
+      return `Program Proposal Revision`;
     }
     if (path.match(/^\/dean\/proposals\/all-syllabi\/\d+\/revision$/)) {
       return `Syllabus Proposal Revision`;
