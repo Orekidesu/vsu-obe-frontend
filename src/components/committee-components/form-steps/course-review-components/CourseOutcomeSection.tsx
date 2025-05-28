@@ -30,9 +30,9 @@ export function CourseOutcomesSection({
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
+                  {/* <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
                     ID
-                  </th>
+                  </th> */}
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
                     Name
                   </th>
@@ -44,7 +44,7 @@ export function CourseOutcomesSection({
               <tbody className="divide-y">
                 {courseOutcomes.map((outcome) => (
                   <tr key={outcome.id}>
-                    <td className="px-4 py-3 text-sm">{outcome.name}</td>
+                    {/* <td className="px-4 py-3 text-sm">{outcome.name}</td> */}
                     <td className="px-4 py-3 text-sm">{outcome.name}</td>
                     <td className="px-4 py-3 text-sm">{outcome.statement}</td>
                   </tr>
