@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
 import usePrograms from "@/hooks/shared/useProgram";
+import useDepartments from "@/hooks/admin/useDepartment";
 import { Skeleton } from "@/components/ui/skeleton";
-// import { Loader2 } from "lucide-react";
-
 import CustomCard2 from "@/components/commons/card/CustomCard2";
+import DepartmentTable from "@/components/dean-components/table/DepartmentTable";
 
 const DashboardPage = () => {
   const {
@@ -12,7 +12,12 @@ const DashboardPage = () => {
     isLoading: isProgramLoading,
     error: programError,
   } = usePrograms();
-  // const { session } = useAuth() as { session: Session | null };
+
+  const {
+    departments,
+    isLoading: isDepartmentLoading,
+    error: departmentError,
+  } = useDepartments({ role: "dean" });
 
   const activePrograms = programs?.filter(
     (program) => program.status === "active"
@@ -22,20 +27,20 @@ const DashboardPage = () => {
   );
 
   if (programError) {
-    return <div>failed to load programs</div>;
+    return <div>Failed to load programs</div>;
   }
 
-  console.log(programs);
+  if (departmentError) {
+    return <div>Failed to load departments</div>;
+  }
 
   return (
-    <div className="grid grid-rows-1 content-center">
-      <div className="flex flex-col md:flex-row justify-evenly gap-2 ">
+    <div className="grid grid-rows-1 content-center gap-8">
+      <div className="flex flex-col md:flex-row justify-evenly gap-2">
         {isProgramLoading ? (
           <>
             <Skeleton className="w-full h-40" />
             <Skeleton className="w-full h-40" />
-            {/* <Skeleton className="w-full h-40" />
-            <Skeleton className="w-full h-40" /> */}
           </>
         ) : (
           <>
@@ -49,21 +54,17 @@ const DashboardPage = () => {
               value={pendingPrograms?.length || 0}
               description="Total number of programs that is yet to be approved"
             />
-            {/* <CustomCard2
-              title="All Syllabi"
-              value={5}
-              description="Total number of approved Syllabi"
-            />
-            <CustomCard2
-              title="Pending Syllabi"
-              value={10}
-              description="Total number of Syllabi that is yet to be approved"
-            /> */}
           </>
         )}
       </div>
-      <div className="pt-8">
-        {/* <h2 className="font-semibold">Programs</h2> */}
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Departments</h2>
+        {isDepartmentLoading ? (
+          <Skeleton className="w-full h-64" />
+        ) : (
+          <DepartmentTable departments={departments || []} />
+        )}
       </div>
     </div>
   );
