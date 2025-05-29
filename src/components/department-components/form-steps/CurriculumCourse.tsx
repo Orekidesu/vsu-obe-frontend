@@ -134,7 +134,19 @@ export function CurriculumCoursesStep({
       setError("Please select a course, category, and year/semester.");
       return;
     }
-
+    // Validate year-semester exists and has valid data
+    const selectedYS = yearSemesters.find(
+      (ys) => ys.id === selectedYearSemester
+    );
+    if (
+      !selectedYS ||
+      !selectedYS.year ||
+      selectedYS.year < 1 ||
+      !selectedYS.semester
+    ) {
+      setError("Invalid year-semester selection.");
+      return;
+    }
     const unitsValue = Number.parseFloat(units);
     if (isNaN(unitsValue) || unitsValue <= 0) {
       setError("Units must be a positive number.");
@@ -278,6 +290,7 @@ export function CurriculumCoursesStep({
       (cc) => cc.yearSemesterId === ys.id
     );
   });
+  console.log(curriculumCourses);
 
   return (
     <>
