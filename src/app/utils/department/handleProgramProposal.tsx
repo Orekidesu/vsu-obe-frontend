@@ -248,12 +248,25 @@ export const createFullProgramProposalPayload = (
       const category = courseCategories.find(
         (cat) => cat.id === course.categoryId
       );
+      // Validate required data
+      if (!yearSemester) {
+        throw new Error(`No year-semester found for course ${course.code}`);
+      }
+      if (!category) {
+        throw new Error(`No category found for course ${course.code}`);
+      }
+      if (!yearSemester.year || yearSemester.year < 1) {
+        throw new Error(`Invalid year for course ${course.code}`);
+      }
+      if (!yearSemester.semester || yearSemester.semester.trim() === "") {
+        throw new Error(`Invalid semester for course ${course.code}`);
+      }
 
       return {
         course_code: course.code,
-        category_code: category?.code || "",
-        semester_year: yearSemester?.year || 0,
-        semester_name: yearSemester?.semester || "",
+        category_code: category?.code,
+        semester_year: yearSemester?.year,
+        semester_name: yearSemester?.semester,
         units: course.units,
       };
     }),
