@@ -7,6 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
 import { ProgramResponse } from "@/types/model/Program";
@@ -124,82 +131,108 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
     courseStats?.completed === courseStats?.total &&
     (courseStats?.total || 0) > 0;
 
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <CardTitle>{title}</CardTitle>
-          <StatusBadge status={status} />
-        </div>
-        <CardDescription>
-          {abbreviation} {version && `Version ${version}`}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {formattedDate && (
-          <p className="text-sm text-gray-500 mb-2">
-            {dateLabel}: {formattedDate}
-          </p>
-        )}
+  const isSubmitDisabled = !allCoursesCompleted || isSubmitting;
 
-        {/* Show course status for pending proposals */}
-        {status === "pending" && courseStats && (
-          <div className="mt-3 space-y-1">
-            <h4 className="text-sm font-medium">Course Status:</h4>
-            <div className="grid grid-cols-3 gap-2 text-sm">
-              <div className="flex flex-col items-center p-2 bg-green-50 rounded-md">
-                <span className="font-medium text-green-700">
-                  {courseStats.completed}
-                </span>
-                <span className="text-xs text-gray-600">Completed</span>
-              </div>
-              <div className="flex flex-col items-center p-2 bg-amber-50 rounded-md">
-                <span className="font-medium text-amber-700">
-                  {courseStats.pending}
-                </span>
-                <span className="text-xs text-gray-600">Pending</span>
-              </div>
-              <div className="flex flex-col items-center p-2 bg-red-50 rounded-md">
-                <span className="font-medium text-red-700">
-                  {courseStats.needsRevision}
-                </span>
-                <span className="text-xs text-gray-600">Needs Revision</span>
+  const getTooltipMessage = () => {
+    if (isSubmitDisabled && !isSubmitting) {
+      return "All courses must be completed before submitting for review.";
+    }
+    return "";
+  };
+  return (
+    <TooltipProvider>
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <CardTitle>{title}</CardTitle>
+            <StatusBadge status={status} />
+          </div>
+          <CardDescription>
+            {abbreviation} {version && `Version ${version}`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {formattedDate && (
+            <p className="text-sm text-gray-500 mb-2">
+              {dateLabel}: {formattedDate}
+            </p>
+          )}
+
+          {/* Show course status for pending proposals */}
+          {status === "pending" && courseStats && (
+            <div className="mt-3 space-y-1">
+              <h4 className="text-sm font-medium">Course Status:</h4>
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div className="flex flex-col items-center p-2 bg-green-50 rounded-md">
+                  <span className="font-medium text-green-700">
+                    {courseStats.completed}
+                  </span>
+                  <span className="text-xs text-gray-600">Completed</span>
+                </div>
+                <div className="flex flex-col items-center p-2 bg-amber-50 rounded-md">
+                  <span className="font-medium text-amber-700">
+                    {courseStats.pending}
+                  </span>
+                  <span className="text-xs text-gray-600">Pending</span>
+                </div>
+                <div className="flex flex-col items-center p-2 bg-red-50 rounded-md">
+                  <span className="font-medium text-red-700">
+                    {courseStats.needsRevision}
+                  </span>
+                  <span className="text-xs text-gray-600">Needs Revision</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="flex justify-end gap-2">
-        <Button variant="outline" onClick={handleViewDetails}>
-          View Details
-        </Button>
-
-        {status === "revision" && (
-          <Button onClick={() => onEdit && onEdit(id)}>Edit Program</Button>
-        )}
-
-        {/* Submit for Review button if all courses are completed */}
-        {status === "pending" && allCoursesCompleted && onSubmitForReview && (
-          <Button
-            onClick={() => onSubmitForReview(id)}
-            className="bg-green-600 hover:bg-green-700"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              <>
-                <Check className="h-4 w-4 mr-2" />
-                Submit for Review
-              </>
-            )}
+          )}
+        </CardContent>
+        <CardFooter className="flex justify-end gap-2">
+          <Button variant="outline" onClick={handleViewDetails}>
+            View Details
           </Button>
-        )}
-      </CardFooter>
-    </Card>
+
+          {status === "revision" && (
+            <Button onClick={() => onEdit && onEdit(id)}>Edit Program</Button>
+          )}
+
+          {/* Submit for Review button if all courses are completed */}
+          {status === "pending" && onSubmitForReview && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button
+                    onClick={() => !isSubmitDisabled && onSubmitForReview(id)}
+                    className={`${
+                      allCoursesCompleted && !isSubmitting
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
+                    }`}
+                    disabled={isSubmitDisabled}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Submit for Review
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              {/* Only show tooltip when button is disabled and not submitting */}
+              {isSubmitDisabled && !isSubmitting && (
+                <TooltipContent>
+                  <p>{getTooltipMessage()}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          )}
+        </CardFooter>
+      </Card>
+    </TooltipProvider>
   );
 };
 
