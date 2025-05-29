@@ -5,6 +5,7 @@ import useDepartments from "@/hooks/admin/useDepartment";
 import { Skeleton } from "@/components/ui/skeleton";
 import CustomCard2 from "@/components/commons/card/CustomCard2";
 import DepartmentTable from "@/components/dean-components/table/DepartmentTable";
+import useProgramProposals from "@/hooks/department/useProgramProposal";
 
 const DashboardPage = () => {
   const {
@@ -22,8 +23,17 @@ const DashboardPage = () => {
   const activePrograms = programs?.filter(
     (program) => program.status === "active"
   );
-  const pendingPrograms = programs?.filter(
-    (program) => program.status === "pending"
+  // const pendingPrograms = programs?.filter(
+  //   (program) => program.status === "pending"
+  // );
+  const {
+    programProposals,
+    isLoading: isProposalLoading,
+    error: proposalError,
+  } = useProgramProposals({ role: "dean" });
+
+  const proposalsForReview = programProposals?.filter(
+    (proposal) => proposal.status === "review"
   );
 
   if (programError) {
@@ -34,10 +44,14 @@ const DashboardPage = () => {
     return <div>Failed to load departments</div>;
   }
 
+  if (proposalError) {
+    return <div>Failed to load program proposals</div>;
+  }
+
   return (
     <div className="grid grid-rows-1 content-center gap-8">
       <div className="flex flex-col md:flex-row justify-evenly gap-2">
-        {isProgramLoading ? (
+        {isProgramLoading || isProposalLoading ? (
           <>
             <Skeleton className="w-full h-40" />
             <Skeleton className="w-full h-40" />
@@ -51,8 +65,8 @@ const DashboardPage = () => {
             />
             <CustomCard2
               title="Pending Programs"
-              value={pendingPrograms?.length || 0}
-              description="Total number of programs that is yet to be approved"
+              value={proposalsForReview?.length || 0}
+              description="Total number of programs that is yet to be approved and is ready for review"
             />
           </>
         )}
@@ -63,7 +77,10 @@ const DashboardPage = () => {
         {isDepartmentLoading ? (
           <Skeleton className="w-full h-64" />
         ) : (
-          <DepartmentTable departments={departments || []} />
+          <DepartmentTable
+            departments={departments || []}
+            programProposals={programProposals || []}
+          />
         )}
       </div>
     </div>

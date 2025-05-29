@@ -9,15 +9,20 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Department } from "@/types/model/Department";
+import { ProgramProposalResponse } from "@/types/model/ProgramProposal";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DepartmentTableProps {
   departments: Department[];
+  programProposals?: ProgramProposalResponse[];
 }
 
-export default function DepartmentTable({ departments }: DepartmentTableProps) {
+export default function DepartmentTable({
+  departments,
+  programProposals = [],
+}: DepartmentTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Count active and pending programs for each department
@@ -26,13 +31,16 @@ export default function DepartmentTable({ departments }: DepartmentTableProps) {
       department.programs?.filter((program) => program.status === "active") ||
       [];
 
-    const pendingPrograms =
-      department.programs?.filter((program) => program.status === "pending") ||
-      [];
+    // Count program proposals with status "review" for this department
+    const proposalsForReview = programProposals.filter(
+      (proposal) =>
+        proposal.status === "review" &&
+        proposal.program.department_id === department.id
+    );
 
     return {
       activeCount: activePrograms.length,
-      pendingCount: pendingPrograms.length,
+      proposalsForReviewCount: proposalsForReview.length,
     };
   };
 
@@ -42,6 +50,9 @@ export default function DepartmentTable({ departments }: DepartmentTableProps) {
       department.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       department.abbreviation.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  console.log(departments);
+  console.log(programProposals);
 
   return (
     <div className="space-y-4">
@@ -89,7 +100,7 @@ export default function DepartmentTable({ departments }: DepartmentTableProps) {
               </TableRow>
             ) : (
               filteredDepartments.map((department) => {
-                const { activeCount, pendingCount } =
+                const { activeCount, proposalsForReviewCount } =
                   getDepartmentStats(department);
                 return (
                   <TableRow key={department.id}>
@@ -112,7 +123,7 @@ export default function DepartmentTable({ departments }: DepartmentTableProps) {
                         variant="outline"
                         className="bg-amber-50 text-amber-700 hover:bg-amber-100"
                       >
-                        {pendingCount}
+                        {proposalsForReviewCount}
                       </Badge>
                     </TableCell>
                   </TableRow>
