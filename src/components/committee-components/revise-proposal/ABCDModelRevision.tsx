@@ -49,6 +49,7 @@ export function ABCDModelRevision({
     modifiedSections,
     updateCourseOutcome,
     resetABCDModels,
+    markSectionAsModified,
   } = store();
 
   const [activeTab, setActiveTab] = useState(0);
@@ -141,6 +142,7 @@ export function ABCDModelRevision({
           degree: formData.degree,
         },
       });
+      markSectionAsModified("abcd");
       setIsEditing(false);
       resetForm();
     }
