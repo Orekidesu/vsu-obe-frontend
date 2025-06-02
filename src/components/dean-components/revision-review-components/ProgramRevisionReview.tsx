@@ -55,6 +55,7 @@ import { ReviseDialog } from "@/components/commons/program-details/revise-dialog
 
 import { CourseDetailsFormat } from "../program-review-components/types/CourseDetails";
 import { CourseDetailsTabs } from "../program-review-components/CourseDetailsTabs";
+import { useRouter } from "next/navigation";
 
 interface ProgramRevisionReviewProps {
   proposalId: number;
@@ -88,6 +89,7 @@ export default function ProgramRevisionReview({
   const { getProgramProposalFromCache, submitProposalReview } =
     useProgramProposals({ role: "dean" });
   const { toast } = useToast();
+  const router = useRouter();
 
   const [reviseDialogOpen, setReviseDialogOpen] = useState(false);
   const [currentSection, setCurrentSection] = useState("");
@@ -284,6 +286,7 @@ export default function ProgramRevisionReview({
             });
             setReviseDialogOpen(false);
             setRevisionRequests([]);
+            router.push("/dean/proposals/all-programs");
           },
           onError: () => {
             toast({

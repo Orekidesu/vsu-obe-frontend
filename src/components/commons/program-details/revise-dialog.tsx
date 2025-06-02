@@ -86,19 +86,35 @@ export function ReviseDialog({
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   // Helper function to get section display name
+  // const getSectionDisplayName = (sectionKey: string) => {
+  //   const sectionNames: Record<string, string> = {
+  //     program: "Program Details",
+  //     peos: "Program Educational Objectives",
+  //     "peo-mission-mappings": "PEO to Mission Mapping",
+  //     "ga-peo-mappings": "GA to PEO Mapping",
+  //     "program-outcomes": "Program Outcomes",
+  //     "po-peo-mappings": "PO to PEO Mapping",
+  //     "po-ga-mappings": "PO to GA Mapping",
+  //     curriculum: "Curriculum Name",
+  //     "course-categories": "Course Categories",
+  //     "curriculum-courses": "Curriculum Courses",
+  //     "course-po-mappings": "Course to PO Mapping",
+  //   };
+  //   return sectionNames[sectionKey] || sectionKey;
+  // };
   const getSectionDisplayName = (sectionKey: string) => {
     const sectionNames: Record<string, string> = {
       program: "Program Details",
       peos: "Program Educational Objectives",
-      "peo-mission-mappings": "PEO to Mission Mapping",
-      "ga-peo-mappings": "GA to PEO Mapping",
-      "program-outcomes": "Program Outcomes",
-      "po-peo-mappings": "PO to PEO Mapping",
-      "po-ga-mappings": "PO to GA Mapping",
+      peo_mission_mappings: "PEO to Mission Mapping", // Fixed: was "peo-mission-mappings"
+      ga_peo_mappings: "GA to PEO Mapping", // Fixed: was "ga-peo-mappings"
+      pos: "Program Outcomes", // Fixed: was "program-outcomes"
+      po_peo_mappings: "PO to PEO Mapping", // Fixed: was "po-peo-mappings"
+      po_ga_mappings: "PO to GA Mapping", // Fixed: was "po-ga-mappings"
       curriculum: "Curriculum Name",
-      "course-categories": "Course Categories",
-      "curriculum-courses": "Curriculum Courses",
-      "course-po-mappings": "Course to PO Mapping",
+      course_categories: "Course Categories", // Fixed: was "course-categories"
+      curriculum_courses: "Curriculum Courses", // Fixed: was "curriculum-courses"
+      course_po_mappings: "Course to PO Mapping", // Fixed: was "course-po-mappings"
     };
     return sectionNames[sectionKey] || sectionKey;
   };
