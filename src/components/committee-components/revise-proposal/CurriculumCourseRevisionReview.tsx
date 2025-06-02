@@ -32,7 +32,7 @@ import {
 import { useCourseRevisionStore } from "./store-provider/CourseRevisionStoreProvider";
 
 import {
-  sampleCourseRevisionData,
+  // sampleCourseRevisionData,
   getCourseRevisionSectionDisplayName,
 } from "@/store/revision/sample-data/courseData";
 
@@ -41,6 +41,13 @@ interface CourseRevisionReviewProps {
   onSubmit: () => void;
   onEditSection: (section: string) => void;
   isSubmitting?: boolean;
+  revisions: Array<{
+    // Add this prop
+    id: number;
+    section: string;
+    details: string;
+    created_at: string;
+  }>;
 }
 
 export function CourseRevisionReview({
@@ -48,6 +55,7 @@ export function CourseRevisionReview({
   onSubmit,
   onEditSection,
   isSubmitting = false,
+  revisions,
 }: CourseRevisionReviewProps) {
   const store = useCourseRevisionStore();
   const { currentCourse, modifiedSections, courseOutcomes } = store();
@@ -56,7 +64,7 @@ export function CourseRevisionReview({
     new Set()
   );
 
-  const { revisions } = sampleCourseRevisionData;
+  // const { revisions } = sampleCourseRevisionData;
 
   const toggleSection = (section: string) => {
     const newExpanded = new Set(expandedSections);
