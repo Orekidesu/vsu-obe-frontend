@@ -346,6 +346,7 @@ export function CurriculumCourseRevisionWizard({
             onSubmit={handleSubmitRevisions}
             isSubmitting={isSubmitting}
             onEditSection={handleEditSection}
+            revisions={revisions}
           />
         ) : isRevising ? (
           <div className="max-w-4xl mx-auto">

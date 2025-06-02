@@ -363,7 +363,8 @@ export const createCourseRevisionStore = (curriculumCourseId: string) => {
 
             // Remove only the ABCD section from modified sections
             const modifiedSections = new Set(get().modifiedSections);
-            modifiedSections.delete("course_outcomes"); // Remove this if only ABCD was modified
+            // modifiedSections.delete("course_outcomes"); // Remove this if only ABCD was modified
+            modifiedSections.delete("abcd"); // Remove this if only ABCD was modified
             set({ modifiedSections });
           }
         },

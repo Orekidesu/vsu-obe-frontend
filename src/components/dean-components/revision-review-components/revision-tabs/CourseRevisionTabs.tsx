@@ -263,23 +263,13 @@ export function CourseRevisionTabs({
                                   )}
 
                                   {/* TLA Method */}
-                                  {revision.section === "tla_methods" && (
+                                  {revision.section ===
+                                    "tla_assessment_method" && (
                                     <div className="mt-4">
                                       <TeachingLearningCard
                                         courseOutcomes={
-                                          transformCourseData(
-                                            courseRev.courseData
-                                          ).courseOutcomes
-                                        }
-                                        teachingMethods={
-                                          transformCourseData(
-                                            courseRev.courseData
-                                          ).teachingMethods
-                                        }
-                                        learningResources={
-                                          transformCourseData(
-                                            courseRev.courseData
-                                          ).learningResources
+                                          // Use the raw course outcomes from courseData instead of transformed data
+                                          courseRev.courseData?.course_outcomes
                                         }
                                         title="Teaching Methods & Learning Resources"
                                       />
