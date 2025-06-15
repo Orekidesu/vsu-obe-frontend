@@ -627,7 +627,9 @@ export default function ProgramReviewPage({
   const transformRevisionData = (requests: RevisionRequest[]) => {
     const result: {
       status: string;
+
       department_level: Array<{ section: string; details: string }>;
+
       committee_level: Array<{
         curriculum_course_id: number;
         section: string;
@@ -642,7 +644,10 @@ export default function ProgramReviewPage({
     requests.forEach((request) => {
       if (request.type === "section") {
         // Handle program-level revisions
-        // ...
+        result.department_level.push({
+          section: request.section,
+          details: request.details,
+        });
       } else if (request.type === "course") {
         // Handle course-level revisions
         result.committee_level.push({
