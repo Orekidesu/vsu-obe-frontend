@@ -5,31 +5,49 @@ A comprehensive Outcomes-Based Education (OBE) management and monitoring system 
 ## 🚀 Features
 
 • **Multi-Role Authentication**: Separate dashboards for Admin, Dean, Department, Faculty, and Committee members
+
 • **Program Proposal Management**: Complete workflow for creating, reviewing, and approving academic programs
+
 • **Course Outcome Management**: Comprehensive ABCD model implementation with CPA classifications
+
 • **Program Outcome Mapping**: Advanced CO-PO mapping system with IED (Introduce, Enable, Demonstrate) levels
+
 • **Assessment Planning**: Teaching, Learning & Assessment (TLA) task management with weighted grading
+
 • **Curriculum Templates**: Predefined program structures with customizable year/semester configurations
+
 • **Real-time Collaboration**: Multi-step wizard forms with state persistence and revision tracking
+
 • **Responsive Design**: Mobile-first approach optimized for all devices
+
 • **Modern UI/UX**: Clean interface with shadcn/ui components and Tailwind CSS
 
 ## 🛠️ Tech Stack
 
 • **Frontend**: Next.js 15 (App Router), React 19, TypeScript
+
 • **Styling**: Tailwind CSS, PostCSS, shadcn/ui components
+
 • **State Management**: Zustand with persistence
+
 • **Data Fetching**: TanStack React Query (React Query v5)
+
 • **Forms**: React Hook Form with Zod validation
+
 • **Authentication**: NextAuth.js
+
 • **Icons**: Lucide React
+
 • **HTTP Client**: Axios
+
 • **Date Handling**: date-fns, moment.js
+
 • **Development**: ESLint, Turbopack
 
 ## 📋 Prerequisites
 
 • [Node.js](https://nodejs.org/) (version 18+)
+
 • VSU OBE Backend API (Clone the laravel api here: https://github.com/Orekidesu/vsu_obe_backend)
 
 ## ⚡ Quick Start
@@ -118,9 +136,13 @@ vsu-obe-frontend/
 ### Key Directories Explained
 
 • `src/app/(authenticated)/` - Role-based protected routes with separate dashboards for each user type
+
 • `src/components/[role]-components/` - Role-specific UI components with specialized workflows
+
 • `src/store/` - Centralized state management with persistence for form data and user sessions
+
 • `src/hooks/` - Custom hooks for API calls, authentication, and shared logic across components
+
 • `src/types/` - Comprehensive TypeScript definitions for OBE models and API contracts
 
 ## 🔧 Available Scripts
@@ -155,45 +177,63 @@ NEXT_PUBLIC_APP_ENV=development
 ### Program Proposal Workflow
 
 • **Department**: Create comprehensive program proposals with curriculum mapping
+
 • **Committee**: Review course outcomes, ABCD models, and PO mappings
+
 • **Dean**: Final approval with detailed program and course analysis
 
 ### OBE Implementation
 
 • **Course Outcomes (COs)**: ABCD model implementation with CPA domain classification
+
 • **Program Outcomes (POs)**: Comprehensive mapping with contribution levels (I-E-D)
+
 • **Assessment Planning**: TLA task management with weighted assessment tools
+
 • **Curriculum Mapping**: Year/semester organization with course categorization
 
 ### User Role Management
 
 • **Admin**: System-wide configuration and user management
+
 • **Dean**: Program approval and institutional oversight
+
 • **Department**: Program proposal creation and curriculum development
+
 • **Faculty**: Course outcome development and assessment planning
+
 • **Committee**: Peer review and quality assurance processes
 
 ## 🔧 IDE Setup
 
 **Recommended**: [VSCode](https://code.visualstudio.com/) with the following extensions:
 • [TypeScript](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-next)
+
 • [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)
+
 • [ES7+ React/Redux/React-Native snippets](https://marketplace.visualstudio.com/items?itemName=dsznajder.es7-react-js-snippets)
 
 ## 📱 Browser Support
 
 • Chrome (latest)
+
 • Firefox (latest)
+
 • Safari (latest)
+
 • Edge (latest)
 
 ## 🏗️ Architecture
 
 This application follows modern React patterns with:
 • **App Router**: File-system based routing with layout nesting
+
 • **Server Components**: Optimized performance with selective client components
+
 • **State Persistence**: Form data persistence across sessions using Zustand
+
 • **Type Safety**: Full TypeScript coverage with strict type checking
+
 • **Component Composition**: Reusable UI components with variant-based styling
 
 ## 🔗 Related Projects
