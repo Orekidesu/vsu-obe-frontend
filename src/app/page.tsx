@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import vsuLogo from "../../public/assets/images/vsu_logo.png";
+// import vsuLogo from "../../public/assets/images/vsu_logo.png";
+import vsuLogo from "../../public/assets/images/vsu_logo_1.png";
 import vsuHomePageLogo from "../../public/assets/images/vsu_home_page_logo2.jpg";
 import CustomLoginForm from "@/components/CustomLoginForm";
 
@@ -24,12 +25,7 @@ export default function LandingPage() {
         <div className="w-full max-w-sm space-y-8">
           <div className="flex flex-col justify-center items-center">
             <div>
-              <Image
-                src={vsuLogo}
-                alt="vsu logo"
-                className="h-28 w-28"
-                priority
-              ></Image>
+              <Image src={vsuLogo} alt="vsu logo" className="" priority></Image>
             </div>
             <div className="pt-10 text-center">
               <h1 className="text-3xl font-semibold tracking-tight">
